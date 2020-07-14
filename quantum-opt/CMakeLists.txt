@@ -4,9 +4,9 @@ set(LIBS
         ${dialect_libs}
         ${conversion_libs}
         MLIROptLib
-        MLIRStandalone
+        MLIRQuantum
         )
-add_llvm_executable(standalone-opt standalone-opt.cpp)
+add_llvm_executable(quantum-opt quantum-opt.cpp)
 
-llvm_update_compile_flags(standalone-opt)
-target_link_libraries(standalone-opt PRIVATE ${LIBS})
+llvm_update_compile_flags(quantum-opt)
+target_link_libraries(quantum-opt PRIVATE ${LIBS})

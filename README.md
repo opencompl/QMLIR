@@ -1,7 +1,7 @@
-# An out-of-tree dialect template for MLIR
+# An attempt at making a Quantum Dialect for MLIR
 
-This repository contains a template for an out-of-tree [MLIR](https://mlir.llvm.org/) dialect as well as a
-standalone `opt`-like tool to operate on that dialect.
+This repository uses a template for an out-of-tree [MLIR](https://mlir.llvm.org/) dialect as well as a standalone `opt`-like tool to operate on that dialect.   
+Template taken from [jmgorius/mlir-standalone-template](https://github.com/jmgorius/mlir-standalone-template)
 
 ## How to build
 
@@ -9,7 +9,7 @@ This setup assumes that you have built LLVM and MLIR in `$BUILD_DIR` and install
 ```sh
 mkdir build && cd build
 cmake -G Ninja .. -DMLIR_DIR=$PREFIX/lib/cmake/mlir -DLLVM_EXTERNAL_LIT=$BUILD_DIR/bin/llvm-lit
-cmake --build . --target check-standalone-opt
+cmake --build . --target check-quantum-opt
 ```
 To build the documentation from the TableGen description of the dialect
 operations, run

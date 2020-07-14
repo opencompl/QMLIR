@@ -1,4 +1,4 @@
-//===- StandaloneDialect.h - Standalone dialect -----------------*- C++ -*-===//
+//===- QuantumDialect.h - Quantum dialect -----------------*- C++ -*-===//
 //
 // This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,17 +6,17 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef STANDALONE_STANDALONEDIALECT_H
-#define STANDALONE_STANDALONEDIALECT_H
+#ifndef QUANTUM_QUANTUMDIALECT_H
+#define QUANTUM_QUANTUMDIALECT_H
 
 #include "mlir/IR/Dialect.h"
 
 namespace mlir {
-namespace standalone {
+namespace quantum {
 
-#include "Standalone/StandaloneOpsDialect.h.inc"
+#include "Quantum/QuantumOpsDialect.h.inc"
 
-} // namespace standalone
+} // namespace quantum
 } // namespace mlir
 
-#endif // STANDALONE_STANDALONEDIALECT_H
+#endif // QUANTUM_QUANTUMDIALECT_H

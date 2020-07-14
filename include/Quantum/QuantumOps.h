@@ -1,4 +1,4 @@
-//===- StandaloneOps.h - Standalone dialect ops -----------------*- C++ -*-===//
+//===- QuantumOps.h - Quantum dialect ops -----------------*- C++ -*-===//
 //
 // This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,20 +6,20 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef STANDALONE_STANDALONEOPS_H
-#define STANDALONE_STANDALONEOPS_H
+#ifndef QUANTUM_QUANTUMOPS_H
+#define QUANTUM_QUANTUMOPS_H
 
 #include "mlir/IR/Dialect.h"
 #include "mlir/IR/OpDefinition.h"
 #include "mlir/Interfaces/SideEffectInterfaces.h"
 
 namespace mlir {
-namespace standalone {
+namespace quantum {
 
 #define GET_OP_CLASSES
-#include "Standalone/StandaloneOps.h.inc"
+#include "Quantum/QuantumOps.h.inc"
 
-} // namespace standalone
+} // namespace quantum
 } // namespace mlir
 
-#endif // STANDALONE_STANDALONEOPS_H
+#endif // QUANTUM_QUANTUMOPS_H

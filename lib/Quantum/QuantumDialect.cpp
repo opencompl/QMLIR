@@ -1,4 +1,4 @@
-//===- StandaloneDialect.cpp - Standalone dialect ---------------*- C++ -*-===//
+//===- QuantumDialect.cpp - Quantum dialect ---------------*- C++ -*-===//
 //
 // This file is licensed under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,20 +6,20 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Standalone/StandaloneDialect.h"
-#include "Standalone/StandaloneOps.h"
+#include "Quantum/QuantumDialect.h"
+#include "Quantum/QuantumOps.h"
 
 using namespace mlir;
-using namespace mlir::standalone;
+using namespace mlir::quantum;
 
 //===----------------------------------------------------------------------===//
-// Standalone dialect.
+// Quantum dialect.
 //===----------------------------------------------------------------------===//
 
-StandaloneDialect::StandaloneDialect(mlir::MLIRContext *context)
+QuantumDialect::QuantumDialect(mlir::MLIRContext *context)
     : Dialect(getDialectNamespace(), context) {
   addOperations<
 #define GET_OP_LIST
-#include "Standalone/StandaloneOps.cpp.inc"
+#include "Quantum/QuantumOps.cpp.inc"
   >();
 }
