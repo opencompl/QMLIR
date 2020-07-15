@@ -16,7 +16,10 @@ namespace quantum {
 
 #include "Quantum/QuantumOpsDialect.h.inc"
 
+
 } // namespace quantum
 } // namespace mlir
+
+#include "QuantumTypes.h"
 
 #endif // QUANTUM_QUANTUMDIALECT_H
