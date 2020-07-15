@@ -20,6 +20,7 @@ namespace QuantumTypes {
 enum Kinds {
   // use an experimental kind
   Qubit = Type::Kind::FIRST_PRIVATE_EXPERIMENTAL_0_TYPE,
+  Gate = Type::Kind::FIRST_PRIVATE_EXPERIMENTAL_1_TYPE
 };
 
 } // namespace QuantumTypes
@@ -39,7 +40,19 @@ public:
   static QubitType get(MLIRContext *ctx, unsigned size);
 
   unsigned getSize() const;
+};
 
+// Gate type: gate<n>, n is an unsigned integer
+class GateType : public Type::TypeBase<GateType, Type,
+                                          detail::QubitTypeStorage> {
+public:
+  using Base::Base;
+
+  static bool kindof(unsigned kind) { return kind == QuantumTypes::Gate; }
+
+  static GateType get(MLIRContext *ctx, unsigned size);
+
+  unsigned getSize() const;
 };
 
 } // namespace quantum

@@ -42,3 +42,15 @@ QubitType QubitType::get(MLIRContext *ctx, unsigned size) {
 unsigned QubitType::getSize() const {
   return getImpl()->size;
 }
+
+//===----------------------------------------------------------------------===//
+// Gate Type
+//===----------------------------------------------------------------------===//
+
+GateType GateType::get(MLIRContext *ctx, unsigned size) {
+  return Base::get(ctx, QuantumTypes::Gate, size);
+}
+
+unsigned GateType::getSize() const {
+  return getImpl()->size;
+}
