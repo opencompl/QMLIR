@@ -16,9 +16,9 @@ using namespace mlir::quantum;
 //===----------------------------------------------------------------------===//
 
 struct quantum::detail::QubitTypeStorage : public TypeStorage {
-  using KeyTy = unsigned;
+  using KeyTy = uint64_t;
 
-  QubitTypeStorage(unsigned size)
+  QubitTypeStorage(uint64_t size)
       : size(size) {}
 
   bool operator==(const KeyTy &key) const {
@@ -32,14 +32,14 @@ struct quantum::detail::QubitTypeStorage : public TypeStorage {
   }
 
   // number of qubits in the array
-  unsigned size;
+  uint64_t size;
 };
 
-QubitType QubitType::get(MLIRContext *ctx, unsigned size) {
+QubitType QubitType::get(MLIRContext *ctx, uint64_t size) {
   return Base::get(ctx, QuantumTypes::Qubit, size);
 }
 
-unsigned QubitType::getSize() const {
+uint64_t QubitType::getSize() const {
   return getImpl()->size;
 }
 
@@ -47,10 +47,10 @@ unsigned QubitType::getSize() const {
 // Gate Type
 //===----------------------------------------------------------------------===//
 
-GateType GateType::get(MLIRContext *ctx, unsigned size) {
+GateType GateType::get(MLIRContext *ctx, uint64_t size) {
   return Base::get(ctx, QuantumTypes::Gate, size);
 }
 
-unsigned GateType::getSize() const {
+uint64_t GateType::getSize() const {
   return getImpl()->size;
 }

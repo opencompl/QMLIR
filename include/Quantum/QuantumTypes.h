@@ -37,9 +37,9 @@ public:
 
   static bool kindof(unsigned kind) { return kind == QuantumTypes::Qubit; }
 
-  static QubitType get(MLIRContext *ctx, unsigned size);
+  static QubitType get(MLIRContext *ctx, uint64_t size);
 
-  unsigned getSize() const;
+  uint64_t getSize() const;
 };
 
 // Gate type: gate<n>, n is an unsigned integer
@@ -48,11 +48,11 @@ class GateType : public Type::TypeBase<GateType, Type,
 public:
   using Base::Base;
 
-  static bool kindof(unsigned kind) { return kind == QuantumTypes::Gate; }
+  static bool kindof(uint64_t kind) { return kind == QuantumTypes::Gate; }
 
-  static GateType get(MLIRContext *ctx, unsigned size);
+  static GateType get(MLIRContext *ctx, uint64_t size);
 
-  unsigned getSize() const;
+  uint64_t getSize() const;
 };
 
 } // namespace quantum
