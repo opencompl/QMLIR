@@ -42,7 +42,7 @@ mlir::Type QuantumDialect::parseType(mlir::DialectAsmParser &parser) const {
 
   llvm::SMLoc loc = parser.getCurrentLocation();
 
-  if (failed(parser.parseKeyword(keyword))) {
+  if (failed(parser.parseKeyword(&keyword))) {
     return Type();
   }
 
