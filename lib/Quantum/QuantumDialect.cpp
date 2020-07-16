@@ -34,7 +34,7 @@ QuantumDialect::QuantumDialect(mlir::MLIRContext *context)
 #define GET_OP_LIST
 #include "Quantum/QuantumOps.cpp.inc"
   >();
-  addTypes<QubitType>();
+  addTypes<QubitType, GateType>();
 }
 
 mlir::Type QuantumDialect::parseType(mlir::DialectAsmParser &parser) const {
@@ -47,12 +47,21 @@ mlir::Type QuantumDialect::parseType(mlir::DialectAsmParser &parser) const {
   }
 
   if (keyword == "qubit") {
-    unsigned size;
+    uint64_t size;
     if (failed(parser.parseLess())
       || failed(parser.parseInteger(size))
       || failed(parser.parseGreater()))
       return Type();
     return QubitType::get(parser.getBuilder().getContext(), size);
+  }
+
+  if (keyword == "gate") {
+    uint64_t size;
+    if (failed(parser.parseLess())
+      || failed(parser.parseInteger(size))
+      || failed(parser.parseGreater()))
+      return Type();
+    return GateType::get(parser.getBuilder().getContext(), size);
   }
 
   parser.emitError(loc, "Quantum dialect: Invalid type");
@@ -63,5 +72,9 @@ void QuantumDialect::printType(mlir::Type type,
                            mlir::DialectAsmPrinter &printer) const {
   if (type.isa<QubitType>()) {
     printer << "qubit<" << type.cast<QubitType>().getSize() << ">";
+  }
+  
+  if (type.isa<GateType>()) {
+    printer << "gate<" << type.cast<GateType>().getSize() << ">";
   }
 }
