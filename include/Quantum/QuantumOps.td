@@ -28,8 +28,8 @@ def Quantum_GateType :
 def Quantum_AllocateOp : Quantum_Op<"allocate", []> {
     let summary = "Allocate an array of qubits.";
     let description = [{
-        This operation takes an unsigned integer argument `N`
-        aNd returns a qubit array `qubit<N>`
+        This operation takes no arguments,
+        and returns a qubit array `qubit<N>`.
 
         Example:
 
@@ -50,6 +50,39 @@ def Quantum_AllocateOp : Quantum_Op<"allocate", []> {
 // Concat Op
 //===----------------------------------------------------------------------===//
 
+def Quantum_ConcatOp : Quantum_Op<"concat", []> {
+    let summary = "Concatenate two arrays of qubits.";
+    let description = [{
+        This operation takes two qubit arrays of types `qubit<N>` and 
+        `qubit<M>`, and returns the concatenated array of type `qubit<N+M>`
+
+        Example:
+
+        ```mlir
+        %q1 = quantum.allocate : !quantum.qubit<4>
+        %q2 = quantum.allocate : !quantum.qubit<5>
+        %q3 = quantum.concat %q1, %q2 : !quantum.qubit<9>
+        ```
+    }];
+
+    let arguments = (ins 
+        Quantum_QubitType:$qreg0, 
+        Quantum_QubitType:$qreg1);
+
+    let results = (outs Quantum_QubitType:$qreg);
+
+    let assemblyFormat = [{
+        `(` $qreg0 `:` type($qreg0) `)` `,` `(` $qreg1 `:` type($qreg1) `)` attr-dict `:` type($qreg)
+    }];
+
+    let verifier = [{
+        if (qreg0().getType().cast<QubitType>().getSize()
+            + qreg1().getType().cast<QubitType>().getSize() 
+            != qreg().getType().cast<QubitType>().getSize())
+            return emitOpError("sizes don't match!");
+        return success();
+    }];
+}
 
 //===----------------------------------------------------------------------===//
 // Split Op
@@ -64,6 +97,29 @@ def Quantum_AllocateOp : Quantum_Op<"allocate", []> {
 //===----------------------------------------------------------------------===//
 // Measure Op
 //===----------------------------------------------------------------------===//
+
+def Quantum_MeasureOp : Quantum_Op<"measure", []> {
+    let summary = "Measure an array of qubits.";
+    let description = [{
+        This operation takes an array of qubits of type `qubit<N>`
+        and returns the measurement outcome in the standard basis
+        as a little-endian unsigned integer.
+
+        Example:
+
+        ```mlir
+        %qs = quantum.allocate : !quantum.qubit<10>
+        %res = quantum.measure (%qs : qubit<10>) : u64
+        ```
+    }];
+
+    let arguments = (ins Quantum_QubitType:$qreg);
+    let results = (outs I64:$res);
+
+    let assemblyFormat = [{
+        `(` $qreg `:` type($qreg) `)` attr-dict `:` type($res)
+    }];
+}
 
 
 #endif // QUANTUM_OPS
