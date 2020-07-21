@@ -11,6 +11,7 @@
 
 #include "mlir/IR/Dialect.h"
 #include "mlir/IR/OpDefinition.h"
+#include "mlir/IR/OpImplementation.h"
 
 #include "Quantum/QuantumTypes.h"
 

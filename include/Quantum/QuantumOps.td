@@ -10,8 +10,6 @@
 #define QUANTUM_OPS
 
 include "QuantumDialect.td"
-include "mlir/IR/OpBase.td"
-// include "mlir/IR/OpAsmInterface.td"
 
 //===----------------------------------------------------------------------===//
 // Type declarations
@@ -89,38 +87,38 @@ def Quantum_ConcatOp : Quantum_Op<"concat", []> {
 // Split Op
 //===----------------------------------------------------------------------===//
 
-// def Quantum_SplitOp : Quantum_Op<"split", []> {
-//     let summary = "Split an array of qubits into two";
-//     let description = [{
-//         This operation takes a qubit array of type `qubit<N>` and
-//         returns two arrays `qubit<M>` and `qubit<R>` where `N = M + R` 
+def Quantum_SplitOp : Quantum_Op<"split", []> {
+    let summary = "Split an array of qubits into two";
+    let description = [{
+        This operation takes a qubit array of type `qubit<N>` and
+        returns two arrays `qubit<M>` and `qubit<R>` where `N = M + R` 
 
-//         Example:
+        Example:
 
-//         ```mlir
-//         %q1 = quantum.allocate : !quantum.qubit<10>
-//         %q2 = quantum.split (%q1 : !quantum.qubit<10>) : (!quantum.qubit<6>, !quantum.qubit<4>)
-//         ```
-//     }];
+        ```mlir
+        %q1 = quantum.allocate : !quantum.qubit<10>
+        %q2 = quantum.split (%q1 : !quantum.qubit<10>) : (!quantum.qubit<6>, !quantum.qubit<4>)
+        ```
+    }];
 
-//     let arguments = (ins Quantum_QubitType:$qreg);
+    let arguments = (ins Quantum_QubitType:$qreg);
 
-//     let results = (outs 
-//         Quantum_QubitType:$qreg0, 
-//         Quantum_QubitType:$qreg1);
+    let results = (outs 
+        Quantum_QubitType:$qreg0, 
+        Quantum_QubitType:$qreg1);
 
-//     let assemblyFormat = [{
-//         `(` $qreg `:` type($qreg) `)` attr-dict `:` `(` type($qreg0) `,` type($qreg1) `)`
-//     }];
+    let assemblyFormat = [{
+        `(` $qreg `:` type($qreg) `)` attr-dict `:` `(` type($qreg0) `,` type($qreg1) `)`
+    }];
 
-//     let verifier = [{
-//         if (qreg0().getType().cast<QubitType>().getSize()
-//             + qreg1().getType().cast<QubitType>().getSize() 
-//             != qreg().getType().cast<QubitType>().getSize())
-//             return emitOpError("sizes don't match!");
-//         return success();
-//     }];
-// }
+    let verifier = [{
+        if (qreg0().getType().cast<QubitType>().getSize()
+            + qreg1().getType().cast<QubitType>().getSize() 
+            != qreg().getType().cast<QubitType>().getSize())
+            return emitOpError("sizes don't match!");
+        return success();
+    }];
+}
 
 //===----------------------------------------------------------------------===//
 // Transform Op
@@ -220,5 +218,21 @@ def Quantum_MeasureOp : Quantum_Op<"measure", []> {
     }];
 }
 
+//===----------------------------------------------------------------------===//
+// Foo Op (for testing)
+//===----------------------------------------------------------------------===//
+
+def Quantum_FooOp : Quantum_Op<"foo", [SameOperandsAndResultType]> {
+    // let summary = "Testing Operation";
+    // let description = [{
+    //     I'm trying to understand MLIR and Tablegen...
+    // }];
+
+    let arguments = (ins I32:$inp);
+
+    let results = (outs
+        I32:$res1,
+        I32:$res2);
+}
 
 #endif // QUANTUM_OPS
