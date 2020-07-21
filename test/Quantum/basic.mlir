@@ -2,7 +2,7 @@
 
 module {
   func @main() {
-    %X = quantum.make_gate : !quantum.gate<1>
+    %X = quantum.gate_prim : !quantum.gate<1>
 
     %q1 = quantum.allocate : !quantum.qubit<2>
     %q2 = quantum.allocate : !quantum.qubit<3>

@@ -165,11 +165,11 @@ def Quantum_TransformOp : Quantum_Op<"transform", []> {
 
 
 //===----------------------------------------------------------------------===//
-// Make Gate Op
+// Gate Primitive Op
 //===----------------------------------------------------------------------===//
 
-def Quantum_MakeGateOp : Quantum_Op<"make_gate", []> {
-    let summary = "Declares a quantum gate.";
+def Quantum_GatePrimOp : Quantum_Op<"gate_prim", []> {
+    let summary = "Declares a primitive quantum gate.";
     let description = [{
         This operation takes no operands, and returns a gate of type `gate<N>`.
 
@@ -178,9 +178,9 @@ def Quantum_MakeGateOp : Quantum_Op<"make_gate", []> {
         Example:
 
         ```mlir
-        %U = quantum.make_gate : !quantum.gate<4>
-        %X = quantum.make_gate : !quantum.gate<1>
-        %CNOT = quantum.make_gate : !quantum.gate<2>
+        %U = quantum.gate_prim : !quantum.gate<4>
+        %X = quantum.gate_prim : !quantum.gate<1>
+        %CNOT = quantum.gate_prim : !quantum.gate<2>
         ```
     }];
 
