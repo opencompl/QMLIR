@@ -10,8 +10,10 @@
 #define QUANTUM_QUANTUMOPS_H
 
 #include "mlir/IR/Dialect.h"
-#include "mlir/IR/OpDefinition.h"
+#include "mlir/IR/Attributes.h"
 #include "mlir/IR/OpImplementation.h"
+#include "mlir/IR/Builders.h"
+#include "mlir/IR/StandardTypes.h"
 
 #include "Quantum/QuantumTypes.h"
 

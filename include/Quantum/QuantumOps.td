@@ -10,6 +10,14 @@
 #define QUANTUM_OPS
 
 include "QuantumDialect.td"
+include "mlir/IR/OpBase.td"
+
+// include "mlir/IR/OpAsmInterface.td"
+// include "mlir/Interfaces/CallInterfaces.td"
+// include "mlir/Interfaces/ControlFlowInterfaces.td"
+// include "mlir/Interfaces/SideEffectInterfaces.td"
+// include "mlir/Interfaces/VectorInterfaces.td"
+// include "mlir/Interfaces/ViewLikeInterface.td"
 
 //===----------------------------------------------------------------------===//
 // Type declarations
@@ -38,10 +46,10 @@ def Quantum_AllocateOp : Quantum_Op<"allocate", []> {
         ```
     }];
 
-    let results = (outs Quantum_QubitType:$qreg);
+    let results = (outs Quantum_QubitType:$qout);
 
     let assemblyFormat = [{
-        attr-dict `:` type($qreg)
+        attr-dict `:` type($qout)
     }];
 }
 
@@ -60,24 +68,24 @@ def Quantum_ConcatOp : Quantum_Op<"concat", []> {
         ```mlir
         %q1 = quantum.allocate : !quantum.qubit<4>
         %q2 = quantum.allocate : !quantum.qubit<5>
-        %q3 = quantum.concat %q1, %q2 : !quantum.qubit<9>
+        %q3 = quantum.concat %q1, %q2 : (!quantum.qubit<4>, !quantum.qubit<5>) -> !quantum.qubit<9>
         ```
     }];
 
-    let arguments = (ins 
-        Quantum_QubitType:$qreg0, 
-        Quantum_QubitType:$qreg1);
+    let arguments = (ins
+        Quantum_QubitType:$qinp0, 
+        Quantum_QubitType:$qinp1);
 
-    let results = (outs Quantum_QubitType:$qreg);
+    let results = (outs Quantum_QubitType:$qout);
 
     let assemblyFormat = [{
-        `(` $qreg0 `:` type($qreg0) `)` `,` `(` $qreg1 `:` type($qreg1) `)` attr-dict `:` type($qreg)
+        $qinp0 `,` $qinp1 attr-dict `:` `(` type($qinp0) `,` type($qinp1) `)` `->` type($qout)
     }];
 
     let verifier = [{
-        if (qreg0().getType().cast<QubitType>().getSize()
-            + qreg1().getType().cast<QubitType>().getSize() 
-            != qreg().getType().cast<QubitType>().getSize())
+        if (qinp0().getType().cast<QubitType>().getSize()
+            + qinp1().getType().cast<QubitType>().getSize() 
+            != qout().getType().cast<QubitType>().getSize())
             return emitOpError("sizes don't match!");
         return success();
     }];
@@ -97,24 +105,24 @@ def Quantum_SplitOp : Quantum_Op<"split", []> {
 
         ```mlir
         %q1 = quantum.allocate : !quantum.qubit<10>
-        %q2 = quantum.split (%q1 : !quantum.qubit<10>) : (!quantum.qubit<6>, !quantum.qubit<4>)
+        %q2 = quantum.split %q1 : !quantum.qubit<10> -> (!quantum.qubit<6>, !quantum.qubit<4>)
         ```
     }];
 
-    let arguments = (ins Quantum_QubitType:$qreg);
+    let arguments = (ins Quantum_QubitType:$qinp);
 
     let results = (outs 
-        Quantum_QubitType:$qreg0, 
-        Quantum_QubitType:$qreg1);
+        Quantum_QubitType:$qout0, 
+        Quantum_QubitType:$qout1);
 
     let assemblyFormat = [{
-        `(` $qreg `:` type($qreg) `)` attr-dict `:` `(` type($qreg0) `,` type($qreg1) `)`
+        $qinp attr-dict `:` type($qinp) `->` `(` type($qout0) `,` type($qout1) `)` 
     }];
 
     let verifier = [{
-        if (qreg0().getType().cast<QubitType>().getSize()
-            + qreg1().getType().cast<QubitType>().getSize() 
-            != qreg().getType().cast<QubitType>().getSize())
+        if (qout0().getType().cast<QubitType>().getSize()
+            + qout1().getType().cast<QubitType>().getSize() 
+            != qinp().getType().cast<QubitType>().getSize())
             return emitOpError("sizes don't match!");
         return success();
     }];
@@ -124,70 +132,33 @@ def Quantum_SplitOp : Quantum_Op<"split", []> {
 // Transform Op
 //===----------------------------------------------------------------------===//
 
-def Quantum_TransformOp : Quantum_Op<"transform", []> {
+def Quantum_TransformOp : Quantum_Op<"transform", [SameOperandsAndResultType]> {
     let summary = "Apply a gate to a qubit array";
     let description = [{
         This operation takes a qubit array of type `qubit<N>` and 
-        a gate of type `gate<N>`, and applies the gate to the qubit.
+        a gate attribute, and applies the gate to the qubit.
         It returns the same qubit array.
 
+        TODO: specification for gate attribute
+
         Example:
 
         ```mlir
+        #gate = { name = "X", matrix = dense<[[0, 1], [1, 0]]> : tensor<2x2xf32> }
         %q1 = quantum.allocate : !quantum.qubit<4>
-        %U = quantum.make_gate : !quantum.gate<4> 
-        %q2 = quantum.transform (%q1 : !quantum.qubit<4>), (%q2 : !quantum.gate<4>) : !quantum.qubit<4>
+        %q2 = quantum.transform #gate(%q1) : !quantum.qubit<4>
         ```
     }];
 
-    let arguments = (ins 
-        Quantum_QubitType:$qinp, 
-        Quantum_GateType:$gate);
+    let arguments = (ins
+        DictionaryAttr:$gate,
+        Quantum_QubitType:$qinp);
 
-    let results = (outs Quantum_QubitType:$qout);
-
-    let assemblyFormat = [{
-        `(` $qinp `:` type($qinp) `)` `,` `(` $gate `:` type($gate) `)` attr-dict `:` type($qout)
-    }];
-
-    let verifier = [{
-        if (qinp().getType().cast<QubitType>().getSize()
-            != gate().getType().cast<GateType>().getSize())
-            return emitOpError("gate and qubit array sizes don't match!");
-        
-        if (qinp().getType().cast<QubitType>().getSize()
-            != qout().getType().cast<QubitType>().getSize())
-            return emitOpError("input and output sizes don't match!");
-
-        return success();
-    }];
-}
-
-
-//===----------------------------------------------------------------------===//
-// Gate Primitive Op
-//===----------------------------------------------------------------------===//
-
-def Quantum_GatePrimOp : Quantum_Op<"gate_prim", []> {
-    let summary = "Declares a primitive quantum gate.";
-    let description = [{
-        This operation takes no operands, and returns a gate of type `gate<N>`.
-
-        Used to declare lower level primitive gates.
-
-        Example:
-
-        ```mlir
-        %U = quantum.gate_prim : !quantum.gate<4>
-        %X = quantum.gate_prim : !quantum.gate<1>
-        %CNOT = quantum.gate_prim : !quantum.gate<2>
-        ```
-    }];
-
-    let results = (outs Quantum_GateType:$gate);
+    let results = (outs 
+        Quantum_QubitType:$qout);
 
     let assemblyFormat = [{
-        attr-dict `:` type($gate)
+        $gate `(` $qinp `)` attr-dict `:` type($qinp)
     }];
 }
 
@@ -195,26 +166,38 @@ def Quantum_GatePrimOp : Quantum_Op<"gate_prim", []> {
 // Measure Op
 //===----------------------------------------------------------------------===//
 
+def Quantum_MeasurementType : 1DTensorOf<[I1]>;
+// VectorOfRankAndType<[1], [I1]>;
+
 def Quantum_MeasureOp : Quantum_Op<"measure", []> {
     let summary = "Measure an array of qubits.";
     let description = [{
         This operation takes an array of qubits of type `qubit<N>`
         and returns the measurement outcome in the standard basis
-        as a little-endian unsigned integer.
+        as a 1-D tensor of bits (`i1`)
+
+        Note: The qubits are consumed and can no longer be used.
 
         Example:
 
         ```mlir
         %qs = quantum.allocate : !quantum.qubit<10>
-        %res = quantum.measure (%qs : qubit<10>) : u64
+        %res = quantum.measure %qs : !quantum.qubit<10> -> : tensor<10xi1>
         ```
     }];
 
-    let arguments = (ins Quantum_QubitType:$qreg);
-    let results = (outs I64:$res);
+    let arguments = (ins Quantum_QubitType:$qinp);
+    let results = (outs Quantum_MeasurementType:$res);
 
     let assemblyFormat = [{
-        `(` $qreg `:` type($qreg) `)` attr-dict `:` type($res)
+        $qinp attr-dict `:` type($qinp) `->` type($res)
+    }];
+
+    let verifier = [{
+        if (qinp().getType().cast<QubitType>().getSize() 
+            != res().getType().cast<RankedTensorType>().getShape()[0])
+            return emitOpError("Qubit and result sizes don't match.");
+        return success();
     }];
 }
 
@@ -228,11 +211,12 @@ def Quantum_FooOp : Quantum_Op<"foo", [SameOperandsAndResultType]> {
     //     I'm trying to understand MLIR and Tablegen...
     // }];
 
-    let arguments = (ins I32:$inp);
+    let arguments = (ins Quantum_QubitType:$qinp, DictionaryAttr:$val);
+    let results = (outs Quantum_QubitType:$qout);
 
-    let results = (outs
-        I32:$res1,
-        I32:$res2);
+    let assemblyFormat = [{
+        $val `(` $qinp `)` attr-dict `:` type($qinp)
+    }];
 }
 
 #endif // QUANTUM_OPS
