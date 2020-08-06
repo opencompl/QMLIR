@@ -7,89 +7,118 @@
 
 // RUN: quantum-opt %s | quantum-opt 
 
-module {
+#gateH = {
+  name = "H",
+  size = 1,
+  matrix = dense<
+    [[0.7071067811865476,  0.7071067811865476],
+     [0.7071067811865476, -0.7071067811865476]]> : tensor<2x2xf64>
+}
 
-  func @teleport(%psiA: !quantum.qubit<1>, %eb: !quantum.qubit<2>) 
-                -> (!quantum.qubit<1>, !quantum.qubit<1>, !quantum.qubit<1>) {
-    %H = quantum.gate_prim {name = "H"}: !quantum.gate<1>
-    %X = quantum.gate_prim {name = "X"}: !quantum.gate<1>
-    %Z = quantum.gate_prim {name = "Z"}: !quantum.gate<1>
-    %CNOT = quantum.gate_prim {name = "CNOT"}: !quantum.gate<2>
-    
-    %ebA, %ebB = quantum.split (%eb: !quantum.qubit<2>) : (!quantum.qubit<1>, !quantum.qubit<1>)
-    
-    // Alice's qubits
-    %qsA = quantum.concat (%psiA: !quantum.qubit<1>), (%ebA: !quantum.qubit<1>) : !quantum.qubit<2>
+#gateX = {
+  name = "X",
+  size = 1,
+  matrix = dense<
+    [[0.0, 1.0],
+     [1.0, 0.0]]> : tensor<2x2xf64>
+}
 
-    // Measure in Bell basis
-    %qsA_1 = quantum.transform (%qsA : !quantum.qubit<2>), (%CNOT : !quantum.gate<2>) : !quantum.qubit<2>
-    %qA1_1, %qA2_1 = quantum.split (%qsA_1 : !quantum.qubit<2>) : (!quantum.qubit<1>, !quantum.qubit<1>)
-    %qA1_2 = quantum.transform (%qA1_1 : !quantum.qubit<1>), (%H : !quantum.gate<1>) : !quantum.qubit<1>
-    %res1 = quantum.measure (%qA1_2 : !quantum.qubit<1>) : i64
-    %res2 = quantum.measure (%qA2_1 : !quantum.qubit<1>) : i64
+#gateZ = {
+  name = "Z",
+  size = 1,
+  matrix = dense<
+    [[1.0,  0.0],
+     [0.0, -1.0]]> : tensor<2x2xf64>
+}
 
-    // Apply corrections
-    %one = constant 1 : i64
+#gateCNOT = {
+  name = "CNOT",
+  size = 2,
+  matrix = sparse<
+    [[0, 0], [1, 1], [2, 3], [3, 2]],
+    [ 1.0,    1.0,    1.0,    1.0  ]> : tensor<4x4xf64>
+}
 
-    // Apply X correction, if res1 == 1
-    %use_X = cmpi "eq", %res1, %one : i64
-    cond_br %use_X, ^ifX, ^elseX
+func @std_to_bell(%qs: !quantum.qubit<2>) -> !quantum.qubit<2> {
+  // H(qs[0])
+  %q0, %q1 = quantum.split %qs : !quantum.qubit<2> -> (!quantum.qubit<1>, !quantum.qubit<1>)
+  %q2 = quantum.transform #gateH(%q0) : !quantum.qubit<1>
 
-  ^ifX:
-    %psiB_temp1 = quantum.transform (%ebB: !quantum.qubit<1>), (%X : !quantum.gate<1>) : !quantum.qubit<1>
-    br ^doneX(%psiB_temp1: !quantum.qubit<1>)
+  // CNOT(qs[0], qs[1])
+  %q3 = quantum.concat %q2, %q1 : (!quantum.qubit<1>, !quantum.qubit<1>) -> !quantum.qubit<2>
+  %q4 = quantum.transform #gateCNOT(%q3) : !quantum.qubit<2>
 
-  ^elseX:
-    br ^doneX(%ebB: !quantum.qubit<1>)
-    
-  ^doneX(%psiB_1 : !quantum.qubit<1>):
+  return %q4 : !quantum.qubit<2>
+}
 
-    // Apply Z correction, if res2 == 1
-    %use_Z = cmpi "eq", %res2, %one : i64
-    cond_br %use_Z, ^ifZ, ^elseZ
+func @bell_to_std(%qs : !quantum.qubit<2>) -> !quantum.qubit<2> {
+  // CNOT(qs[0], qs[1])
+  %q0 = quantum.transform #gateCNOT(%qs) : !quantum.qubit<2>
 
-  ^ifZ:
-    %psiB_temp2 = quantum.transform (%psiB_1: !quantum.qubit<1>), (%Z : !quantum.gate<1>) : !quantum.qubit<1>
-    br ^doneZ(%psiB_temp2: !quantum.qubit<1>)
+  // H(qs[0])
+  %q1, %q2 = quantum.split %q0 : !quantum.qubit<2> -> (!quantum.qubit<1>, !quantum.qubit<1>)
+  %q3 = quantum.transform #gateH(%q1) : !quantum.qubit<1>
 
-  ^elseZ:
-    br ^doneZ(%psiB_1: !quantum.qubit<1>)
-    
-  ^doneZ(%psiB_2 : !quantum.qubit<1>):
+  %q4 = quantum.concat %q3, %q2 : (!quantum.qubit<1>, !quantum.qubit<1>) -> !quantum.qubit<2>
+  return %q4 : !quantum.qubit<2>
+}
 
-    return %qA1_1, %qA1_2, %psiB_2 : !quantum.qubit<1>, !quantum.qubit<1>, !quantum.qubit<1>
+func @teleport(%psiA: !quantum.qubit<1>, %eb: !quantum.qubit<2>) -> (!quantum.qubit<1>) {
+  %ebA, %psiB0 = quantum.split %eb : !quantum.qubit<2> -> (!quantum.qubit<1>, !quantum.qubit<1>)
+
+  // Alice's qubits
+  %qsA0 = quantum.concat %psiA, %ebA : (!quantum.qubit<1>, !quantum.qubit<1>) -> !quantum.qubit<2>
+
+  // Measure in Bell basis
+  %qsA1 = call @bell_to_std(%qsA0) : (!quantum.qubit<2>) -> !quantum.qubit<2>
+  %resA = quantum.measure %qsA1 : !quantum.qubit<2> -> tensor<2xi1>
+
+  // Apply corrections
+
+  // 1. Apply X correction, if resA[0] == 1
+  %idx0 = constant 0 : index
+  %corrX = extract_element %resA[%idx0] : tensor<2xi1>
+
+  %psiB1 = scf.if %corrX -> !quantum.qubit<1> {
+    %temp = quantum.transform #gateX(%psiB0) : !quantum.qubit<1>
+    scf.yield %temp : !quantum.qubit<1>
+  } else {
+    scf.yield %psiB0 : !quantum.qubit<1>
   }
 
-  func @prepare_bell(%qa: !quantum.qubit<1>, %qb: !quantum.qubit<1>) -> !quantum.qubit<2> {
-    %H = quantum.gate_prim {name = "H"}: !quantum.gate<1>
-    %CNOT = quantum.gate_prim {name = "CNOT"}: !quantum.gate<2>
-    
-    // H(qa)
-    %qa_1 = quantum.transform (%qa: !quantum.qubit<1>), (%H: !quantum.gate<1>) : !quantum.qubit<1>
-    %eb = quantum.concat (%qa_1 : !quantum.qubit<1>), (%qb : !quantum.qubit<1>) : !quantum.qubit<2>
+  // 2. Apply Z correction, if resA[1] == 1
+  %idx1 = constant 1 : index
+  %corrZ = extract_element %resA[%idx1] : tensor<2xi1>
 
-    // CNOT(qa, qb)
-    %eb_1 = quantum.transform (%eb : !quantum.qubit<2>), (%CNOT : !quantum.gate<2>) : !quantum.qubit<2>
-
-    return %eb_1 : !quantum.qubit<2>
+  %psiB2 = scf.if %corrZ -> !quantum.qubit<1> {
+    %temp = quantum.transform #gateZ(%psiB1) : !quantum.qubit<1>
+    scf.yield %temp : !quantum.qubit<1>
+  } else {
+    scf.yield %psiB1 : !quantum.qubit<1>
   }
 
-  func @main() {
-    // Alice's qubits
-    %psiA = quantum.allocate : !quantum.qubit<1>
-    %ebA = quantum.allocate : !quantum.qubit<1>
+  return %psiB2 : !quantum.qubit<1>
+}
 
-    // Bob's qubits
-    %ebB = quantum.allocate : !quantum.qubit<1>
-    
-    // Entangle the qubits
-    %eb = call @prepare_bell(%ebA, %ebB) : (!quantum.qubit<1>, !quantum.qubit<1>) -> !quantum.qubit<2>
-    
-    // Teleport |psi> from Alice to Bob
-    %ebA_1, %ebA_2, %psiB = call @teleport(%psiA, %eb)
-                              : (!quantum.qubit<1>, !quantum.qubit<2>) 
-                                  -> (!quantum.qubit<1>, !quantum.qubit<1>, !quantum.qubit<1>)
+func @prepare_bell(%qa : !quantum.qubit<1>, %qb : !quantum.qubit<1>) -> !quantum.qubit<2> {
+  %q0 = quantum.concat %qa, %qb : (!quantum.qubit<1>, !quantum.qubit<1>) -> !quantum.qubit<2>
+  %q1 = call @std_to_bell(%q0) : (!quantum.qubit<2>) -> !quantum.qubit<2>
+  return %q1 : !quantum.qubit<2>
+}
 
-    return
-  }
+func @main() {
+  // Alice's qubits
+  %psiA = quantum.allocate : !quantum.qubit<1>
+  %ebA = quantum.allocate : !quantum.qubit<1>
+
+  // Bob's qubits
+  %ebB = quantum.allocate : !quantum.qubit<1>
+
+  // Entangle the qubits
+  %eb = call @prepare_bell(%ebA, %ebB) : (!quantum.qubit<1>, !quantum.qubit<1>) -> !quantum.qubit<2>
+
+  // Teleport |psi> from Alice to Bob
+  %psiB = call @teleport(%psiA, %eb) : (!quantum.qubit<1>, !quantum.qubit<2>) -> !quantum.qubit<1>
+
+  return
 }
