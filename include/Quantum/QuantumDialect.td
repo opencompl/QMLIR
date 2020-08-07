@@ -27,6 +27,8 @@ def Quantum_Dialect : Dialect {
     let extraClassDeclaration = [{
       Type parseType(DialectAsmParser &parser) const override;
       void printType(Type type, DialectAsmPrinter &os) const override;
+
+      static StringRef getQubitTypeName() { return "qubit"; }
     }];
     
     let cppNamespace = "quantum";

@@ -34,47 +34,47 @@ QuantumDialect::QuantumDialect(mlir::MLIRContext *context)
 #define GET_OP_LIST
 #include "Quantum/QuantumOps.cpp.inc"
   >();
-  addTypes<QubitType, GateType>();
+  addTypes<QubitType>();
 }
 
-mlir::Type QuantumDialect::parseType(mlir::DialectAsmParser &parser) const {
+Type QuantumDialect::parseType(mlir::DialectAsmParser &parser) const {
   llvm::StringRef keyword;
 
-  llvm::SMLoc loc = parser.getCurrentLocation();
-
   if (failed(parser.parseKeyword(&keyword))) {
+    parser.emitError(parser.getNameLoc(), "expected type identifier");
     return Type();
   }
 
-  if (keyword == "qubit") {
-    uint64_t size;
-    if (failed(parser.parseLess())
-      || failed(parser.parseInteger(size))
-      || failed(parser.parseGreater()))
+  // Qubit type
+  if (keyword == getQubitTypeName()) {
+    if (failed(parser.parseLess())) {
+      parser.emitError(parser.getNameLoc(), "expected `<`");
       return Type();
+    }
+
+    uint64_t size = -1;
+    if (!parser.parseOptionalInteger<uint64_t>(size).hasValue() && failed(parser.parseOptionalQuestion())) {
+      parser.emitError(parser.getNameLoc(), "expected an integer size or `?`");
+      return Type();
+    }
+
+    if (failed(parser.parseGreater())) {
+      parser.emitError(parser.getNameLoc(), "expected `>`");
+      return Type();
+    }
+
     return QubitType::get(parser.getBuilder().getContext(), size);
   }
 
-  if (keyword == "gate") {
-    uint64_t size;
-    if (failed(parser.parseLess())
-      || failed(parser.parseInteger(size))
-      || failed(parser.parseGreater()))
-      return Type();
-    return GateType::get(parser.getBuilder().getContext(), size);
-  }
-
-  parser.emitError(loc, "Quantum dialect: Invalid type");
+  parser.emitError(parser.getNameLoc(), "Quantum dialect: unknown type");
   return Type();
 }
 
 void QuantumDialect::printType(mlir::Type type,
                            mlir::DialectAsmPrinter &printer) const {
   if (type.isa<QubitType>()) {
-    printer << "qubit<" << type.cast<QubitType>().getSize() << ">";
-  }
-  
-  if (type.isa<GateType>()) {
-    printer << "gate<" << type.cast<GateType>().getSize() << ">";
+    printer << "qubit<";
+    printer << type.cast<QubitType>().getSize();
+    printer << ">";
   }
 }

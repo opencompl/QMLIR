@@ -39,18 +39,10 @@ QubitType QubitType::get(MLIRContext *ctx, uint64_t size) {
   return Base::get(ctx, QuantumTypes::Qubit, size);
 }
 
+bool QubitType::hasStaticSize() const {
+  return getImpl()->size != kDynamicSize;
+}
+
 uint64_t QubitType::getSize() const {
-  return getImpl()->size;
-}
-
-//===----------------------------------------------------------------------===//
-// Gate Type
-//===----------------------------------------------------------------------===//
-
-GateType GateType::get(MLIRContext *ctx, uint64_t size) {
-  return Base::get(ctx, QuantumTypes::Gate, size);
-}
-
-uint64_t GateType::getSize() const {
   return getImpl()->size;
 }
