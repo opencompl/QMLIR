@@ -51,6 +51,62 @@ def Quantum_AllocateOp : Quantum_Op<"allocate", []> {
     let assemblyFormat = [{
         attr-dict `:` type($qout)
     }];
+
+    let verifier = [{
+        if (!qout().getType().cast<QubitType>().hasStaticSize()) {
+            return emitOpError("Can only allocate fixed size qubit arrays");
+        }
+        return success();
+    }];
+}
+
+//===----------------------------------------------------------------------===//
+// Cast Op
+//===----------------------------------------------------------------------===//
+
+def Quantum_CastOp : Quantum_Op<"cast", []> {
+    let summary = " an array of qubits.";
+    let description = [{
+        Convert a qubit array to an equivalent type.
+        Takes one argument, and returns the converted qubit array.
+        Useful for converting to variable length arrays,
+        to pass to library functions etc.
+
+        Example:
+
+        ```mlir
+        %0 = quantum.allocate : !quantum.qubit<10>
+        %1 = quantum.cast %0 : !quantum.qubit<10> to !quantum.qubit<?>
+        ```
+    }];
+
+    let arguments = (ins Quantum_QubitType:$qinp);
+    let results = (outs Quantum_QubitType:$qout);
+
+    let assemblyFormat = [{
+        $qinp attr-dict `:` type($qinp) `to` type($qout)
+    }];
+
+    let extraClassDeclaration = [{
+        /// Return true if `a` and `b` are valid operand and result pairs for
+        /// the operation.
+        static bool areCastCompatible(Type a, Type b) {
+            QubitType qa = a.cast<QubitType>();
+            QubitType qb = b.cast<QubitType>();
+
+            if (qa.hasStaticSize() && qb.hasStaticSize() && qa.getSize() != qb.getSize()) {
+                return false;
+            }
+            return true;
+        }
+    }];
+
+    let verifier = [{
+        if (!areCastCompatible(qinp().getType(), qout().getType()))
+            return emitOpError("Incompatible types for cast.");
+
+        return success();
+    }];
 }
 
 //===----------------------------------------------------------------------===//
@@ -83,10 +139,10 @@ def Quantum_ConcatOp : Quantum_Op<"concat", []> {
     }];
 
     let verifier = [{
-        if (qinp0().getType().cast<QubitType>().getSize()
-            + qinp1().getType().cast<QubitType>().getSize() 
-            != qout().getType().cast<QubitType>().getSize())
-            return emitOpError("sizes don't match!");
+        // if (qinp0().getType().cast<QubitType>().getSize()
+        //     + qinp1().getType().cast<QubitType>().getSize()
+        //     != qout().getType().cast<QubitType>().getSize())
+        //     return emitOpError("sizes don't match!");
         return success();
     }];
 }
@@ -120,10 +176,10 @@ def Quantum_SplitOp : Quantum_Op<"split", []> {
     }];
 
     let verifier = [{
-        if (qout0().getType().cast<QubitType>().getSize()
-            + qout1().getType().cast<QubitType>().getSize() 
-            != qinp().getType().cast<QubitType>().getSize())
-            return emitOpError("sizes don't match!");
+        // if (qout0().getType().cast<QubitType>().getSize()
+        //     + qout1().getType().cast<QubitType>().getSize()
+        //     != qinp().getType().cast<QubitType>().getSize())
+        //     return emitOpError("sizes don't match!");
         return success();
     }];
 }
