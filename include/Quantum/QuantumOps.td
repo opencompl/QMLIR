@@ -12,10 +12,11 @@
 include "QuantumDialect.td"
 include "mlir/IR/OpBase.td"
 
+// include "mlir/Dialect/StandardOps/IR/StandardOpsBase.td"
 // include "mlir/IR/OpAsmInterface.td"
 // include "mlir/Interfaces/CallInterfaces.td"
 // include "mlir/Interfaces/ControlFlowInterfaces.td"
-// include "mlir/Interfaces/SideEffectInterfaces.td"
+include "mlir/Interfaces/SideEffectInterfaces.td"
 // include "mlir/Interfaces/VectorInterfaces.td"
 // include "mlir/Interfaces/ViewLikeInterface.td"
 
@@ -32,7 +33,7 @@ def Quantum_GateType :
 // Allocate Op
 //===----------------------------------------------------------------------===//
 
-def Quantum_AllocateOp : Quantum_Op<"allocate", []> {
+def Quantum_AllocateOp : Quantum_Op<"allocate", [NoSideEffect]> {
     let summary = "Allocate an array of qubits.";
     let description = [{
         This operation takes no arguments,
@@ -41,15 +42,20 @@ def Quantum_AllocateOp : Quantum_Op<"allocate", []> {
         Example:
 
         ```mlir
-        // allocate 10 qubits
-        %qs = quantum.allocate : !quantum.qubit<10>
+        // allocate a fixed number of qubits
+        %q0 = quantum.allocate() : !quantum.qubit<10>
+
+        [NOT IMPLEMENTED]
+        // allocate a variable number of qubits
+        %n = constant 10 : index
+        %q1 = quantum.allocate(%n) : !quantum.qubit<?>
         ```
     }];
 
     let results = (outs Quantum_QubitType:$qout);
 
     let assemblyFormat = [{
-        attr-dict `:` type($qout)
+        `(` `)` attr-dict `:` type($qout)
     }];
 
     let verifier = [{
@@ -61,10 +67,43 @@ def Quantum_AllocateOp : Quantum_Op<"allocate", []> {
 }
 
 //===----------------------------------------------------------------------===//
+// Dimension Op
+//===----------------------------------------------------------------------===//
+
+def Quantum_DimensionOp : Quantum_Op<"dim", [NoSideEffect, AllTypesMatch<["qinp", "qout"]>]> {
+    let summary = "Get the dimension of a qubit array";
+    let description = [{
+        This operation takes a qubit array
+        and returns the size as an IndexType
+
+        Example:
+
+        ```mlir
+        func @use_dim(%qs: !quantum.qubit<?>) : !quantum.qubit<?> {
+            %qs1, %n = quantum.dim %qs : !quantum.qubit<?>
+            // use %n
+            return %qs1 : !quantum.qubit<?> 
+        }
+        ```
+    }];
+
+    let arguments = (ins Quantum_QubitType:$qinp);
+    let results = (outs Quantum_QubitType:$qout, Index:$size);
+
+    let assemblyFormat = [{
+        $qinp attr-dict `:` type($qinp)
+    }];
+
+    let verifier = [{
+        return success();
+    }];
+}
+
+//===----------------------------------------------------------------------===//
 // Cast Op
 //===----------------------------------------------------------------------===//
 
-def Quantum_CastOp : Quantum_Op<"cast", []> {
+def Quantum_CastOp : Quantum_Op<"cast", [NoSideEffect]> {
     let summary = " an array of qubits.";
     let description = [{
         Convert a qubit array to an equivalent type.
@@ -75,7 +114,7 @@ def Quantum_CastOp : Quantum_Op<"cast", []> {
         Example:
 
         ```mlir
-        %0 = quantum.allocate : !quantum.qubit<10>
+        %0 = quantum.allocate() : !quantum.qubit<10>
         %1 = quantum.cast %0 : !quantum.qubit<10> to !quantum.qubit<?>
         ```
     }];
@@ -113,7 +152,7 @@ def Quantum_CastOp : Quantum_Op<"cast", []> {
 // Concat Op
 //===----------------------------------------------------------------------===//
 
-def Quantum_ConcatOp : Quantum_Op<"concat", []> {
+def Quantum_ConcatOp : Quantum_Op<"concat", [NoSideEffect]> {
     let summary = "Concatenate two arrays of qubits.";
     let description = [{
         This operation takes two qubit arrays of types `qubit<N>` and 
@@ -122,8 +161,8 @@ def Quantum_ConcatOp : Quantum_Op<"concat", []> {
         Example:
 
         ```mlir
-        %q1 = quantum.allocate : !quantum.qubit<4>
-        %q2 = quantum.allocate : !quantum.qubit<5>
+        %q1 = quantum.allocate() : !quantum.qubit<4>
+        %q2 = quantum.allocate() : !quantum.qubit<5>
         %q3 = quantum.concat %q1, %q2 : (!quantum.qubit<4>, !quantum.qubit<5>) -> !quantum.qubit<9>
         ```
     }];
@@ -151,17 +190,24 @@ def Quantum_ConcatOp : Quantum_Op<"concat", []> {
 // Split Op
 //===----------------------------------------------------------------------===//
 
-def Quantum_SplitOp : Quantum_Op<"split", []> {
-    let summary = "Split an array of qubits into two";
+def Quantum_SplitOp : Quantum_Op<"split", [NoSideEffect]> {
+    let summary = "Split an array of qubits into two disjoint arrays";
     let description = [{
-        This operation takes a qubit array of type `qubit<N>` and
-        returns two arrays `qubit<M>` and `qubit<R>` where `N = M + R` 
+        This operation takes a qubit array, and an optional index.
 
-        Example:
+        - If the index is provided, it splits at that index 
+        (with the index belonging to the right side of the split)
+        - If the index isn't provided, it infers it from the operation type.
+          If the index inference fails, it reports an error.
+
+        quantum.split %q1 [ ; ; ] : q<> -> (q<>, q<>, q<>)
+        
+        Examples:
 
         ```mlir
-        %q1 = quantum.allocate : !quantum.qubit<10>
-        %q2 = quantum.split %q1 : !quantum.qubit<10> -> (!quantum.qubit<6>, !quantum.qubit<4>)
+        // Split a fixed size array, and infer the index
+        %q1 = quantum.allocate() : !quantum.qubit<10>
+        %q2, %q3 = quantum.split %q1 : !quantum.qubit<10> -> (!quantum.qubit<6>, !quantum.qubit<4>)
         ```
     }];
 
@@ -188,7 +234,7 @@ def Quantum_SplitOp : Quantum_Op<"split", []> {
 // Transform Op
 //===----------------------------------------------------------------------===//
 
-def Quantum_TransformOp : Quantum_Op<"transform", [SameOperandsAndResultType]> {
+def Quantum_TransformOp : Quantum_Op<"transform", [NoSideEffect, SameOperandsAndResultType]> {
     let summary = "Apply a gate to a qubit array";
     let description = [{
         This operation takes a qubit array of type `qubit<N>` and 
@@ -216,6 +262,10 @@ def Quantum_TransformOp : Quantum_Op<"transform", [SameOperandsAndResultType]> {
     let assemblyFormat = [{
         $gate `(` $qinp `)` attr-dict `:` type($qinp)
     }];
+
+    let verifier = [{
+        return success();
+    }];
 }
 
 //===----------------------------------------------------------------------===//
@@ -225,7 +275,7 @@ def Quantum_TransformOp : Quantum_Op<"transform", [SameOperandsAndResultType]> {
 def Quantum_MeasurementType : 1DTensorOf<[I1]>;
 // VectorOfRankAndType<[1], [I1]>;
 
-def Quantum_MeasureOp : Quantum_Op<"measure", []> {
+def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
     let summary = "Measure an array of qubits.";
     let description = [{
         This operation takes an array of qubits of type `qubit<N>`
@@ -272,6 +322,10 @@ def Quantum_FooOp : Quantum_Op<"foo", [SameOperandsAndResultType]> {
 
     let assemblyFormat = [{
         $val `(` $qinp `)` attr-dict `:` type($qinp)
+    }];
+
+    let verifier = [{
+        return success();
     }];
 }
 

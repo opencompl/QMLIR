@@ -39,6 +39,18 @@ def Quantum_Dialect : Dialect {
 //===----------------------------------------------------------------------===//
 
 class Quantum_Op<string mnemonic, list<OpTrait> traits = []> :
-        Op<Quantum_Dialect, mnemonic, traits>;
+        Op<Quantum_Dialect, mnemonic, traits> {
+
+    // For each Quantum op, the following static functions need to be defined in
+    // QuantumOps.cpp:
+    //
+    // * static ParseResult parse<op-c++-class-name>(OpAsmParser &parser,
+    //                                               OperationState &state);
+    // * static void print(OpAsmPrinter &p, <op-c++-class-name> op)
+    // * static LogicalResult verify(<op-c++-class-name> op)
+    let parser = [{ return ::parse$cppClass(parser, result); }];
+    let printer = [{ ::print(*this, p); }];
+    let verifier = [{ return ::verify(*this); }];
+}
 
 #endif // QUANTUM_DIALECT

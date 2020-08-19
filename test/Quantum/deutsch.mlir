@@ -52,7 +52,7 @@ func @oracle(%x : !quantum.qubit<?>, %y : !quantum.qubit<1>)
 // implements U|x⟩ = (-1)^{f(x)} |x⟩
 func @phase_flip_oracle(%x : !quantum.qubit<?>)
   -> !quantum.qubit<?> {
-  %y0 = quantum.allocate : !quantum.qubit<1>
+  %y0 = quantum.allocate() : !quantum.qubit<1>
   %y1 = quantum.transform #gateX(%y0) : !quantum.qubit<1>
   %y2 = quantum.transform #gateH(%y1) : !quantum.qubit<1>
   %x1, %y3 = call @oracle(%x, %y2) 
@@ -79,7 +79,7 @@ func @applyH(%qs : !quantum.qubit<?>) -> !quantum.qubit<?> {
 
 // return false for constant, true for balanced
 func @deutsch_josza() -> i1 {
-  %x0 = quantum.allocate : !quantum.qubit<10>
+  %x0 = quantum.allocate() : !quantum.qubit<10>
   %x1 = quantum.cast %x0 : !quantum.qubit<10> to !quantum.qubit<?>
   %x2 = call @applyH(%x1) : (!quantum.qubit<?>) -> !quantum.qubit<?>
   %x3 = call @phase_flip_oracle(%x2) : (!quantum.qubit<?>) -> !quantum.qubit<?>

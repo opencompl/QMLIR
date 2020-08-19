@@ -19,7 +19,7 @@
 }
 
 func @main() {
-  %q0 = quantum.allocate : !quantum.qubit<3>
+  %q0 = quantum.allocate() : !quantum.qubit<3>
   %q1 = quantum.transform #toffoli(%q0) : !quantum.qubit<3>
   %q2, %q3 = quantum.split %q1 : !quantum.qubit<3> -> (!quantum.qubit<1>, !quantum.qubit<2>)
   %res = quantum.measure %q2 : !quantum.qubit<1> -> tensor<1xi1>

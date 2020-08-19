@@ -15,6 +15,12 @@
 #include "mlir/IR/Builders.h"
 #include "mlir/IR/StandardTypes.h"
 
+// #include "mlir/Interfaces/CallInterfaces.h"
+// #include "mlir/Interfaces/ControlFlowInterfaces.h"
+#include "mlir/Interfaces/SideEffectInterfaces.h"
+// #include "mlir/Interfaces/VectorInterfaces.h"
+// #include "mlir/Interfaces/ViewLikeInterface.h"
+
 #include "Quantum/QuantumTypes.h"
 
 namespace mlir {
