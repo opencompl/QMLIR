@@ -28,8 +28,7 @@ using namespace mlir::quantum;
 // Quantum dialect.
 //===----------------------------------------------------------------------===//
 
-QuantumDialect::QuantumDialect(mlir::MLIRContext *context)
-    : Dialect(getDialectNamespace(), context) {
+void QuantumDialect::initialize() {
   addOperations<
 #define GET_OP_LIST
 #include "Quantum/QuantumOps.cpp.inc"

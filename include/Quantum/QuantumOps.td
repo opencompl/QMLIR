@@ -26,9 +26,6 @@ include "mlir/Interfaces/SideEffectInterfaces.td"
 def Quantum_QubitType :
     Type<CPred<"$_self.isa<QubitType>()">, "Quantum Qubit Type">;
 
-def Quantum_GateType :
-    Type<CPred<"$_self.isa<GateType>()">, "Quantum Gate Type">;
-
 //===----------------------------------------------------------------------===//
 // Allocate Op
 //===----------------------------------------------------------------------===//

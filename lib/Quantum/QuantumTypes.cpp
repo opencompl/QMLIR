@@ -36,7 +36,7 @@ struct quantum::detail::QubitTypeStorage : public TypeStorage {
 };
 
 QubitType QubitType::get(MLIRContext *ctx, uint64_t size) {
-  return Base::get(ctx, QuantumTypes::Qubit, size);
+  return Base::get(ctx, size);
 }
 
 bool QubitType::hasStaticSize() const {

@@ -15,15 +15,6 @@
 namespace mlir {
 namespace quantum {
 
-namespace QuantumTypes {
-
-enum Kinds {
-  // use an experimental kind
-  Qubit = Type::Kind::FIRST_PRIVATE_EXPERIMENTAL_0_TYPE,
-};
-
-} // namespace QuantumTypes
-
 namespace detail {
 struct QubitTypeStorage;
 } // namespace detail
@@ -33,8 +24,6 @@ class QubitType : public Type::TypeBase<QubitType, Type,
                                           detail::QubitTypeStorage> {
 public:
   using Base::Base;
-
-  static bool kindof(unsigned kind) { return kind == QuantumTypes::Qubit; }
 
   static QubitType get(MLIRContext *ctx, uint64_t size);
 
