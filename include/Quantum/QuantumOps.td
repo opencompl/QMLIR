@@ -167,11 +167,29 @@ def Quantum_ConcatOp : Quantum_Op<"concat", [NoSideEffect]> {
         $qinp0 `,` $qinp1 attr-dict `:` `(` type($qinp0) `,` type($qinp1) `)` `->` type($qout)
     }];
 
+    let extraClassDeclaration = [{
+        /// Return true if `a` and `b` are valid operand and result pairs for
+        /// the operation.
+        static bool areConcatCompatible(Type a, Type b, Type res) {
+            QubitType qa = a.cast<QubitType>();
+            QubitType qb = b.cast<QubitType>();
+            QubitType qres = res.cast<QubitType>();
+
+            if (qa.hasStaticSize()
+                && qb.hasStaticSize()
+                && qres.hasStaticSize()
+                && qa.getSize() + qb.getSize() != qres.getSize())
+                return false;
+
+            return true;
+        }
+    }];
+
     let verifier = [{
-        // if (qinp0().getType().cast<QubitType>().getSize()
-        //     + qinp1().getType().cast<QubitType>().getSize()
-        //     != qout().getType().cast<QubitType>().getSize())
-        //     return emitOpError("sizes don't match!");
+        if (!areConcatCompatible(qinp0().getType(),
+                                 qinp1().getType(),
+                                 qout().getType()))
+            return emitOpError("sizes don't add up");
         return success();
     }];
 }
@@ -189,8 +207,6 @@ def Quantum_SplitOp : Quantum_Op<"split", [NoSideEffect]> {
         (with the index belonging to the right side of the split)
         - If the index isn't provided, it infers it from the operation type.
           If the index inference fails, it reports an error.
-
-        quantum.split %q1 [ ; ; ] : q<> -> (q<>, q<>, q<>)
         
         Examples:
 
@@ -199,6 +215,9 @@ def Quantum_SplitOp : Quantum_Op<"split", [NoSideEffect]> {
         %q1 = quantum.allocate() : !quantum.qubit<10>
         %q2, %q3 = quantum.split %q1 : !quantum.qubit<10> -> (!quantum.qubit<6>, !quantum.qubit<4>)
         ```
+
+        [INCOMPLETE] refactor proposal ->
+        quantum.split %q1 [ ; ; ] : q<> -> (q<>, q<>, q<>)
     }];
 
     let arguments = (ins Quantum_QubitType:$qinp);
@@ -290,6 +309,7 @@ def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
     }];
 
     let verifier = [{
+        /// TODO: rewrite check (currently works because both dynamic sizes use -1)
         if (qinp().getType().cast<QubitType>().getSize() 
             != res().getType().cast<RankedTensorType>().getShape()[0])
             return emitOpError("Qubit and result sizes don't match.");
