@@ -42,23 +42,16 @@ def Quantum_AllocateOp : Quantum_Op<"allocate", [NoSideEffect]> {
         // allocate a fixed number of qubits
         %q0 = quantum.allocate() : !quantum.qubit<10>
 
-        [NOT IMPLEMENTED]
         // allocate a variable number of qubits
         %n = constant 10 : index
         %q1 = quantum.allocate(%n) : !quantum.qubit<?>
         ```
     }];
 
+    let arguments = (ins Variadic<Index>:$dynamicsize);
     let results = (outs Quantum_QubitType:$qout);
 
-    let assemblyFormat = [{
-        `(` `)` attr-dict `:` type($qout)
-    }];
-
     let verifier = [{
-        if (!qout().getType().cast<QubitType>().hasStaticSize()) {
-            return emitOpError("Can only allocate fixed size qubit arrays");
-        }
         return success();
     }];
 }

@@ -72,8 +72,15 @@ Type QuantumDialect::parseType(mlir::DialectAsmParser &parser) const {
 void QuantumDialect::printType(mlir::Type type,
                            mlir::DialectAsmPrinter &printer) const {
   if (type.isa<QubitType>()) {
+    QubitType qubit = type.cast<QubitType>();
+
     printer << "qubit<";
-    printer << type.cast<QubitType>().getSize();
+    if (qubit.hasStaticSize())
+      printer << qubit.getSize();
+    else
+      printer << "?";
     printer << ">";
+
+    return;
   }
 }
