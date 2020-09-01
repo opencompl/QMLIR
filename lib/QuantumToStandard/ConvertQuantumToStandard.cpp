@@ -46,6 +46,17 @@ public:
   }
 };
 
+class AllocateOpLowering : public QuantumOpToStdPattern<AllocateOp> {
+public:
+  using QuantumOpToStdPattern<AllocateOp>::QuantumOpToStdPattern;
+
+  LogicalResult
+  matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    return success();
+  }
+};
+
 
 //===----------------------------------------------------------------------===//
 // Conversion Target
@@ -101,7 +112,7 @@ namespace quantum {
 void populateQuantumToStdConversionPatterns(
     QuantumTypeConverter &typeConverter,
     mlir::OwningRewritePatternList &patterns) {
-  // patterns.insert</* OPS HERE */>(typeConverter);
+  patterns.insert<FuncOpLowering, AllocateOpLowering>(typeConverter);
 }
 
 //===----------------------------------------------------------------------===//
