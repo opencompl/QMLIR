@@ -5,7 +5,7 @@ build/
 .idea/
 cmake-build-debug/
 cmake-build-release/
-
+cmake-build-*/
 compile_commands.json
 
 test/scratches/
