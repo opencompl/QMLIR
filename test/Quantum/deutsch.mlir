@@ -58,7 +58,7 @@ func @phase_flip_oracle(%x : !quantum.qubit<?>)
   %x1, %y3 = call @oracle(%x, %y2) 
     : (!quantum.qubit<?>, !quantum.qubit<1>) -> (!quantum.qubit<?>, !quantum.qubit<1>)
 
-  %0 = quantum.measure %y3 : !quantum.qubit<1> -> tensor<1xi1>
+  %0 = quantum.measure %y3 : !quantum.qubit<1> -> memref<1xi1>
 
   return %x1: !quantum.qubit<?>
 }
@@ -85,7 +85,7 @@ func @deutsch_josza() -> i1 {
   %x3 = call @phase_flip_oracle(%x2) : (!quantum.qubit<?>) -> !quantum.qubit<?>
   %x4 = call @applyH(%x3) : (!quantum.qubit<?>) -> !quantum.qubit<?>
   %x5 = quantum.cast %x4 : !quantum.qubit<?> to !quantum.qubit<10>
-  %res = quantum.measure %x5 : !quantum.qubit<10> -> tensor<10xi1>
+  %res = quantum.measure %x5 : !quantum.qubit<10> -> memref<10xi1>
 
   %false = constant 0 : i1
   %0 = constant 0 : index
@@ -95,7 +95,7 @@ func @deutsch_josza() -> i1 {
 
   %ans = scf.for %i = %0 to %lst step %1 
     iter_args(%out = %false) -> i1 {
-    %v = extract_element %res[%i] : tensor<10xi1>
+    %v = load %res[%i] : memref<10xi1>
     %cur = or %out, %v : i1
     scf.yield %cur : i1
   }

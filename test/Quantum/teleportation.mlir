@@ -71,13 +71,13 @@ func @teleport(%psiA: !quantum.qubit<1>, %eb: !quantum.qubit<2>) -> (!quantum.qu
 
   // Measure in Bell basis
   %qsA1 = call @bell_to_std(%qsA0) : (!quantum.qubit<2>) -> !quantum.qubit<2>
-  %resA = quantum.measure %qsA1 : !quantum.qubit<2> -> tensor<2xi1>
+  %resA = quantum.measure %qsA1 : !quantum.qubit<2> -> memref<2xi1>
 
   // Apply corrections
 
   // 1. Apply X correction, if resA[0] == 1
   %idx0 = constant 0 : index
-  %corrX = extract_element %resA[%idx0] : tensor<2xi1>
+  %corrX = load %resA[%idx0] : memref<2xi1>
 
   %psiB1 = scf.if %corrX -> !quantum.qubit<1> {
     %temp = quantum.transform #gateX(%psiB0) : !quantum.qubit<1>
@@ -88,7 +88,7 @@ func @teleport(%psiA: !quantum.qubit<1>, %eb: !quantum.qubit<2>) -> (!quantum.qu
 
   // 2. Apply Z correction, if resA[1] == 1
   %idx1 = constant 1 : index
-  %corrZ = extract_element %resA[%idx1] : tensor<2xi1>
+  %corrZ = load %resA[%idx1] : memref<2xi1>
 
   %psiB2 = scf.if %corrZ -> !quantum.qubit<1> {
     %temp = quantum.transform #gateZ(%psiB1) : !quantum.qubit<1>

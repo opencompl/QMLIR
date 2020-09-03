@@ -281,15 +281,14 @@ def Quantum_TransformOp : Quantum_Op<"transform", [NoSideEffect, SameOperandsAnd
 // Measure Op
 //===----------------------------------------------------------------------===//
 
-def Quantum_MeasurementType : 1DTensorOf<[I1]>;
-// VectorOfRankAndType<[1], [I1]>;
+def Quantum_MeasurementType : MemRefRankOf<[I1], [1]>;
 
 def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
     let summary = "Measure an array of qubits.";
     let description = [{
         This operation takes an array of qubits of type `qubit<N>`
         and returns the measurement outcome in the standard basis
-        as a 1-D tensor of bits (`i1`)
+        as a 1-D array of bits (`i1`)
 
         Note: The qubits are consumed and can no longer be used.
 
@@ -297,7 +296,7 @@ def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
 
         ```mlir
         %qs = quantum.allocate : !quantum.qubit<10>
-        %res = quantum.measure %qs : !quantum.qubit<10> -> : tensor<10xi1>
+        %res = quantum.measure %qs : !quantum.qubit<10> -> : memref<10xi1>
         ```
     }];
 
@@ -311,7 +310,7 @@ def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
     let verifier = [{
         /// TODO: rewrite check (currently works because both dynamic sizes use -1)
         if (qinp().getType().cast<QubitType>().getSize() 
-            != res().getType().cast<RankedTensorType>().getShape()[0])
+            != res().getType().cast<MemRefType>().getShape()[0])
             return emitOpError("Qubit and result sizes don't match.");
         return success();
     }];
