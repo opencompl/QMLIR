@@ -234,18 +234,86 @@ public:
     }
 
     // call library concat function
-    auto concatCallOp = rewriter.create<CallOp>(rewriter.getUnknownLoc(),
+    auto concatLibCall = rewriter.create<CallOp>(rewriter.getUnknownLoc(),
                                                 concatFunc,
                                                 ValueRange(convertedOperands));
 
     auto resultQubitType = concatOp.getType().cast<QubitType>();
     if (resultQubitType.hasStaticSize()) {
       auto resultCastOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
-                                                        concatCallOp.getResult(0),
+                                                        concatLibCall.getResult(0),
                                                         typeConverter.convertType(resultQubitType));
       rewriter.replaceOp(operation, resultCastOp.getResult());
     } else {
-      rewriter.replaceOp(operation, concatCallOp.getResult(0));
+      rewriter.replaceOp(operation, concatLibCall.getResult(0));
+    }
+
+    return success();
+  }
+};
+
+//===----------------------------------------------------------------------===//
+// Concat Op Lowering
+//===----------------------------------------------------------------------===//
+
+class MeasureOpLowering : public QuantumOpToStdPattern<MeasureOp> {
+public:
+  using QuantumOpToStdPattern<MeasureOp>::QuantumOpToStdPattern;
+
+  LogicalResult
+  matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    // Find the measure_qubits function, or declare if it doesn't exist.
+    auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
+
+    auto qLibMemRefType = MemRefType::get({MemRefType::kDynamicSize},
+                                          rewriter.getI64Type());
+    auto measureFuncType = rewriter.getFunctionType(
+      {qLibMemRefType},
+      {MemRefType::get({MemRefType::kDynamicSize},
+                       rewriter.getI1Type())});
+    auto measureFunc = module.lookupSymbol<FuncOp>("__mlir_quantum_simulator__measure_qubits");
+    if (!measureFunc) {
+      // Declare the concat_qubits function
+      OpBuilder::InsertionGuard guard(rewriter);
+      rewriter.setInsertionPointToStart(module.getBody());
+      measureFunc = rewriter.create<FuncOp>(
+        rewriter.getUnknownLoc(),
+        "__mlir_quantum_simulator__measure_qubits",
+        measureFuncType);
+    }
+
+    auto measureOp = cast<MeasureOp>(operation);
+    MeasureOp::Adaptor transformed(operands);
+
+    // Convert operand to dynamic size (for library call compatibility)
+    SmallVector<Value, 1> convertedOperands;
+    for (unsigned i = 0; i < 1; i++) {
+      auto currentOperand = transformed.getODSOperands(i).front();
+      auto argType = currentOperand.getType().cast<MemRefType>();
+      if (argType.hasStaticShape()) {
+        auto castOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
+                                                    currentOperand,
+                                                    qLibMemRefType);
+        convertedOperands.push_back(castOp.getResult());
+      } else {
+        convertedOperands.push_back(currentOperand);
+      }
+    }
+
+    // call library concat function
+    auto measureLibCall = rewriter.create<CallOp>(rewriter.getUnknownLoc(),
+                                                measureFunc,
+                                                ValueRange(convertedOperands));
+
+    auto resultType = measureOp.getType().cast<MemRefType>();
+    if (resultType.hasStaticShape()) {
+      auto resultCastOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
+                                                        measureLibCall.getResult(0),
+                                                        resultType);
+      rewriter.replaceOp(operation, resultCastOp.getResult());
+    } else {
+      rewriter.replaceOp(operation, measureLibCall.getResult(0));
     }
 
     return success();
@@ -319,7 +387,8 @@ void populateQuantumToStdConversionPatterns(
     AllocateOpLowering,
     CastOpLowering,
     DimensionOpLowering,
-    ConcatOpLowering
+    ConcatOpLowering,
+    MeasureOpLowering
     >(typeConverter);
 }
 
