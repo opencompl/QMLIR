@@ -50,7 +50,7 @@ public:
     for (auto &en : llvm::enumerate(funcOp.getType().getInputs()))
       inputs.addInputs(en.index(), typeConverter.convertType(en.value()));
 
-    TypeConverter::SignatureConversion results(funcOp.getNumArguments());
+    TypeConverter::SignatureConversion results(funcOp.getNumResults());
     for (auto &en : llvm::enumerate(funcOp.getType().getResults()))
       results.addInputs(en.index(), typeConverter.convertType(en.value()));
 
@@ -79,16 +79,46 @@ public:
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
                   ConversionPatternRewriter &rewriter) const override {
     // Find the acquire_qubits function, or declare if it doesn't exist.
-//    auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
-//    auto acquireFunc = module.lookupSymbol<FuncOp>("acquire_qubits");
-//    if (!acquireFunc) {
-//      OpBuilder::InsertionGuard guard(rewriter);
-//      rewriter.setInsertionPointToStart(module.getBody());
-//      acquireFunc = rewriter.create<FuncOp>(
-//        rewriter.getUnknownLoc(), "acquire_qubits", FunctionType::get());
-//    }
+    auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
+    auto acquireFunc = module.lookupSymbol<FuncOp>("acquire_qubits");
+    if (!acquireFunc) {
+      OpBuilder::InsertionGuard guard(rewriter);
+      rewriter.setInsertionPointToStart(module.getBody());
 
-    rewriter.eraseOp(operation);
+      TypeRange arguments{rewriter.getIndexType()};
+      TypeRange results{MemRefType::get({-1}, rewriter.getI64Type())};
+      acquireFunc = rewriter.create<FuncOp>(
+        rewriter.getUnknownLoc(), "acquire_qubits", rewriter.getFunctionType(arguments, results));
+    }
+
+    auto allocateOp = cast<AllocateOp>(operation);
+    auto qubitType = allocateOp.getResult().getType().cast<QubitType>();
+
+    if (qubitType.hasStaticSize()) {
+      rewriter.setInsertionPoint(operation);
+      auto sizeOp = rewriter.create<ConstantIndexOp>(
+        rewriter.getUnknownLoc(), qubitType.getSize());
+      auto qubitSize = sizeOp.getResult();
+      auto acquireCallOp = rewriter.create<CallOp>(
+        rewriter.getUnknownLoc(),
+        acquireFunc,
+        ValueRange{qubitSize});
+      auto castOp = rewriter.create<MemRefCastOp>(
+        rewriter.getUnknownLoc(),
+        acquireCallOp.getResults()[0],
+        typeConverter.convertType(qubitType)
+        );
+      rewriter.replaceOp(operation, castOp.getResult());
+    } else {
+      // pass size to `acquire_qubits`
+      auto qubitSize = allocateOp.getOperand(0);
+      auto acquireCallOp = rewriter.create<CallOp>(
+        rewriter.getUnknownLoc(),
+        acquireFunc,
+        ValueRange{qubitSize});
+      rewriter.replaceOp(operation, acquireCallOp.getResults());
+    }
+
     return success();
   }
 };
