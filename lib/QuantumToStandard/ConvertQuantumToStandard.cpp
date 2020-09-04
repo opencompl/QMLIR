@@ -27,12 +27,15 @@
 
 using namespace mlir;
 using namespace quantum;
-using namespace scf;
 
 namespace {
 
 //===----------------------------------------------------------------------===//
 // Rewriting Pattern
+//===----------------------------------------------------------------------===//
+
+//===----------------------------------------------------------------------===//
+// Func Op Lowering
 //===----------------------------------------------------------------------===//
 
 class FuncOpLowering : public QuantumOpToStdPattern<FuncOp> {
@@ -71,6 +74,10 @@ public:
   }
 };
 
+//===----------------------------------------------------------------------===//
+// Allocate Op Lowering
+//===----------------------------------------------------------------------===//
+
 class AllocateOpLowering : public QuantumOpToStdPattern<AllocateOp> {
 public:
   using QuantumOpToStdPattern<AllocateOp>::QuantumOpToStdPattern;
@@ -80,15 +87,18 @@ public:
                   ConversionPatternRewriter &rewriter) const override {
     // Find the acquire_qubits function, or declare if it doesn't exist.
     auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
+
+    auto acquireFuncType = rewriter.getFunctionType(
+      {rewriter.getIndexType()},
+      {MemRefType::get({MemRefType::kDynamicSize},
+                       rewriter.getI64Type())});
     auto acquireFunc = module.lookupSymbol<FuncOp>("acquire_qubits");
     if (!acquireFunc) {
+      // Declare the acquire_qubits function
       OpBuilder::InsertionGuard guard(rewriter);
       rewriter.setInsertionPointToStart(module.getBody());
-
-      TypeRange arguments{rewriter.getIndexType()};
-      TypeRange results{MemRefType::get({-1}, rewriter.getI64Type())};
       acquireFunc = rewriter.create<FuncOp>(
-        rewriter.getUnknownLoc(), "acquire_qubits", rewriter.getFunctionType(arguments, results));
+        rewriter.getUnknownLoc(), "acquire_qubits", acquireFuncType);
     }
 
     auto allocateOp = cast<AllocateOp>(operation);
@@ -107,7 +117,7 @@ public:
         rewriter.getUnknownLoc(),
         acquireCallOp.getResults()[0],
         typeConverter.convertType(qubitType)
-        );
+      );
       rewriter.replaceOp(operation, castOp.getResult());
     } else {
       // pass size to `acquire_qubits`
@@ -118,6 +128,32 @@ public:
         ValueRange{qubitSize});
       rewriter.replaceOp(operation, acquireCallOp.getResults());
     }
+
+    return success();
+  }
+};
+
+//===----------------------------------------------------------------------===//
+// Cast Op Lowering
+//===----------------------------------------------------------------------===//
+
+class CastOpLowering : public QuantumOpToStdPattern<CastOp> {
+public:
+  using QuantumOpToStdPattern<CastOp>::QuantumOpToStdPattern;
+
+  LogicalResult
+  matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    auto castOp = cast<CastOp>(operation);
+    CastOp::Adaptor transformed(operands);
+
+    auto srcType = castOp.getOperand().getType();
+    auto dstType = castOp.getType();
+
+    auto convertedCastOp = rewriter.create<MemRefCastOp>(
+      rewriter.getUnknownLoc(), transformed.getODSOperands(0)[0], typeConverter.convertType(dstType));
+
+    rewriter.replaceOp(castOp, convertedCastOp.getResult());
 
     return success();
   }
@@ -158,7 +194,7 @@ void QuantumToStandardPass::runOnOperation() {
   
   target.addLegalDialect<AffineDialect>();
   target.addLegalDialect<StandardOpsDialect>();
-  target.addLegalDialect<SCFDialect>();
+  target.addLegalDialect<scf::SCFDialect>();
   target.addDynamicallyLegalOp<FuncOp>([](FuncOp funcOp) {
     auto funcType = funcOp.getType();
     for (auto& arg: llvm::enumerate(funcType.getInputs())) {
@@ -189,7 +225,10 @@ namespace quantum {
 void populateQuantumToStdConversionPatterns(
     QuantumTypeConverter &typeConverter,
     mlir::OwningRewritePatternList &patterns) {
-  patterns.insert<FuncOpLowering, AllocateOpLowering>(typeConverter);
+  patterns.insert<
+    FuncOpLowering,
+    AllocateOpLowering,
+    CastOpLowering>(typeConverter);
 }
 
 //===----------------------------------------------------------------------===//
