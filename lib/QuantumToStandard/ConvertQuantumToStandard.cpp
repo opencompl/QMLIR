@@ -134,6 +134,33 @@ public:
 };
 
 //===----------------------------------------------------------------------===//
+// Dimension Op Lowering
+//===----------------------------------------------------------------------===//
+
+class DimensionOpLowering : public QuantumOpToStdPattern<DimensionOp> {
+public:
+  using QuantumOpToStdPattern<DimensionOp>::QuantumOpToStdPattern;
+
+  LogicalResult
+  matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    auto dimensionOp = cast<DimensionOp>(operation);
+    DimensionOp::Adaptor transformed(operands);
+
+    auto convertedDimOp =
+      rewriter.create<::mlir::DimOp>(
+        rewriter.getUnknownLoc(),
+        transformed.getODSOperands(0).front(),
+        0);
+
+    rewriter.replaceOp(operation,
+                       ValueRange{transformed.getODSOperands(0).front(),
+                       convertedDimOp.getResult()});
+    return success();
+  }
+};
+
+//===----------------------------------------------------------------------===//
 // Cast Op Lowering
 //===----------------------------------------------------------------------===//
 
@@ -147,7 +174,6 @@ public:
     auto castOp = cast<CastOp>(operation);
     CastOp::Adaptor transformed(operands);
 
-    auto srcType = castOp.getOperand().getType();
     auto dstType = castOp.getType();
 
     auto convertedCastOp = rewriter.create<MemRefCastOp>(
@@ -168,10 +194,6 @@ class QuantumToStdTarget : public ConversionTarget {
 public:
   explicit QuantumToStdTarget(MLIRContext &context)
       : ConversionTarget(context) {}
-
-//  bool isDynamicallyLegal(Operation *op) const override {
-//    return true;
-//  }
 };
 
 //===----------------------------------------------------------------------===//
@@ -228,7 +250,9 @@ void populateQuantumToStdConversionPatterns(
   patterns.insert<
     FuncOpLowering,
     AllocateOpLowering,
-    CastOpLowering>(typeConverter);
+    CastOpLowering,
+    DimensionOpLowering
+    >(typeConverter);
 }
 
 //===----------------------------------------------------------------------===//
