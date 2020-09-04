@@ -92,13 +92,13 @@ public:
       {rewriter.getIndexType()},
       {MemRefType::get({MemRefType::kDynamicSize},
                        rewriter.getI64Type())});
-    auto acquireFunc = module.lookupSymbol<FuncOp>("acquire_qubits");
+    auto acquireFunc = module.lookupSymbol<FuncOp>("__mlir_quantum_simulator__acquire_qubits");
     if (!acquireFunc) {
       // Declare the acquire_qubits function
       OpBuilder::InsertionGuard guard(rewriter);
       rewriter.setInsertionPointToStart(module.getBody());
       acquireFunc = rewriter.create<FuncOp>(
-        rewriter.getUnknownLoc(), "acquire_qubits", acquireFuncType);
+        rewriter.getUnknownLoc(), "__mlir_quantum_simulator__acquire_qubits", acquireFuncType);
     }
 
     auto allocateOp = cast<AllocateOp>(operation);
@@ -185,6 +185,73 @@ public:
   }
 };
 
+//===----------------------------------------------------------------------===//
+// Concat Op Lowering
+//===----------------------------------------------------------------------===//
+
+class ConcatOpLowering : public QuantumOpToStdPattern<ConcatOp> {
+public:
+  using QuantumOpToStdPattern<ConcatOp>::QuantumOpToStdPattern;
+
+  LogicalResult
+  matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    // Find the concat_qubits function, or declare if it doesn't exist.
+    auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
+
+    auto qLibMemRefType = MemRefType::get({MemRefType::kDynamicSize},
+                                          rewriter.getI64Type());
+    auto concatFuncType = rewriter.getFunctionType(
+      {qLibMemRefType, qLibMemRefType},
+      {qLibMemRefType});
+    auto concatFunc = module.lookupSymbol<FuncOp>("__mlir_quantum_simulator__concat_qubits");
+    if (!concatFunc) {
+      // Declare the concat_qubits function
+      OpBuilder::InsertionGuard guard(rewriter);
+      rewriter.setInsertionPointToStart(module.getBody());
+      concatFunc = rewriter.create<FuncOp>(
+        rewriter.getUnknownLoc(),
+        "__mlir_quantum_simulator__concat_qubits",
+        concatFuncType);
+    }
+
+    auto concatOp = cast<ConcatOp>(operation);
+    ConcatOp::Adaptor transformed(operands);
+
+    // Convert operands to dynamic size (for library call compatibility)
+    SmallVector<Value, 2> convertedOperands;
+    for (unsigned i = 0; i < 2; i++) {
+      auto currentOperand = transformed.getODSOperands(i).front();
+      auto argType = currentOperand.getType().cast<MemRefType>();
+      if (argType.hasStaticShape()) {
+        auto castOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
+                                                    currentOperand,
+                                                    qLibMemRefType);
+        convertedOperands.push_back(castOp.getResult());
+      } else {
+        convertedOperands.push_back(currentOperand);
+      }
+    }
+
+    // call library concat function
+    auto concatCallOp = rewriter.create<CallOp>(rewriter.getUnknownLoc(),
+                                                concatFunc,
+                                                ValueRange(convertedOperands));
+
+    auto resultQubitType = concatOp.getType().cast<QubitType>();
+    if (resultQubitType.hasStaticSize()) {
+      auto resultCastOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
+                                                        concatCallOp.getResult(0),
+                                                        typeConverter.convertType(resultQubitType));
+      rewriter.replaceOp(operation, resultCastOp.getResult());
+    } else {
+      rewriter.replaceOp(operation, concatCallOp.getResult(0));
+    }
+
+    return success();
+  }
+};
+
 
 //===----------------------------------------------------------------------===//
 // Conversion Target
@@ -251,7 +318,8 @@ void populateQuantumToStdConversionPatterns(
     FuncOpLowering,
     AllocateOpLowering,
     CastOpLowering,
-    DimensionOpLowering
+    DimensionOpLowering,
+    ConcatOpLowering
     >(typeConverter);
 }
 
