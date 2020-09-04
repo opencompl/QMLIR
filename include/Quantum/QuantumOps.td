@@ -201,40 +201,30 @@ def Quantum_ConcatOp : Quantum_Op<"concat", [NoSideEffect]> {
 def Quantum_SplitOp : Quantum_Op<"split", [NoSideEffect]> {
     let summary = "Split an array of qubits into two disjoint arrays";
     let description = [{
-        This operation takes a qubit array, and an optional index.
+        This operation takes a qubit array, and splits it into multiple arrays.
+        For every dynamic result type, it takes a mandatory index type size argument.
 
-        - If the index is provided, it splits at that index 
-        (with the index belonging to the right side of the split)
-        - If the index isn't provided, it infers it from the operation type.
-          If the index inference fails, it reports an error.
-        
         Examples:
 
         ```mlir
-        // Split a fixed size array, and infer the index
-        %q1 = quantum.allocate() : !quantum.qubit<10>
-        %q2, %q3 = quantum.split %q1 : !quantum.qubit<10> -> (!quantum.qubit<6>, !quantum.qubit<4>)
+        func @try_split(%q : !quantum.qubit<10>) {
+          %q1, %q2 = quantum.split %q : !quantum.qubit<10> -> (!quantum.qubit<5>, !quantum.qubit<5>)
+          %1 = constant 1 : index
+          %2 = constant 2 : index
+          %q3:3 = quantum.split %q1[%1, %2, %2] : !quantum.qubit<5> -> (!quantum.qubit<?>, !quantum.qubit<?>, !quantum.qubit<?>)
+          return
+        }
         ```
-
-        [INCOMPLETE] refactor proposal ->
-        quantum.split %q1 [ ; ; ] : q<> -> (q<>, q<>, q<>)
     }];
 
-    let arguments = (ins Quantum_QubitType:$qinp);
+    let arguments = (ins
+        Quantum_QubitType:$qinp,
+        Variadic<Index>:$sizes);
 
     let results = (outs 
-        Quantum_QubitType:$qout0, 
-        Quantum_QubitType:$qout1);
-
-    let assemblyFormat = [{
-        $qinp attr-dict `:` type($qinp) `->` `(` type($qout0) `,` type($qout1) `)` 
-    }];
+        Variadic<Quantum_QubitType>:$qouts);
 
     let verifier = [{
-        // if (qout0().getType().cast<QubitType>().getSize()
-        //     + qout1().getType().cast<QubitType>().getSize()
-        //     != qinp().getType().cast<QubitType>().getSize())
-        //     return emitOpError("sizes don't match!");
         return success();
     }];
 }

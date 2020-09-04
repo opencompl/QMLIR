@@ -28,14 +28,12 @@
 using namespace mlir;
 using namespace quantum;
 
-//===----------------------------------------------------------------------===//
-// AllocateOp
-//===----------------------------------------------------------------------===//
 static ParseResult parseDimAndSymbolList(OpAsmParser &parser,
                                         SmallVectorImpl<Value> &operands,
-                                        unsigned &numDims) {
+                                        unsigned &numDims,
+                                        OpAsmParser::Delimiter delim = OpAsmParser::Delimiter::Paren) {
   SmallVector<OpAsmParser::OperandType, 8> opInfos;
-  if (parser.parseOperandList(opInfos, OpAsmParser::Delimiter::Paren))
+  if (parser.parseOperandList(opInfos, delim))
     return failure();
   // Store number of dimensions for validation by caller.
   numDims = opInfos.size();
@@ -48,11 +46,14 @@ static ParseResult parseDimAndSymbolList(OpAsmParser &parser,
   return success();
 }
 
+//===----------------------------------------------------------------------===//
+// AllocateOp
+//===----------------------------------------------------------------------===//
 static ParseResult parseAllocateOp(OpAsmParser &parser, OperationState &state) {
   QubitType type;
 
   // Parse the dimension operands and optional symbol operands, followed by a
-  // memref type.
+  // qubit type.
   unsigned numDimOperands;
   if (parseDimAndSymbolList(parser, state.operands, numDimOperands) ||
       parser.parseOptionalAttrDict(state.attributes) ||
@@ -90,6 +91,73 @@ static void print(quantum::AllocateOp allocateOp, OpAsmPrinter &printer) {
   // print the qubit type
   printer << " : ";
   printer.printType(allocateOp.qout().getType());
+}
+
+//===----------------------------------------------------------------------===//
+// SplitOp
+//===----------------------------------------------------------------------===//
+static ParseResult parseSplitOp(OpAsmParser &parser, OperationState &state) {
+  OpAsmParser::OperandType inputQubit;
+  parser.parseOperand(inputQubit);
+
+  // Parse the dimension operands and optional symbol operands, followed by a
+  // memref type.
+  SmallVector<Value, 4> sizeOperands;
+  unsigned numSizeOperands;
+  QubitType inputType;
+  SmallVector<Type, 4> resultTypes;
+  if (parseDimAndSymbolList(parser,
+                            sizeOperands,
+                            numSizeOperands,
+                            OpAsmParser::Delimiter::OptionalSquare) ||
+      parser.parseOptionalAttrDict(state.attributes) ||
+      parser.parseColonType(inputType) ||
+      parser.parseArrowTypeList(resultTypes))
+    return failure();
+
+  int numDynamicSizeTypes = 0;
+  for (auto e: resultTypes) {
+    if (auto qubitType = e.cast<QubitType>()) {
+      if (!qubitType.hasStaticSize()) {
+        numDynamicSizeTypes++;
+      }
+    } else {
+      return parser.emitError(parser.getNameLoc())
+           << "Invalid type, expected qubit";
+    }
+  }
+
+  if (numDynamicSizeTypes != numSizeOperands)
+    return parser.emitError(parser.getNameLoc())
+           << "Mismatched number of size operands (" << numSizeOperands << ")"
+           << " and dynamic-sized qubit arrays (" << numDynamicSizeTypes << ")";
+
+  parser.resolveOperand(inputQubit, inputType, state.operands);
+  state.addOperands(sizeOperands);
+
+  state.addTypes(resultTypes);
+  return success();
+}
+
+static void print(quantum::SplitOp splitOp, OpAsmPrinter &printer) {
+  printer << splitOp.getOperationName()
+          << ' ' << splitOp.getODSOperands(0).front();
+
+  // print size operands
+  auto sizeOperands = splitOp.getODSOperands(1);
+  if (!sizeOperands.empty()) {
+    printer << "[";
+    printer.printOperands(sizeOperands);
+    printer << "]";
+  }
+
+  // print optional attributes
+  printer.printOptionalAttrDictWithKeyword(splitOp.getAttrs());
+
+  // print the op type
+  printer << " : ";
+  printer.printType(splitOp.getODSOperands(0).front().getType());
+  printer.printArrowTypeList(splitOp.getResultTypes());
 }
 
 namespace mlir {
