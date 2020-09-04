@@ -145,53 +145,22 @@ def Quantum_CastOp : Quantum_Op<"cast", [NoSideEffect]> {
 def Quantum_ConcatOp : Quantum_Op<"concat", [NoSideEffect]> {
     let summary = "Concatenate two arrays of qubits.";
     let description = [{
-        This operation takes two qubit arrays of types `qubit<N>` and 
-        `qubit<M>`, and returns the concatenated array of type `qubit<N+M>`
+        This operation takes two qubit arrays and concatenates them into one.
 
         Example:
 
         ```mlir
         %q1 = quantum.allocate() : !quantum.qubit<4>
         %q2 = quantum.allocate() : !quantum.qubit<5>
-        %q3 = quantum.concat %q1, %q2 : (!quantum.qubit<4>, !quantum.qubit<5>) -> !quantum.qubit<9>
+        %n = constant 3 : index
+        %q3 = quantum.allocate(%n) : !quantum.qubit<?>
+
+        %qall = quantum.concat %q1, %q2, %q3 : (!quantum.qubit<4>, !quantum.qubit<5>, !quantum.qubit<?>) -> !quantum.qubit<9>
         ```
     }];
 
-    let arguments = (ins
-        Quantum_QubitType:$qinp0, 
-        Quantum_QubitType:$qinp1);
-
+    let arguments = (ins Variadic<Quantum_QubitType>:$qinp);
     let results = (outs Quantum_QubitType:$qout);
-
-    let assemblyFormat = [{
-        $qinp0 `,` $qinp1 attr-dict `:` `(` type($qinp0) `,` type($qinp1) `)` `->` type($qout)
-    }];
-
-    let extraClassDeclaration = [{
-        /// Return true if `a` and `b` are valid operand and result pairs for
-        /// the operation.
-        static bool areConcatCompatible(Type a, Type b, Type res) {
-            QubitType qa = a.cast<QubitType>();
-            QubitType qb = b.cast<QubitType>();
-            QubitType qres = res.cast<QubitType>();
-
-            if (qa.hasStaticSize()
-                && qb.hasStaticSize()
-                && qres.hasStaticSize()
-                && qa.getSize() + qb.getSize() != qres.getSize())
-                return false;
-
-            return true;
-        }
-    }];
-
-    let verifier = [{
-        if (!areConcatCompatible(qinp0().getType(),
-                                 qinp1().getType(),
-                                 qout().getType()))
-            return emitOpError("sizes don't add up");
-        return success();
-    }];
 }
 
 //===----------------------------------------------------------------------===//
@@ -201,7 +170,7 @@ def Quantum_ConcatOp : Quantum_Op<"concat", [NoSideEffect]> {
 def Quantum_SplitOp : Quantum_Op<"split", [NoSideEffect]> {
     let summary = "Split an array of qubits into two disjoint arrays";
     let description = [{
-        This operation takes a qubit array, and splits it into multiple arrays.
+        This operation takes a qubit array, and splits it into two arrays.
         For every dynamic result type, it takes a mandatory index type size argument.
 
         Examples:
@@ -223,10 +192,6 @@ def Quantum_SplitOp : Quantum_Op<"split", [NoSideEffect]> {
 
     let results = (outs 
         Variadic<Quantum_QubitType>:$qouts);
-
-    let verifier = [{
-        return success();
-    }];
 }
 
 //===----------------------------------------------------------------------===//

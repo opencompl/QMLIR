@@ -92,7 +92,8 @@ public:
       {rewriter.getIndexType()},
       {MemRefType::get({MemRefType::kDynamicSize},
                        rewriter.getI64Type())});
-    auto acquireFunc = module.lookupSymbol<FuncOp>("__mlir_quantum_simulator__acquire_qubits");
+    auto acquireFunc = module.lookupSymbol<FuncOp>(
+      "__mlir_quantum_simulator__acquire_qubits");
     if (!acquireFunc) {
       // Declare the acquire_qubits function
       OpBuilder::InsertionGuard guard(rewriter);
@@ -204,7 +205,8 @@ public:
     auto concatFuncType = rewriter.getFunctionType(
       {qLibMemRefType, qLibMemRefType},
       {qLibMemRefType});
-    auto concatFunc = module.lookupSymbol<FuncOp>("__mlir_quantum_simulator__concat_qubits");
+    auto concatFunc = module.lookupSymbol<FuncOp>(
+      "__mlir_quantum_simulator__concat_qubits");
     if (!concatFunc) {
       // Declare the concat_qubits function
       OpBuilder::InsertionGuard guard(rewriter);
@@ -220,16 +222,15 @@ public:
 
     // Convert operands to dynamic size (for library call compatibility)
     SmallVector<Value, 2> convertedOperands;
-    for (unsigned i = 0; i < 2; i++) {
-      auto currentOperand = transformed.getODSOperands(i).front();
-      auto argType = currentOperand.getType().cast<MemRefType>();
+    for (auto en: transformed.getODSOperands(0)) {
+      auto argType = en.getType().cast<MemRefType>();
       if (argType.hasStaticShape()) {
         auto castOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
-                                                    currentOperand,
+                                                    en,
                                                     qLibMemRefType);
         convertedOperands.push_back(castOp.getResult());
       } else {
-        convertedOperands.push_back(currentOperand);
+        convertedOperands.push_back(en);
       }
     }
 
@@ -252,8 +253,99 @@ public:
   }
 };
 
+
 //===----------------------------------------------------------------------===//
-// Concat Op Lowering
+// Split Op Lowering
+//===----------------------------------------------------------------------===//
+
+class SplitOpLowering : public QuantumOpToStdPattern<SplitOp> {
+public:
+  using QuantumOpToStdPattern<SplitOp>::QuantumOpToStdPattern;
+
+  LogicalResult
+  matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    // Find the split_qubits function, or declare if it doesn't exist.
+    auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
+
+    auto qLibMemRefType = MemRefType::get({MemRefType::kDynamicSize},
+                                          rewriter.getI64Type());
+    auto qLibIndexType = rewriter.getIndexType();
+    auto splitFuncType = rewriter.getFunctionType(
+      {qLibMemRefType, qLibIndexType, qLibIndexType},
+      {qLibMemRefType, qLibMemRefType});
+    auto splitFunc = module.lookupSymbol<FuncOp>(
+        "__mlir_quantum_simulator__split_qubits");
+    if (!splitFunc) {
+      // Declare the concat_qubits function
+      OpBuilder::InsertionGuard guard(rewriter);
+      rewriter.setInsertionPointToStart(module.getBody());
+      splitFunc = rewriter.create<FuncOp>(
+        rewriter.getUnknownLoc(),
+        "__mlir_quantum_simulator__split_qubits",
+        splitFuncType);
+    }
+
+    auto splitOp = cast<SplitOp>(operation);
+    ConcatOp::Adaptor transformed(operands);
+
+    rewriter.setInsertionPoint(operation);
+
+    SmallVector<Value, 3> splitLibCallOperands;
+    // Convert operand to dynamic size (for library call compatibility)
+    Value convertedOperand = transformed.getODSOperands(0).front();
+    if (convertedOperand.getType().cast<MemRefType>().hasStaticShape()) {
+      auto castOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
+                                                  convertedOperand,
+                                                  qLibMemRefType);
+      convertedOperand = castOp.getResult();
+    }
+    splitLibCallOperands.push_back(convertedOperand);
+
+    auto indexValueIter = transformed.getODSOperands(0).begin() + 1;
+    for (auto en: llvm::enumerate(splitOp.getResults())) {
+      auto qubitType = en.value().getType().cast<QubitType>();
+      if (qubitType.hasStaticSize()) {
+        auto indexOp = rewriter.create<ConstantIndexOp>(
+          rewriter.getUnknownLoc(), qubitType.getSize());
+        splitLibCallOperands.push_back(indexOp.getResult());
+      } else {
+        assert(indexValueIter != transformed.getODSOperands(0).end()
+               && "not enough index operands");
+        splitLibCallOperands.push_back(*indexValueIter);
+        indexValueIter++;
+      }
+    }
+    assert(indexValueIter == transformed.getODSOperands(0).end()
+               && "unused index operands");
+
+    // call library split function
+    auto splitLibCall = rewriter.create<CallOp>(rewriter.getUnknownLoc(),
+                                                splitFunc,
+                                                ValueRange(splitLibCallOperands));
+
+    SmallVector<Value, 2> results;
+    for (auto en: llvm::enumerate(splitOp.getResults())) {
+      if (en.value().getType().cast<QubitType>().hasStaticSize()) {
+        auto resultCastOp = rewriter.create<MemRefCastOp>(
+          rewriter.getUnknownLoc(),
+          splitLibCall.getResult(en.index()),
+          typeConverter.convertType(en.value().getType()));
+        results.push_back(resultCastOp.getResult());
+      } else {
+        results.push_back(splitLibCall.getResult(en.index()));
+      }
+    }
+
+    rewriter.replaceOp(operation, results);
+
+    return success();
+  }
+};
+
+
+//===----------------------------------------------------------------------===//
+// Measure Op Lowering
 //===----------------------------------------------------------------------===//
 
 class MeasureOpLowering : public QuantumOpToStdPattern<MeasureOp> {
@@ -388,6 +480,7 @@ void populateQuantumToStdConversionPatterns(
     CastOpLowering,
     DimensionOpLowering,
     ConcatOpLowering,
+    SplitOpLowering,
     MeasureOpLowering
     >(typeConverter);
 }

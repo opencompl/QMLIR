@@ -93,6 +93,52 @@ static void print(quantum::AllocateOp allocateOp, OpAsmPrinter &printer) {
   printer.printType(allocateOp.qout().getType());
 }
 
+
+//===----------------------------------------------------------------------===//
+// ConcatOp
+//===----------------------------------------------------------------------===//
+static ParseResult parseConcatOp(OpAsmParser &parser, OperationState &state) {
+  // Parse the operands and optional symbol operands, followed by the Op type
+  FunctionType opType;
+  SmallVector<OpAsmParser::OperandType, 4> operands;
+  if (parser.parseOperandList(operands) ||
+      parser.parseOptionalAttrDict(state.attributes) ||
+      parser.parseColonType(opType))
+    return failure();
+
+  if (failed(parser.resolveOperands(operands,
+                                    opType.getInputs(),
+                                    parser.getCurrentLocation(),
+                                    state.operands)))
+    return failure();
+
+  state.addTypes(opType.getResults());
+  return success();
+}
+
+static void print(ConcatOp concatOp, OpAsmPrinter &printer) {
+  printer << concatOp.getOperationName() << ' ';
+
+  // print operands
+  printer.printOperands(concatOp.getOperands());
+
+  // print optional attributes
+  printer.printOptionalAttrDictWithKeyword(concatOp.getAttrs());
+
+  // print the op type
+  printer << " : ";
+  printer.printFunctionalType(concatOp);
+}
+
+static ParseResult verify(ConcatOp concatOp) {
+  auto numInputs = concatOp.getODSOperandIndexAndLength(0).second;
+  if (numInputs != 2)
+    return
+      concatOp.emitOpError("expected 2 arguments, provided ")
+        << numInputs;
+  return success();
+}
+
 //===----------------------------------------------------------------------===//
 // SplitOp
 //===----------------------------------------------------------------------===//
@@ -100,12 +146,12 @@ static ParseResult parseSplitOp(OpAsmParser &parser, OperationState &state) {
   OpAsmParser::OperandType inputQubit;
   parser.parseOperand(inputQubit);
 
-  // Parse the dimension operands and optional symbol operands, followed by a
-  // memref type.
-  SmallVector<Value, 4> sizeOperands;
+  // Parse the size operands and optional symbol operands, followed by
+  // the Op type - qubit type followed by a list of qubit types.
+  SmallVector<Value, 2> sizeOperands;
   unsigned numSizeOperands;
   QubitType inputType;
-  SmallVector<Type, 4> resultTypes;
+  SmallVector<Type, 2> resultTypes;
   if (parseDimAndSymbolList(parser,
                             sizeOperands,
                             numSizeOperands,
@@ -139,7 +185,7 @@ static ParseResult parseSplitOp(OpAsmParser &parser, OperationState &state) {
   return success();
 }
 
-static void print(quantum::SplitOp splitOp, OpAsmPrinter &printer) {
+static void print(SplitOp splitOp, OpAsmPrinter &printer) {
   printer << splitOp.getOperationName()
           << ' ' << splitOp.getODSOperands(0).front();
 
@@ -158,6 +204,15 @@ static void print(quantum::SplitOp splitOp, OpAsmPrinter &printer) {
   printer << " : ";
   printer.printType(splitOp.getODSOperands(0).front().getType());
   printer.printArrowTypeList(splitOp.getResultTypes());
+}
+
+static ParseResult verify(SplitOp splitOp) {
+  auto numOutputs = splitOp.getODSResultIndexAndLength(0).second;
+  if (numOutputs != 2)
+    return
+      splitOp.emitOpError("expected to split into 2 results, provided ")
+        << numOutputs;
+  return success();
 }
 
 namespace mlir {

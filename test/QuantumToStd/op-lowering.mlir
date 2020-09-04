@@ -81,6 +81,57 @@ module {
   }
 
 
+  // CHECK-LABEL: func @split_op_lowering_dynamic(
+  // CHECK-SAME: %[[ARG:.*]]: memref<?xi64>,
+  // CHECK-SAME: %[[SIZE0:.*]]: index,
+  // CHECK-SAME: %[[SIZE1:.*]]: index
+  // CHECK-SAME: ) -> (memref<?xi64>, memref<?xi64>) {
+  func @split_op_lowering_dynamic(%q : !quantum.qubit<?>, %l : index, %r : index)
+        -> (!quantum.qubit<?>, !quantum.qubit<?>) {
+    // CHECK: %[[OUT:.*]]:2 = call @__mlir_quantum_simulator__split_qubits(
+    // CHECK-SAME: %[[ARG]], %[[SIZE0]], %[[SIZE1]]
+    // CHECK-SAME: ) : (memref<?xi64>, index, index) -> (memref<?xi64>, memref<?xi64>)
+    %q1, %q2 = quantum.split %q[%l, %r] : !quantum.qubit<?> -> (!quantum.qubit<?>, !quantum.qubit<?>)
+
+    // CHECK: %[[OUT]]#0, %[[OUT]]#1 : memref<?xi64>, memref<?xi64>
+    return %q1, %q2 : !quantum.qubit<?>, !quantum.qubit<?>
+  }
+
+  // CHECK-LABEL: func @split_op_lowering_static(
+  // CHECK-SAME: %[[ARG:.*]]: memref<5xi64>
+  // CHECK-SAME: ) -> (memref<2xi64>, memref<3xi64>) {
+  func @split_op_lowering_static(%q : !quantum.qubit<5>) -> (!quantum.qubit<2>, !quantum.qubit<3>) {
+    // CHECK: %[[INP:.*]] = memref_cast %[[ARG]] : memref<5xi64> to memref<?xi64>
+    // CHECK-NEXT: %[[SIZE0:.*]] = constant 2 : index
+    // CHECK-NEXT: %[[SIZE1:.*]] = constant 3 : index
+    // CHECK-NEXT: %[[OUT:.*]]:2 = call @__mlir_quantum_simulator__split_qubits(
+    // CHECK-SAME: %[[INP]], %[[SIZE0]], %[[SIZE1]]
+    // CHECK-SAME: ) : (memref<?xi64>, index, index) -> (memref<?xi64>, memref<?xi64>)
+    // CHECK-NEXT: %[[RES0:.*]] = memref_cast %[[OUT]]#0 : memref<?xi64> to memref<2xi64>
+    // CHECK-NEXT: %[[RES1:.*]] = memref_cast %[[OUT]]#1 : memref<?xi64> to memref<3xi64>
+    %q1, %q2 = quantum.split %q : !quantum.qubit<5> -> (!quantum.qubit<2>, !quantum.qubit<3>)
+
+    // CHECK: %[[RES0]], %[[RES1]] : memref<2xi64>, memref<3xi64>
+    return %q1, %q2 : !quantum.qubit<2>, !quantum.qubit<3>
+  }
+
+  // CHECK-LABEL: func @split_op_lowering_mixed(
+  // CHECK-SAME: %[[ARG:.*]]: memref<?xi64>
+  // CHECK-SAME: %[[SIZE0:.*]]: index
+  // CHECK-SAME: ) -> (memref<?xi64>, memref<3xi64>) {
+  func @split_op_lowering_mixed(%q : !quantum.qubit<?>, %head: index) -> (!quantum.qubit<?>, !quantum.qubit<3>) {
+    // CHECK: %[[SIZE1:.*]] = constant 3 : index
+    // CHECK-NEXT: %[[OUT:.*]]:2 = call @__mlir_quantum_simulator__split_qubits(
+    // CHECK-SAME: %[[ARG]], %[[SIZE0]], %[[SIZE1]]
+    // CHECK-SAME: ) : (memref<?xi64>, index, index) -> (memref<?xi64>, memref<?xi64>)
+    // CHECK-NEXT: %[[RES1:.*]] = memref_cast %[[OUT]]#1 : memref<?xi64> to memref<3xi64>
+    %q1, %q2 = quantum.split %q[%head] : !quantum.qubit<?> -> (!quantum.qubit<?>, !quantum.qubit<3>)
+
+    // CHECK: return %[[OUT]]#0, %[[RES1]] : memref<?xi64>, memref<3xi64>
+    return %q1, %q2 : !quantum.qubit<?>, !quantum.qubit<3>
+  }
+
+
   // CHECK-LABEL: func @measure_op_lowering_dynamic(
   // CHECK-SAME: %[[ARG:.*]]: memref<?xi64>
   // CHECK-SAME: ) -> i1 {
