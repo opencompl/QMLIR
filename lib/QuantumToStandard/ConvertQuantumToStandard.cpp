@@ -20,10 +20,10 @@
 #include "mlir/Support/LLVM.h"
 #include "mlir/Support/LogicalResult.h"
 #include "mlir/Transforms/DialectConversion.h"
-#include "llvm/ADT/ArrayRef.h"
-#include "llvm/ADT/None.h"
-#include "llvm/ADT/STLExtras.h"
-#include "llvm/Support/raw_ostream.h"
+//#include "llvm/ADT/ArrayRef.h"
+//#include "llvm/ADT/None.h"
+//#include "llvm/ADT/STLExtras.h"
+//#include "llvm/Support/raw_ostream.h"
 
 using namespace mlir;
 using namespace quantum;
@@ -42,6 +42,31 @@ public:
   LogicalResult
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
                   ConversionPatternRewriter &rewriter) const override {
+    auto loc = operation->getLoc();
+    auto funcOp = cast<FuncOp>(operation);
+
+    // Convert the original function arguments
+    TypeConverter::SignatureConversion inputs(funcOp.getNumArguments());
+    for (auto &en : llvm::enumerate(funcOp.getType().getInputs()))
+      inputs.addInputs(en.index(), typeConverter.convertType(en.value()));
+
+    TypeConverter::SignatureConversion results(funcOp.getNumArguments());
+    for (auto &en : llvm::enumerate(funcOp.getType().getResults()))
+      results.addInputs(en.index(), typeConverter.convertType(en.value()));
+
+    auto funcType =
+        FunctionType::get(inputs.getConvertedTypes(),
+                          results.getConvertedTypes(), funcOp.getContext());
+
+    // Replace the function by a function with an updated signature
+    auto newFuncOp =
+        rewriter.create<FuncOp>(loc, funcOp.getName(), funcType, llvm::None);
+    rewriter.inlineRegionBefore(funcOp.getBody(), newFuncOp.getBody(),
+                                newFuncOp.end());
+
+    // Convert the signature and delete the original operation
+    rewriter.applySignatureConversion(&newFuncOp.getBody(), inputs);
+    rewriter.eraseOp(funcOp);
     return success();
   }
 };
@@ -53,6 +78,17 @@ public:
   LogicalResult
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
                   ConversionPatternRewriter &rewriter) const override {
+    // Find the acquire_qubits function, or declare if it doesn't exist.
+//    auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
+//    auto acquireFunc = module.lookupSymbol<FuncOp>("acquire_qubits");
+//    if (!acquireFunc) {
+//      OpBuilder::InsertionGuard guard(rewriter);
+//      rewriter.setInsertionPointToStart(module.getBody());
+//      acquireFunc = rewriter.create<FuncOp>(
+//        rewriter.getUnknownLoc(), "acquire_qubits", FunctionType::get());
+//    }
+
+    rewriter.eraseOp(operation);
     return success();
   }
 };
@@ -67,9 +103,9 @@ public:
   explicit QuantumToStdTarget(MLIRContext &context)
       : ConversionTarget(context) {}
 
-  bool isDynamicallyLegal(Operation *op) const override {
-    return true;
-  }
+//  bool isDynamicallyLegal(Operation *op) const override {
+//    return true;
+//  }
 };
 
 //===----------------------------------------------------------------------===//
@@ -93,7 +129,18 @@ void QuantumToStandardPass::runOnOperation() {
   target.addLegalDialect<AffineDialect>();
   target.addLegalDialect<StandardOpsDialect>();
   target.addLegalDialect<SCFDialect>();
-  target.addDynamicallyLegalOp<FuncOp>();
+  target.addDynamicallyLegalOp<FuncOp>([](FuncOp funcOp) {
+    auto funcType = funcOp.getType();
+    for (auto& arg: llvm::enumerate(funcType.getInputs())) {
+      if (arg.value().isa<QubitType>())
+        return false;
+    }
+    for (auto& arg: llvm::enumerate(funcType.getResults())) {
+      if (arg.value().isa<QubitType>())
+        return false;
+    }
+    return true;
+  });
   target.addLegalOp<ModuleOp, ModuleTerminatorOp>();
 
   target.addIllegalDialect<QuantumDialect>();
@@ -119,9 +166,18 @@ void populateQuantumToStdConversionPatterns(
 // Quantum Type Converter
 //===----------------------------------------------------------------------===//
 
-QuantumTypeConverter::QuantumTypeConverter(MLIRContext *context_)
-    : context(context_) {
+QuantumTypeConverter::QuantumTypeConverter(MLIRContext *context)
+    : context(context) {
   // Add type conversions
+  addConversion([&](QubitType qubitType) -> Type {
+    return MemRefType::get(qubitType.getMemRefShape(),
+                           qubitType.getMemRefType());
+  });
+  addConversion([&](Type type) -> Optional<Type> {
+    if (type.isa<QubitType>())
+      return llvm::None;
+    return type;
+  });
 }
 
 //===----------------------------------------------------------------------===//
@@ -129,10 +185,10 @@ QuantumTypeConverter::QuantumTypeConverter(MLIRContext *context_)
 //===----------------------------------------------------------------------===//
 
 QuantumToStdPattern::QuantumToStdPattern(StringRef rootOpName,
-                                         QuantumTypeConverter &typeConverter_,
+                                         QuantumTypeConverter &typeConverter,
                                          PatternBenefit benefit)
-    : ConversionPattern(rootOpName, benefit, typeConverter_.getContext()),
-      typeConverter(typeConverter_) {}
+    : ConversionPattern(rootOpName, benefit, typeConverter.getContext()),
+      typeConverter(typeConverter) {}
 
 } // namespace quantum
 } // namespace mlir

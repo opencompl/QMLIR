@@ -11,6 +11,7 @@
 
 #include "mlir/IR/Types.h"
 #include "mlir/IR/TypeSupport.h"
+#include "mlir/IR/StandardTypes.h"
 
 namespace mlir {
 namespace quantum {
@@ -25,16 +26,20 @@ class QubitType : public Type::TypeBase<QubitType, Type,
 public:
   using Base::Base;
 
-  static QubitType get(MLIRContext *ctx, uint64_t size);
+  static QubitType get(MLIRContext *ctx, int64_t size);
 
   // Return true iff the qubit has a fixed size
   bool hasStaticSize() const;
 
   // Return the size
-  uint64_t getSize() const;
+  int64_t getSize() const;
+
+  // Type equivalents for lowering to std
+  ArrayRef<int64_t> getMemRefShape() const;
+  Type getMemRefType() const;
 
   // For unknown-sized qubit arrays (`qubit<?>`)
-  static constexpr int64_t kDynamicSize = -1;
+  static constexpr int64_t kDynamicSize = ShapedType::kDynamicSize;
 };
 
 } // namespace quantum

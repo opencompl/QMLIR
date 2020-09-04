@@ -7,6 +7,8 @@
 //===----------------------------------------------------------------------===//
 
 #include "Quantum/QuantumTypes.h"
+#include "mlir/IR/StandardTypes.h"
+#include "mlir/Support/LLVM.h"
 
 using namespace mlir;
 using namespace mlir::quantum;
@@ -16,10 +18,12 @@ using namespace mlir::quantum;
 //===----------------------------------------------------------------------===//
 
 struct quantum::detail::QubitTypeStorage : public TypeStorage {
-  using KeyTy = uint64_t;
+  using KeyTy = int64_t;
 
-  QubitTypeStorage(uint64_t size)
-      : size(size) {}
+  QubitTypeStorage(int64_t size)
+      : size(size) {
+    memRefShape.push_back(size);
+  }
 
   bool operator==(const KeyTy &key) const {
     return key == KeyTy(size);
@@ -32,10 +36,11 @@ struct quantum::detail::QubitTypeStorage : public TypeStorage {
   }
 
   // number of qubits in the array
-  uint64_t size;
+  int64_t size;
+  SmallVector<int64_t, 1> memRefShape;
 };
 
-QubitType QubitType::get(MLIRContext *ctx, uint64_t size) {
+QubitType QubitType::get(MLIRContext *ctx, int64_t size) {
   return Base::get(ctx, size);
 }
 
@@ -43,6 +48,14 @@ bool QubitType::hasStaticSize() const {
   return getImpl()->size != kDynamicSize;
 }
 
-uint64_t QubitType::getSize() const {
+int64_t QubitType::getSize() const {
   return getImpl()->size;
+}
+
+ArrayRef<int64_t> QubitType::getMemRefShape() const {
+  return getImpl()->memRefShape;
+}
+
+Type QubitType::getMemRefType() const {
+  return IntegerType::get(64, getContext());
 }
