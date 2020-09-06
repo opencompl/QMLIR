@@ -9,9 +9,7 @@
 #ifndef QUANTUM_OPS
 #define QUANTUM_OPS
 
-include "QuantumDialect.td"
 include "mlir/IR/OpBase.td"
-
 // include "mlir/Dialect/StandardOps/IR/StandardOpsBase.td"
 // include "mlir/IR/OpAsmInterface.td"
 // include "mlir/Interfaces/CallInterfaces.td"
@@ -20,11 +18,8 @@ include "mlir/Interfaces/SideEffectInterfaces.td"
 // include "mlir/Interfaces/VectorInterfaces.td"
 // include "mlir/Interfaces/ViewLikeInterface.td"
 
-//===----------------------------------------------------------------------===//
-// Type declarations
-//===----------------------------------------------------------------------===//
-def Quantum_QubitType :
-    Type<CPred<"$_self.isa<QubitType>()">, "Quantum Qubit Type">;
+include "QuantumDialect.td"
+include "QuantumTypes.td"
 
 //===----------------------------------------------------------------------===//
 // Allocate Op
