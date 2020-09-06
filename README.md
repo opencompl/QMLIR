@@ -21,7 +21,7 @@ CMake so that it installs `FileCheck` to the chosen installation prefix.
 
 ## LLVM Build Info
 
-Tested using `llvm` commit `57a26bb7b43556f2` (29/08/2020)
+Tested using `llvm` commit `bef38e86b4e702a0` (06/09/2020)
 
 ## License
 

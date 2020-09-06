@@ -143,21 +143,21 @@ static ParseResult verify(ConcatOp concatOp) {
 // SplitOp
 //===----------------------------------------------------------------------===//
 static ParseResult parseSplitOp(OpAsmParser &parser, OperationState &state) {
-  OpAsmParser::OperandType inputQubit;
-  parser.parseOperand(inputQubit);
+  OpAsmParser::OperandType inputQubitOperand;
+  parser.parseOperand(inputQubitOperand);
 
   // Parse the size operands and optional symbol operands, followed by
   // the Op type - qubit type followed by a list of qubit types.
   SmallVector<Value, 2> sizeOperands;
   unsigned numSizeOperands;
-  QubitType inputType;
+  QubitType inputQubitType;
   SmallVector<Type, 2> resultTypes;
   if (parseDimAndSymbolList(parser,
                             sizeOperands,
                             numSizeOperands,
                             OpAsmParser::Delimiter::OptionalSquare) ||
       parser.parseOptionalAttrDict(state.attributes) ||
-      parser.parseColonType(inputType) ||
+      parser.parseColonType(inputQubitType) ||
       parser.parseArrowTypeList(resultTypes))
     return failure();
 
@@ -178,10 +178,13 @@ static ParseResult parseSplitOp(OpAsmParser &parser, OperationState &state) {
            << "Mismatched number of size operands (" << numSizeOperands << ")"
            << " and dynamic-sized qubit arrays (" << numDynamicSizeTypes << ")";
 
-  parser.resolveOperand(inputQubit, inputType, state.operands);
-  state.addOperands(sizeOperands);
+  SmallVector<Value, 1> inputQubit;
+  parser.resolveOperand(inputQubitOperand, inputQubitType, inputQubit);
 
+  state.addOperands(inputQubit);
+  state.addOperands(sizeOperands);
   state.addTypes(resultTypes);
+
   return success();
 }
 

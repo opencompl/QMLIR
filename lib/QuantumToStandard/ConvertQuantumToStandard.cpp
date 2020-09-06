@@ -1,3 +1,4 @@
+#include <iostream>
 #include "QuantumToStandard/ConvertQuantumToStandard.h"
 #include "QuantumToStandard/Passes.h"
 #include "Quantum/QuantumDialect.h"
@@ -287,7 +288,7 @@ public:
     }
 
     auto splitOp = cast<SplitOp>(operation);
-    ConcatOp::Adaptor transformed(operands);
+    SplitOp::Adaptor transformed(operands);
 
     rewriter.setInsertionPoint(operation);
 
@@ -302,21 +303,25 @@ public:
     }
     splitLibCallOperands.push_back(convertedOperand);
 
-    auto indexValueIter = transformed.getODSOperands(0).begin() + 1;
+    // Get split-size index operands
+    auto indexOperandRange = transformed.getODSOperands(1);
+    auto indexValueIter = indexOperandRange.begin();
     for (auto en: llvm::enumerate(splitOp.getResults())) {
       auto qubitType = en.value().getType().cast<QubitType>();
       if (qubitType.hasStaticSize()) {
+        // create a constant, to pass to splitLibCall
         auto indexOp = rewriter.create<ConstantIndexOp>(
           rewriter.getUnknownLoc(), qubitType.getSize());
         splitLibCallOperands.push_back(indexOp.getResult());
       } else {
-        assert(indexValueIter != transformed.getODSOperands(0).end()
+        // use a provided size operand
+        assert(indexValueIter != indexOperandRange.end()
                && "not enough index operands");
         splitLibCallOperands.push_back(*indexValueIter);
         indexValueIter++;
       }
     }
-    assert(indexValueIter == transformed.getODSOperands(0).end()
+    assert(indexValueIter == indexOperandRange.end()
                && "unused index operands");
 
     // call library split function
@@ -324,6 +329,7 @@ public:
                                                 splitFunc,
                                                 ValueRange(splitLibCallOperands));
 
+    // Un-cast static sized arrays
     SmallVector<Value, 2> results;
     for (auto en: llvm::enumerate(splitOp.getResults())) {
       if (en.value().getType().cast<QubitType>().hasStaticSize()) {
