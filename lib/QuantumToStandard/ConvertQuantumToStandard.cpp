@@ -1,4 +1,11 @@
-#include <iostream>
+//===- ConvertQuantumToStandard.cpp -----------------------------*- C++ -*-===//
+//
+// This file is licensed under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+//===----------------------------------------------------------------------===//
+
 #include "QuantumToStandard/ConvertQuantumToStandard.h"
 #include "QuantumToStandard/Passes.h"
 #include "Quantum/QuantumDialect.h"
@@ -21,10 +28,6 @@
 #include "mlir/Support/LLVM.h"
 #include "mlir/Support/LogicalResult.h"
 #include "mlir/Transforms/DialectConversion.h"
-//#include "llvm/ADT/ArrayRef.h"
-//#include "llvm/ADT/None.h"
-//#include "llvm/ADT/STLExtras.h"
-//#include "llvm/Support/raw_ostream.h"
 
 using namespace mlir;
 using namespace quantum;
