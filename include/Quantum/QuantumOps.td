@@ -267,6 +267,143 @@ def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
 }
 
 //===----------------------------------------------------------------------===//
+// Primitive Gate Ops
+//===----------------------------------------------------------------------===//
+
+// Base Class for primitive gate ops
+// If there are no floating point parameters, the `(...)` are dropped.
+// If there are no controls, the `[...]` is dropped, and the Op only returns one result
+//
+//   %1 = gate(%a0 : f32, ...) %0 : qubit<?>
+//   %1, %c_out = gate(%a0 : f32, ...) [%c_in : qubit<?>] %0 : qubit<?>
+//
+class PrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
+  : Quantum_Op<mnemonic, !listconcat([], traits)> {
+  let arguments = (ins
+    Variadic<AnyFloat>:$params,
+    Quantum_QubitType:$qinp);
+  let results = (outs
+    Quantum_QubitType:$qout);
+
+  let parser = [{ return ::parsePrimitiveGateOp(parser, result); }];
+}
+
+// Base Class for primitive controlled ops
+// If there are no floating point parameters, the `()` are dropped.
+//
+//
+//
+class PrimitiveControlledGateOp<string mnemonic, list<OpTrait> traits = []>
+  : Quantum_Op<mnemonic, !listconcat([], traits)> {
+  let arguments = (ins
+    Variadic<AnyFloat>:$params,
+    Quantum_QubitType:$qcontrols_inp,
+    Quantum_QubitType:$qinp);
+  let results = (outs
+    Quantum_QubitType:$qcontrols_out,
+    Quantum_QubitType:$qout);
+
+  let parser = [{ return ::parsePrimitiveControlledGateOp(parser, result); }];
+}
+
+//===----------------------------------------------------------------------===//
+// Standard Quantum Gates: X Y Z H CNOT
+//===----------------------------------------------------------------------===//
+
+// Base Class for parameterless gate ops
+//
+//   %1 = quantum.gate %0 : !quantum.qubit<?>
+//
+class SimplePrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
+  : PrimitiveGateOp<mnemonic, !listconcat([], traits)> {
+}
+
+def PauliXGateOp : SimplePrimitiveGateOp<"pauliX"> {
+  let summary = "Quantum Pauli X gate";
+  let description = [{
+      Takes a qubit array, and applies the Pauli X gate to each qubit.
+
+      Example:
+      ```mlir
+      // fixed length
+      %q1 = quantum.pauliX %q0 : !quantum.qubit<10>
+
+      // variable length
+      %q1 = quantum.pauliX %q0 : !quantum.qubit<?>
+      ```
+  }];
+}
+
+def PauliYGateOp : SimplePrimitiveGateOp<"pauliY"> {
+  let summary = "Quantum Pauli X gate";
+  let description = [{
+      Takes a qubit array, and applies the Pauli Y gate to each qubit.
+
+      Example:
+      ```mlir
+      // fixed length
+      %q1 = quantum.pauliY %q0 : !quantum.qubit<10>
+
+      // variable length
+      %q1 = quantum.pauliY %q0 : !quantum.qubit<?>
+      ```
+  }];
+}
+
+def PauliZGateOp : SimplePrimitiveGateOp<"pauliZ"> {
+  let summary = "Quantum Pauli X gate";
+  let description = [{
+      Takes a qubit array, and applies the Pauli Z gate to each qubit.
+
+      Example:
+      ```mlir
+      // fixed length
+      %q1 = quantum.pauliZ %q0 : !quantum.qubit<10>
+
+      // variable length
+      %q1 = quantum.pauliZ %q0 : !quantum.qubit<?>
+      ```
+  }];
+}
+
+def HadamardGateOp : SimplePrimitiveGateOp<"H"> {
+  let summary = "Quantum Hadamard gate";
+  let description = [{
+      Takes a qubit array, and applies the Hadamard gate to each qubit.
+
+      Example:
+      ```mlir
+      // fixed length
+      %q1 = quantum.H %q0 : !quantum.qubit<10>
+
+      // variable length
+      %q1 = quantum.H %q0 : !quantum.qubit<?>
+      ```
+  }];
+}
+
+def CNOTGateOp : SimplePrimitiveGateOp<"CNOT"> {
+  let summary = "Quantum CNOT gate";
+  let description = [{
+      Takes a 2-qubit array, and applies the CNOT gate,
+      with the first qubit as control, and second as target.
+
+      Example:
+      ```mlir
+      %q1 = quantum.CNOT %q0 : !quantum.qubit<2>
+      ```
+  }];
+
+  let verifier = [{
+    auto type = qinp().getType().cast<QubitType>();
+    if (!type.hasStaticSize() || type.getSize() != 2)
+      return emitOpError("expected a two qubit array (qubit<2>), got ") << type;
+    return ::verify(*this);
+  }];
+}
+
+
+//===----------------------------------------------------------------------===//
 // Foo Op (for testing)
 //===----------------------------------------------------------------------===//
 

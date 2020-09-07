@@ -218,6 +218,168 @@ static ParseResult verify(SplitOp splitOp) {
   return success();
 }
 
+//===----------------------------------------------------------------------===//
+// Primitive Gate Ops
+//===----------------------------------------------------------------------===//
+
+static ParseResult parseGateParameters(OpAsmParser &parser,
+                                        SmallVectorImpl<Value> &operands) {
+  int numParams = 0;
+  for (bool first = true; ; first = false) {
+    if (first) {
+      // parse optional open `(`
+      if (failed(parser.parseOptionalLParen()))
+        break;
+    } else {
+      // parse optional comma
+      if (failed(parser.parseOptionalComma()))
+        break;
+    }
+
+    // parse a floating point parameter along with a colon type
+    OpAsmParser::OperandType param;
+    if (failed(parser.parseOperand(param)))
+      return failure();
+    FloatType paramType;
+    if (failed(parser.parseColonType(paramType)))
+      return failure();
+
+    parser.resolveOperand(param, paramType, operands);
+    numParams++;
+  }
+
+  if (numParams > 0) {
+    // parse the closing `)`
+    if (failed(parser.parseRParen()))
+      return failure();
+  }
+
+  return success();
+}
+
+static ParseResult parseQubitOperandAndType(OpAsmParser &parser,
+                                        SmallVectorImpl<Value> &operands) {
+  OpAsmParser::OperandType qubitParam;
+  if (failed(parser.parseOperand(qubitParam)))
+    return failure();
+  QubitType qubitType;
+  if (failed(parser.parseColonType(qubitType)))
+    return failure();
+
+  if (failed(parser.resolveOperand(qubitParam, qubitType, operands)))
+    return failure();
+
+  return success();
+}
+
+static ParseResult parsePrimitiveGateOp(OpAsmParser &parser, OperationState &state) {
+  SmallVector<Value, 10> operands;
+
+  // parse the floating point gate parameters
+  if (failed(parseGateParameters(parser, operands)))
+    return failure();
+
+  // parse the qubit operand
+  OpAsmParser::OperandType qubitParam;
+  QubitType qubitType;
+  if (failed(parser.parseOperand(qubitParam)) ||
+      failed(parser.parseOptionalAttrDict(state.attributes)) ||
+      failed(parser.parseColonType(qubitType)) ||
+      failed(parser.resolveOperand(qubitParam, qubitType, operands)))
+    return failure();
+
+  state.addOperands(operands);
+  state.addTypes({qubitType});
+
+  return success();
+}
+
+static ParseResult parsePrimitiveControlledGateOp(OpAsmParser &parser, OperationState &state) {
+  SmallVector<Value, 10> operands;
+  SmallVector<Type, 2> resultTypes;
+
+  // parse the floating point gate parameters
+  if (failed(parseGateParameters(parser, operands)))
+    return failure();
+
+  // parse the control qubits, surrounded by `[` `]`
+  if (failed(parser.parseLSquare()) ||
+      failed(parseQubitOperandAndType(parser, operands)) ||
+      failed(parser.parseRSquare()))
+    return failure();
+  resultTypes.push_back(operands.back().getType());
+
+  // parse the qubit operand
+  OpAsmParser::OperandType qubitParam;
+  QubitType qubitType;
+  if (failed(parser.parseOperand(qubitParam)) ||
+      failed(parser.parseOptionalAttrDict(state.attributes)) ||
+      failed(parser.parseColonType(qubitType)) ||
+      failed(parser.resolveOperand(qubitParam, qubitType, operands)))
+    return failure();
+  resultTypes.push_back(qubitType);
+
+  state.addOperands(operands);
+  state.addTypes(resultTypes);
+
+  return success();
+}
+
+template <typename SimplePrimitiveGateOp>
+static LogicalResult verify(SimplePrimitiveGateOp op) {
+  static_assert(llvm::is_one_of<SimplePrimitiveGateOp,
+    PauliXGateOp,
+    PauliYGateOp,
+    PauliZGateOp,
+    HadamardGateOp,
+    CNOTGateOp>::value,
+                "applies to the quantum parameterless primitive gate ops only");
+
+  // check if the floating point parameter list is empty
+  auto numParams = op.getODSOperandIndexAndLength(0).second;
+  if (numParams != 0)
+    return op.emitOpError("excessive parameters: expected 0, found ") << numParams;
+
+  return success();
+}
+
+template <typename SimplePrimitiveGateOp>
+static void print(SimplePrimitiveGateOp op, OpAsmPrinter &printer) {
+  static_assert(llvm::is_one_of<SimplePrimitiveGateOp,
+    PauliXGateOp,
+    PauliYGateOp,
+    PauliZGateOp,
+    HadamardGateOp,
+    CNOTGateOp>::value,
+                "applies to the quantum parameterless primitive gate ops only");
+
+  printer << op.getOperationName();
+  auto numParams = op.getODSOperandIndexAndLength(0).second;
+  if (numParams > 0) {
+    printer << "(";
+//    bool first = true;
+//    for (Value v: op.getODSOperands(0)) {
+//      if (!first) {
+//        printer << ", ";
+//        first = false;
+//      }
+//      printer << v << " : " << v.getType();
+//    }
+    llvm::interleaveComma(op.getODSOperands(0), printer, [&](Value v) {
+      printer << v << " : " << v.getType();
+    });
+    printer << ")";
+  }
+  printer << " ";
+
+  printer.printOptionalAttrDictWithKeyword(op.getAttrs());
+
+  auto qubit = op.getODSOperands(1)[0];
+  printer.printOperand(qubit);
+  printer << " : ";
+  printer.printType(qubit.getType());
+}
+
 namespace mlir {
 namespace quantum {
 #define GET_OP_CLASSES

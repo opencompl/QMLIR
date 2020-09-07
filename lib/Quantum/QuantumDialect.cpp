@@ -33,6 +33,7 @@ void QuantumDialect::initialize() {
 #define GET_OP_LIST
 #include "Quantum/QuantumOps.cpp.inc"
   >();
+
   addTypes<QubitType>();
 }
 
