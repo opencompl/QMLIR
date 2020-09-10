@@ -269,7 +269,7 @@ public:
   LogicalResult
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
                   ConversionPatternRewriter &rewriter) const override {
-    // Find the split_qubits function, or declare if it doesn't exist.
+    // Find the split function, or declare if it doesn't exist.
     auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
 
     auto qLibMemRefType = MemRefType::get({MemRefType::kDynamicSize},
@@ -281,7 +281,7 @@ public:
     auto splitFunc = module.lookupSymbol<FuncOp>(
         "__mlir_quantum_simulator__split_qubits");
     if (!splitFunc) {
-      // Declare the concat_qubits function
+      // Declare the split function
       OpBuilder::InsertionGuard guard(rewriter);
       rewriter.setInsertionPointToStart(module.getBody());
       splitFunc = rewriter.create<FuncOp>(
@@ -364,7 +364,7 @@ public:
   LogicalResult
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
                   ConversionPatternRewriter &rewriter) const override {
-    // Find the measure_qubits function, or declare if it doesn't exist.
+    // Find the measure function, or declare if it doesn't exist.
     auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
 
     auto qLibMemRefType = MemRefType::get({MemRefType::kDynamicSize},
@@ -375,7 +375,7 @@ public:
                        rewriter.getI1Type())});
     auto measureFunc = module.lookupSymbol<FuncOp>("__mlir_quantum_simulator__measure_qubits");
     if (!measureFunc) {
-      // Declare the concat_qubits function
+      // Declare the measure function
       OpBuilder::InsertionGuard guard(rewriter);
       rewriter.setInsertionPointToStart(module.getBody());
       measureFunc = rewriter.create<FuncOp>(
@@ -402,7 +402,7 @@ public:
       }
     }
 
-    // call library concat function
+    // call library measure function
     auto measureLibCall = rewriter.create<CallOp>(rewriter.getUnknownLoc(),
                                                 measureFunc,
                                                 ValueRange(convertedOperands));
@@ -415,6 +415,81 @@ public:
       rewriter.replaceOp(operation, resultCastOp.getResult());
     } else {
       rewriter.replaceOp(operation, measureLibCall.getResult(0));
+    }
+
+    return success();
+  }
+};
+
+
+//===----------------------------------------------------------------------===//
+// Primitive Gate Op Lowering
+//===----------------------------------------------------------------------===//
+
+template<typename PrimitiveGateOp>
+class PrimitiveGateOpLowering : public QuantumOpToStdPattern<PrimitiveGateOp> {
+  static_assert(llvm::is_one_of<PrimitiveGateOp,
+    PauliXGateOp, PauliYGateOp, PauliZGateOp, HadamardGateOp, CNOTGateOp>::value);
+public:
+  using QuantumOpToStdPattern<PrimitiveGateOp>::QuantumOpToStdPattern;
+
+  LogicalResult
+  matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    auto primitiveGateOp = cast<PrimitiveGateOp>(operation);
+    typename PrimitiveGateOp::Adaptor transformed(operands);
+
+    auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
+
+    // Find the corresponding gate function, or declare if it doesn't exist.
+    auto qLibMemRefType = MemRefType::get({MemRefType::kDynamicSize},
+                                          rewriter.getI64Type());
+    auto gateFuncType = rewriter.getFunctionType(
+      {qLibMemRefType},
+      {qLibMemRefType});
+
+    // get the operation name, without the leading `quantum.`
+    StringRef opName = primitiveGateOp.getOperationName().split('.').second;
+    std::string name = std::string("__mlir_quantum_simulator__gate_")
+                       + std::string(opName.data());
+    auto gateFunc = module.lookupSymbol<FuncOp>(StringRef(name));
+
+    if (!gateFunc) {
+      // Declare the gate function
+      OpBuilder::InsertionGuard guard(rewriter);
+      rewriter.setInsertionPointToStart(module.getBody());
+      gateFunc = rewriter.create<FuncOp>(rewriter.getUnknownLoc(),
+                                         name,
+                                         gateFuncType);
+    }
+
+    // Convert operand to dynamic size (for library call compatibility)
+    SmallVector<Value, 1> convertedOperands;
+    auto inputQubit = transformed.getODSOperands(1).front();
+    auto argType = inputQubit.getType().template cast<MemRefType>();
+    if (argType.hasStaticShape()) {
+      auto castOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
+                                                  inputQubit,
+                                                  qLibMemRefType);
+      convertedOperands.push_back(castOp.getResult());
+    } else {
+      convertedOperands.push_back(inputQubit);
+    }
+
+    // call library gate function
+    auto gateLibCall = rewriter.create<CallOp>(rewriter.getUnknownLoc(),
+                                               gateFunc,
+                                               ValueRange(convertedOperands));
+
+    auto resultType = primitiveGateOp.getType().template cast<QubitType>();
+    if (resultType.hasStaticSize()) {
+      auto resultCastOp = rewriter.create<MemRefCastOp>(
+        rewriter.getUnknownLoc(),
+        gateLibCall.getResult(0),
+        this->typeConverter.convertType(resultType));
+      rewriter.replaceOp(operation, resultCastOp.getResult());
+    } else {
+      rewriter.replaceOp(operation, gateLibCall.getResult(0));
     }
 
     return success();
@@ -485,12 +560,21 @@ void populateQuantumToStdConversionPatterns(
     mlir::OwningRewritePatternList &patterns) {
   patterns.insert<
     FuncOpLowering,
+
+    // Quantum Ops
     AllocateOpLowering,
     CastOpLowering,
     DimensionOpLowering,
     ConcatOpLowering,
     SplitOpLowering,
-    MeasureOpLowering
+    MeasureOpLowering,
+
+    // Quantum Primitive Gate Ops
+    PrimitiveGateOpLowering<PauliXGateOp>,
+    PrimitiveGateOpLowering<PauliYGateOp>,
+    PrimitiveGateOpLowering<PauliZGateOp>,
+    PrimitiveGateOpLowering<HadamardGateOp>,
+    PrimitiveGateOpLowering<CNOTGateOp>
     >(typeConverter);
 }
 

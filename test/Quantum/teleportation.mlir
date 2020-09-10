@@ -7,57 +7,25 @@
 
 // RUN: quantum-opt %s | quantum-opt 
 
-#gateH = {
-  name = "H",
-  size = 1,
-  matrix = dense<
-    [[0.7071067811865476,  0.7071067811865476],
-     [0.7071067811865476, -0.7071067811865476]]> : tensor<2x2xf64>
-}
-
-#gateX = {
-  name = "X",
-  size = 1,
-  matrix = dense<
-    [[0.0, 1.0],
-     [1.0, 0.0]]> : tensor<2x2xf64>
-}
-
-#gateZ = {
-  name = "Z",
-  size = 1,
-  matrix = dense<
-    [[1.0,  0.0],
-     [0.0, -1.0]]> : tensor<2x2xf64>
-}
-
-#gateCNOT = {
-  name = "CNOT",
-  size = 2,
-  matrix = sparse<
-    [[0, 0], [1, 1], [2, 3], [3, 2]],
-    [ 1.0,    1.0,    1.0,    1.0  ]> : tensor<4x4xf64>
-}
-
 func @std_to_bell(%qs: !quantum.qubit<2>) -> !quantum.qubit<2> {
   // H(qs[0])
   %q0, %q1 = quantum.split %qs : !quantum.qubit<2> -> (!quantum.qubit<1>, !quantum.qubit<1>)
-  %q2 = quantum.transform #gateH(%q0) : !quantum.qubit<1>
+  %q2 = quantum.H %q0 : !quantum.qubit<1>
 
   // CNOT(qs[0], qs[1])
   %q3 = quantum.concat %q2, %q1 : (!quantum.qubit<1>, !quantum.qubit<1>) -> !quantum.qubit<2>
-  %q4 = quantum.transform #gateCNOT(%q3) : !quantum.qubit<2>
+  %q4 = quantum.CNOT %q3 : !quantum.qubit<2>
 
   return %q4 : !quantum.qubit<2>
 }
 
 func @bell_to_std(%qs : !quantum.qubit<2>) -> !quantum.qubit<2> {
   // CNOT(qs[0], qs[1])
-  %q0 = quantum.transform #gateCNOT(%qs) : !quantum.qubit<2>
+  %q0 = quantum.CNOT %qs : !quantum.qubit<2>
 
   // H(qs[0])
   %q1, %q2 = quantum.split %q0 : !quantum.qubit<2> -> (!quantum.qubit<1>, !quantum.qubit<1>)
-  %q3 = quantum.transform #gateH(%q1) : !quantum.qubit<1>
+  %q3 = quantum.H %q1 : !quantum.qubit<1>
 
   %q4 = quantum.concat %q3, %q2 : (!quantum.qubit<1>, !quantum.qubit<1>) -> !quantum.qubit<2>
   return %q4 : !quantum.qubit<2>
@@ -80,7 +48,7 @@ func @teleport(%psiA: !quantum.qubit<1>, %eb: !quantum.qubit<2>) -> (!quantum.qu
   %corrX = load %resA[%idx0] : memref<2xi1>
 
   %psiB1 = scf.if %corrX -> !quantum.qubit<1> {
-    %temp = quantum.transform #gateX(%psiB0) : !quantum.qubit<1>
+    %temp = quantum.pauliX %psiB0 : !quantum.qubit<1>
     scf.yield %temp : !quantum.qubit<1>
   } else {
     scf.yield %psiB0 : !quantum.qubit<1>
@@ -91,7 +59,7 @@ func @teleport(%psiA: !quantum.qubit<1>, %eb: !quantum.qubit<2>) -> (!quantum.qu
   %corrZ = load %resA[%idx1] : memref<2xi1>
 
   %psiB2 = scf.if %corrZ -> !quantum.qubit<1> {
-    %temp = quantum.transform #gateZ(%psiB1) : !quantum.qubit<1>
+    %temp = quantum.pauliZ %psiB1 : !quantum.qubit<1>
     scf.yield %temp : !quantum.qubit<1>
   } else {
     scf.yield %psiB1 : !quantum.qubit<1>

@@ -1,26 +1,16 @@
 // RUN: quantum-opt %s | quantum-opt 
 
-#matX = dense<[[0.0, 1.0], [1.0, 0.0]]> : tensor<2x2xf64>
-#vec = dense<[1,2,3]> : tensor<3xi32>
-#gateX = {
-  name = "X",
-  size = 1,
-  matrix = #matX
-}
-
-#toffoli = {
-  name = "Toffoli",
-  size = 3,
-  matrix = sparse<
-    [[0, 0], [1, 1], [2, 2], [3, 3],
-     [4, 4], [5, 5], [6, 7], [7, 6]],
-    [ 1.0,    1.0,    1.0,    1.0,
-      1.0,    1.0,    1.0,    1.0]> : tensor<8x8xf32>
+func @toffoli(%in: !quantum.qubit<3>) -> !quantum.qubit<3> {
+//  %c0, %q0 = quantum.split %in : !quantum.qubit<3> -> (!quantum.qubit<2>, !quantum.qubit<1>)
+//  %c1, %q1 = quantum.controlled [%c0 : !quantum.qubit<2>] %q0 : !quantum.qubit<1>
+//  %out = quantum.concat %c1, %q1 : (!quantum.qubit<2>, !quantum.qubit<1>) -> !quantum.qubit<3>
+//  return %out: !quantum.qubit<3>
+  return %in: !quantum.qubit<3>
 }
 
 func @main() {
   %q0 = quantum.allocate() : !quantum.qubit<3>
-  %q1 = quantum.transform #toffoli(%q0) : !quantum.qubit<3>
+  %q1 = call @toffoli(%q0) : (!quantum.qubit<3>) -> !quantum.qubit<3>
   %q2, %q3 = quantum.split %q1 : !quantum.qubit<3> -> (!quantum.qubit<1>, !quantum.qubit<2>)
   %res = quantum.measure %q2 : !quantum.qubit<1> -> memref<1xi1>
 

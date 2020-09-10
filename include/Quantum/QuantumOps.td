@@ -190,44 +190,6 @@ def Quantum_SplitOp : Quantum_Op<"split", [NoSideEffect]> {
 }
 
 //===----------------------------------------------------------------------===//
-// Transform Op
-//===----------------------------------------------------------------------===//
-
-def Quantum_TransformOp : Quantum_Op<"transform", [NoSideEffect, SameOperandsAndResultType]> {
-    let summary = "Apply a gate to a qubit array";
-    let description = [{
-        This operation takes a qubit array of type `qubit<N>` and 
-        a gate attribute, and applies the gate to the qubit.
-        It returns the same qubit array.
-
-        TODO: specification for gate attribute
-
-        Example:
-
-        ```mlir
-        #gate = { name = "X", matrix = dense<[[0, 1], [1, 0]]> : tensor<2x2xf32> }
-        %q1 = quantum.allocate : !quantum.qubit<4>
-        %q2 = quantum.transform #gate(%q1) : !quantum.qubit<4>
-        ```
-    }];
-
-    let arguments = (ins
-        DictionaryAttr:$gate,
-        Quantum_QubitType:$qinp);
-
-    let results = (outs 
-        Quantum_QubitType:$qout);
-
-    let assemblyFormat = [{
-        $gate `(` $qinp `)` attr-dict `:` type($qinp)
-    }];
-
-    let verifier = [{
-        return success();
-    }];
-}
-
-//===----------------------------------------------------------------------===//
 // Measure Op
 //===----------------------------------------------------------------------===//
 
@@ -258,9 +220,12 @@ def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
     }];
 
     let verifier = [{
-        /// TODO: rewrite check (currently works because both dynamic sizes use -1)
-        if (qinp().getType().cast<QubitType>().getSize() 
-            != res().getType().cast<MemRefType>().getShape()[0])
+        auto qubitType = qinp().getType().cast<QubitType>();
+        auto memRefType = res().getType().cast<MemRefType>();
+
+        if (qubitType.hasStaticSize() != memRefType.hasStaticShape() ||
+            (qubitType.hasStaticSize() &&
+             qubitType.getSize() != memRefType.getShape()[0]))
             return emitOpError("Qubit and result sizes don't match.");
         return success();
     }];
@@ -271,11 +236,10 @@ def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
 //===----------------------------------------------------------------------===//
 
 // Base Class for primitive gate ops
-// If there are no floating point parameters, the `(...)` are dropped.
-// If there are no controls, the `[...]` is dropped, and the Op only returns one result
+// If there are no floating point parameters, the `()` are dropped.
 //
 //   %1 = gate(%a0 : f32, ...) %0 : qubit<?>
-//   %1, %c_out = gate(%a0 : f32, ...) [%c_in : qubit<?>] %0 : qubit<?>
+//
 //
 class PrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
   : Quantum_Op<mnemonic, !listconcat([], traits)> {
@@ -291,7 +255,7 @@ class PrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
 // Base Class for primitive controlled ops
 // If there are no floating point parameters, the `()` are dropped.
 //
-//
+//   %1, %c_out = gate(%a0 : f32, ...) [%c_in : qubit<?>] %0 : qubit<?>
 //
 class PrimitiveControlledGateOp<string mnemonic, list<OpTrait> traits = []>
   : Quantum_Op<mnemonic, !listconcat([], traits)> {
@@ -307,7 +271,7 @@ class PrimitiveControlledGateOp<string mnemonic, list<OpTrait> traits = []>
 }
 
 //===----------------------------------------------------------------------===//
-// Standard Quantum Gates: X Y Z H CNOT
+// Standard Quantum Gates
 //===----------------------------------------------------------------------===//
 
 // Base Class for parameterless gate ops
@@ -402,27 +366,11 @@ def CNOTGateOp : SimplePrimitiveGateOp<"CNOT"> {
   }];
 }
 
-
 //===----------------------------------------------------------------------===//
-// Foo Op (for testing)
+// Unregistered Quantum Gates
 //===----------------------------------------------------------------------===//
 
-def Quantum_FooOp : Quantum_Op<"foo", [SameOperandsAndResultType]> {
-    // let summary = "Testing Operation";
-    // let description = [{
-    //     I'm trying to understand MLIR and Tablegen...
-    // }];
-
-    let arguments = (ins Quantum_QubitType:$qinp, DictionaryAttr:$val);
-    let results = (outs Quantum_QubitType:$qout);
-
-    let assemblyFormat = [{
-        $val `(` $qinp `)` attr-dict `:` type($qinp)
-    }];
-
-    let verifier = [{
-        return success();
-    }];
-}
+// TODO Support for generic gate ops, which can be modified and replaced
+//      by IR tranformations.
 
 #endif // QUANTUM_OPS

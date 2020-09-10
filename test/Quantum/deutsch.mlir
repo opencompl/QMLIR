@@ -13,38 +13,6 @@
 
 // RUN: quantum-opt %s | quantum-opt 
 
-#gateH = {
-  name = "H",
-  size = 1,
-  matrix = dense<
-    [[0.7071067811865476,  0.7071067811865476],
-     [0.7071067811865476, -0.7071067811865476]]> : tensor<2x2xf64>
-}
-
-#gateX = {
-  name = "X",
-  size = 1,
-  matrix = dense<
-    [[0.0, 1.0],
-     [1.0, 0.0]]> : tensor<2x2xf64>
-}
-
-#gateZ = {
-  name = "Z",
-  size = 1,
-  matrix = dense<
-    [[1.0,  0.0],
-     [0.0, -1.0]]> : tensor<2x2xf64>
-}
-
-#gateCNOT = {
-  name = "CNOT",
-  size = 2,
-  matrix = sparse<
-    [[0, 0], [1, 1], [2, 3], [3, 2]],
-    [ 1.0,    1.0,    1.0,    1.0  ]> : tensor<4x4xf64>
-}
-
 // implements U|x⟩|y⟩ = |x⟩|y ⊕ f(x)⟩
 func @oracle(%x : !quantum.qubit<?>, %y : !quantum.qubit<1>)
   -> (!quantum.qubit<?>, !quantum.qubit<1>)
@@ -53,8 +21,8 @@ func @oracle(%x : !quantum.qubit<?>, %y : !quantum.qubit<1>)
 func @phase_flip_oracle(%x : !quantum.qubit<?>)
   -> !quantum.qubit<?> {
   %y0 = quantum.allocate() : !quantum.qubit<1>
-  %y1 = quantum.transform #gateX(%y0) : !quantum.qubit<1>
-  %y2 = quantum.transform #gateH(%y1) : !quantum.qubit<1>
+  %y1 = quantum.pauliX %y0 : !quantum.qubit<1>
+  %y2 = quantum.H %y1 : !quantum.qubit<1>
   %x1, %y3 = call @oracle(%x, %y2)
     : (!quantum.qubit<?>, !quantum.qubit<1>) -> (!quantum.qubit<?>, !quantum.qubit<1>)
 
@@ -71,7 +39,7 @@ func @applyH(%qs : !quantum.qubit<?>) -> !quantum.qubit<?> {
   %qf = scf.for %i = %1 to %n step %1
     iter_args(%q0 = %qs1) -> !quantum.qubit<?> {
     %qh, %qr = quantum.split %q0[%nminus1] : !quantum.qubit<?> -> (!quantum.qubit<1>, !quantum.qubit<?>)
-    %qh1 = quantum.transform #gateH(%qh) : !quantum.qubit<1>
+    %qh1 = quantum.H %qh : !quantum.qubit<1>
     %q1 = quantum.concat %qr, %qh1 : (!quantum.qubit<?>, !quantum.qubit<1>) -> !quantum.qubit<?>
     scf.yield %q1 : !quantum.qubit<?>
   }
