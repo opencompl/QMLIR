@@ -7,10 +7,14 @@ set(LLVM_LINK_COMPONENTS
 set(LLVM_OPTIONAL_SOURCES
   quantum-simulator-wrappers.cpp
   mlir-quantum-simulator.cpp
+  simulator-utils.cpp
+  matrix-utils.cpp
   )
 
 add_llvm_library(quantum-simulator-wrappers SHARED
   quantum-simulator-wrappers.cpp
+  simulator-utils.cpp
+  matrix-utils.cpp
   )
 
 add_llvm_tool(mlir-quantum-simulator
