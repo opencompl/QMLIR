@@ -106,7 +106,7 @@ void Matrix::apply(Ket::iterator st, Ket::iterator en) const {
   Ket temp(numRows, 0.0);
   for (int64_t i = 0; i < numRows; i++) {
     for (int64_t j = 0; j < numCols; j++) {
-      temp[i] += at(i, j) * st[i];
+      temp[i] += at(i, j) * st[j];
     }
   }
 

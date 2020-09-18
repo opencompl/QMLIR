@@ -54,7 +54,7 @@ void QubitRegister::applyIndexPermutation(const vector<int64_t>& perm,
 
   Ket stateCopy(state.size());
 
-  for (int64_t mask = 0; mask < (1ll < numQubits); mask++) {
+  for (int64_t mask = 0; mask < (1ll << numQubits); mask++) {
     int64_t newMask = 0;
     for (int64_t i = 0; i < numQubits; i++) {
       if (!invert) {
@@ -77,20 +77,6 @@ void QubitRegister::applyIndexPermutation(const vector<int64_t>& perm,
 
 void QubitRegister::moveSliceToMSB(const vector<int64_t>& subset, bool invert) {
   vector<int64_t> perm(numQubits, -1);
-  int64_t idx = 0;
-  for (auto i: subset) {
-    perm[i] = idx++;
-  }
-  for (auto& i: perm) {
-    if (i == -1)
-      i = idx++;
-  }
-
-  applyIndexPermutation(perm, invert);
-}
-
-void QubitRegister::moveSliceToLSB(const vector<int64_t>& subset, bool invert) {
-  vector<int64_t> perm(numQubits, -1);
   int64_t idx = numQubits - 1;
   for (auto i: subset) {
     perm[i] = idx--;
@@ -98,6 +84,20 @@ void QubitRegister::moveSliceToLSB(const vector<int64_t>& subset, bool invert) {
   for (auto& i: perm) {
     if (i == -1)
       i = idx--;
+  }
+
+  applyIndexPermutation(perm, invert);
+}
+
+void QubitRegister::moveSliceToLSB(const vector<int64_t>& subset, bool invert) {
+  vector<int64_t> perm(numQubits, -1);
+  int64_t idx = 0;
+  for (auto i: subset) {
+    perm[i] = idx++;
+  }
+  for (auto& i: perm) {
+    if (i == -1)
+      i = idx++;
   }
 
   applyIndexPermutation(perm, invert);
@@ -171,22 +171,24 @@ ResultRef QubitRegister::measureQubits(const QubitSlice& q, QuantumSimulator& si
     double p1 = 1.0 - p0;
 
     if (simulator.getTrueWithProbP(p0)) {
+      double scale = sqrt(p0);
       // measured |0⟩
       // scale the first half
       for (auto it = state.begin(); it != state.begin() + state.size() / 2; it++) {
-        *it /= p0;
+        *it /= scale;
       }
       // set the second half to 0
       fill(state.begin() + state.size() / 2, state.end(), 0.0);
 
       result[index] = 0;
     } else {
+      double scale = sqrt(p1);
       // measure |1⟩
       // set the first half to zero
       fill(state.begin(), state.begin() + state.size() / 2, 0.0);
       // scale the second half
       for (auto it = state.begin() + state.size() / 2; it != state.end(); it++) {
-        *it /= p0;
+        *it /= scale;
       }
 
       result[index] = 1;

@@ -15,6 +15,7 @@
 #include "mlir/Dialect/Affine/IR/AffineOps.h"
 #include "mlir/Dialect/SCF/SCF.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
+#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/IR/AffineMap.h"
 #include "mlir/IR/BlockAndValueMapping.h"
 #include "mlir/IR/Builders.h"
@@ -527,6 +528,7 @@ void QuantumToStandardPass::runOnOperation() {
   
   target.addLegalDialect<AffineDialect>();
   target.addLegalDialect<StandardOpsDialect>();
+  target.addLegalDialect<LLVM::LLVMDialect>();
   target.addLegalDialect<scf::SCFDialect>();
   target.addDynamicallyLegalOp<FuncOp>([](FuncOp funcOp) {
     auto funcType = funcOp.getType();

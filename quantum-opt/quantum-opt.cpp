@@ -10,6 +10,7 @@
 #include "Quantum/QuantumDialect.h"
 #include "mlir/Dialect/SCF/SCF.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
+#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/IR/AsmState.h"
 #include "mlir/InitAllDialects.h"
 #include "mlir/InitAllPasses.h"
@@ -21,18 +22,17 @@
 
 using namespace mlir;
 
-int main(int argc, char **argv) {
-  registerAllDialects();
-  registerAllPasses();
-
-  // Register the quantum passes
-  // registerQuantumPasses();
+void registerQuantumPasses() {
   registerQuantumConversionPasses();
+}
 
+int main(int argc, char **argv) {
   mlir::DialectRegistry registry;
+  registerAllDialects(registry);
   registry.insert<quantum::QuantumDialect>();
-  registry.insert<StandardOpsDialect>();
-  registry.insert<scf::SCFDialect>();
+
+  registerAllPasses();
+  registerQuantumPasses();
 
   return failed(
       mlir::MlirOptMain(argc, argv, "Quantum dialect driver\n", registry));
