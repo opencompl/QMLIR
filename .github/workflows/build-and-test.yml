@@ -3,7 +3,7 @@ name: Build and test
 on: [push, pull_request]
 
 env:
-  LLVM_COMMIT: c913f6dce69513b430f705d5a1f4e745f5d0a27e
+  LLVM_COMMIT: 5a733468e09482b442da1a20aa083d2939f4d136
   CMAKE_FLAGS: '-DCMAKE_LINKER=lld -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DMLIR_DIR=$GITHUB_WORKSPACE/llvm-project/prefix/lib/cmake/mlir/ -DLLVM_DIR=$GITHUB_WORKSPACE/llvm-project/prefix/lib/cmake/llvm/ -DLLVM_EXTERNAL_LIT=$GITHUB_WORKSPACE/llvm-project/build/bin/llvm-lit'
 
 jobs:
@@ -56,7 +56,7 @@ jobs:
           mkdir $GITHUB_WORKSPACE/mlir-standalone/sanitizer-build
           cd $GITHUB_WORKSPACE/mlir-standalone/sanitizer-build
           cmake $GITHUB_WORKSPACE/mlir-standalone -DCMAKE_BUILD_TYPE=Debug -DUSE_SANITIZER='Address;Undefined' ${{ env.CMAKE_FLAGS }}
-          cmake --build . --target check-standalone-opt -- -j$(nproc)
+          cmake --build . --target check-quantum-opt -- -j$(nproc)
       - name: Release build
         run: |
           mkdir $GITHUB_WORKSPACE/mlir-standalone/build

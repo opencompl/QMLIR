@@ -25,7 +25,7 @@
 #include "llvm/Support/Casting.h"
 
 using namespace mlir;
-using namespace quantum;
+using namespace mlir::quantum;
 
 static ParseResult parseDimAndSymbolList(
     OpAsmParser &parser, SmallVectorImpl<Value> &operands, unsigned &numDims,
@@ -74,7 +74,7 @@ static ParseResult parseAllocateOp(OpAsmParser &parser, OperationState &state) {
   return success();
 }
 
-static void print(quantum::AllocateOp allocateOp, OpAsmPrinter &printer) {
+static void print(AllocateOp allocateOp, OpAsmPrinter &printer) {
   printer << allocateOp.getOperationName();
 
   // print size operands
@@ -344,14 +344,6 @@ static void print(SimplePrimitiveGateOp op, OpAsmPrinter &printer) {
   auto numParams = op.getODSOperandIndexAndLength(0).second;
   if (numParams > 0) {
     printer << "(";
-    //    bool first = true;
-    //    for (Value v: op.getODSOperands(0)) {
-    //      if (!first) {
-    //        printer << ", ";
-    //        first = false;
-    //      }
-    //      printer << v << " : " << v.getType();
-    //    }
     llvm::interleaveComma(op.getODSOperands(0), printer, [&](Value v) {
       printer << v << " : " << v.getType();
     });
@@ -367,9 +359,5 @@ static void print(SimplePrimitiveGateOp op, OpAsmPrinter &printer) {
   printer.printType(qubit.getType());
 }
 
-namespace mlir {
-namespace quantum {
 #define GET_OP_CLASSES
 #include "Quantum/QuantumOps.cpp.inc"
-} // namespace quantum
-} // namespace mlir

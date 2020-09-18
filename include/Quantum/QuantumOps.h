@@ -18,13 +18,7 @@
 
 #include "Quantum/QuantumTypes.h"
 
-namespace mlir {
-namespace quantum {
-
 #define GET_OP_CLASSES
 #include "Quantum/QuantumOps.h.inc"
-
-} // namespace quantum
-} // namespace mlir
 
 #endif // QUANTUM_QUANTUMOPS_H

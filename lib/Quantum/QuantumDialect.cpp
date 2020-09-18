@@ -32,7 +32,7 @@ void QuantumDialect::initialize() {
   addTypes<QubitType>();
 }
 
-Type QuantumDialect::parseType(mlir::DialectAsmParser &parser) const {
+Type QuantumDialect::parseType(DialectAsmParser &parser) const {
   llvm::StringRef keyword;
 
   if (failed(parser.parseKeyword(&keyword))) {
@@ -66,8 +66,8 @@ Type QuantumDialect::parseType(mlir::DialectAsmParser &parser) const {
   return Type();
 }
 
-void QuantumDialect::printType(mlir::Type type,
-                               mlir::DialectAsmPrinter &printer) const {
+void QuantumDialect::printType(Type type,
+                               DialectAsmPrinter &printer) const {
   if (type.isa<QubitType>()) {
     QubitType qubit = type.cast<QubitType>();
 
