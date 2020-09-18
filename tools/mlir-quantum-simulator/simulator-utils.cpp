@@ -223,14 +223,73 @@ void QubitRegister::applyTransform(const QubitSlice &q, const Matrix &gate) {
 
 void QubitRegister::showFullState() const {
   cerr << "> state = {";
-  bool first = true;
-  for (auto v : state) {
-    if (!first) {
-      cerr << ", ";
+  llvm::interleave(
+      state,
+      [&](const complex<double> &v) { cerr << v.real() << "+" << v.imag() << "i"; },
+      [&]() { cerr << ", "; });
+  cerr << "}" << endl;
+}
+
+void QubitRegister::showPartialState(const QubitSlice &qs,
+                                     QuantumSimulator &simulator) {
+  // Equivalent to measuring the remaining qubits
+  // If the state is dependent on the measurement outcome, then the qubits are
+  // entangled. In that case, display an error message.
+
+  vector<int64_t> usedQubits(qs.begin(), qs.end());
+  llvm::sort(usedQubits);
+  vector<int64_t> remainingQubits;
+  for (int64_t i = 0, j = 0, k = 0; i < this->numQubits; i++) {
+    if (j < usedQubits.size() && usedQubits[j] == i) {
+      j++;
+    } else {
+      remainingQubits.push_back(i);
+      k++;
     }
-    first = false;
-    cerr << v;
   }
+
+  this->moveSliceToMSB(remainingQubits);
+
+  const int64_t usedDimension = 1ll << usedQubits.size(),
+                remainingDimension = 1ll << remainingQubits.size();
+  llvm::Optional<Ket> partialState;
+  for (int64_t base = 0; base < remainingDimension; base++) {
+    Ket current(state.begin() + base * usedDimension,
+                state.begin() + (base + 1) * usedDimension);
+
+    double p2 =
+        std::accumulate(current.begin(), current.end(), 0.0,
+                        [&](double d, const complex<double> &a) -> double {
+                          return d + abs(a * conj(a));
+                        });
+
+    if (p2 < QuantumSimulator::eps)
+      continue;
+
+    if (!partialState)
+      partialState = current;
+    if (!simulator.checkStatesEqual(partialState.getValue(), current)) {
+      partialState.reset();
+      break;
+    }
+  }
+
+  this->moveSliceToMSB(remainingQubits, /*invert=*/true);
+
+  if (!partialState) {
+    cerr << "<error printing partial state: qubits entangled>\n";
+    return;
+  }
+
+  cerr << "> state[";
+  llvm::interleave(
+      vector<int64_t>(qs.begin(), qs.end()), [&](int64_t x) { cerr << x; },
+      [&]() { cerr << ", "; });
+  cerr << "] = {";
+  llvm::interleave(
+      partialState.getValue(),
+      [&](const complex<double> &v) { cerr << v.real() << "+" << v.imag() << "i"; },
+      [&]() { cerr << ", "; });
   cerr << "}" << endl;
 }
 
@@ -247,6 +306,18 @@ double QuantumSimulator::getRandomReal() {
 bool QuantumSimulator::getTrueWithProbP(double p) {
   return getRandomReal() <= p;
 }
+bool QuantumSimulator::checkStatesEqual(const Ket &a, const Ket &b) {
+  if (a.size() != b.size())
+    return false;
+
+  for (size_t i = 0; i < a.size(); i++) {
+    auto diff = a[i] - b[i];
+    if (abs(diff) > this->eps)
+      return false;
+  }
+
+  return true;
+}
 
 //============================================================================//
 // SimpleQuantumSimulator
@@ -254,15 +325,15 @@ bool QuantumSimulator::getTrueWithProbP(double p) {
 
 SimpleQuantumSimulator::SimpleQuantumSimulator(int64_t numQubits, uint64_t seed)
     : QuantumSimulator(seed) {
-  simulatorLog(SimulatorLoggingSeverity::INFO, "simulator",
-               Twine("starting simulation with ")
-                   .concat(Twine(numQubits))
-                   .concat(" qubits..."));
+//  simulatorLog(SimulatorLoggingSeverity::INFO, "simulator",
+//               Twine("starting simulation with ")
+//                   .concat(Twine(numQubits))
+//                   .concat(" qubits..."));
   qubitRegister = make_unique<QubitRegister>(numQubits);
 }
 SimpleQuantumSimulator::~SimpleQuantumSimulator() {
-  simulatorLog(SimulatorLoggingSeverity::INFO, "simulator",
-               Twine("shutting down..."));
+//  simulatorLog(SimulatorLoggingSeverity::INFO, "simulator",
+//               Twine("shutting down..."));
 }
 
 // Simulation support functions
@@ -284,9 +355,8 @@ ResultRef SimpleQuantumSimulator::measureQubits(const QubitSlice &q) {
 
 void SimpleQuantumSimulator::showFullState() { qubitRegister->showFullState(); }
 
-void SimpleQuantumSimulator::showPartialState(const QubitSlice &q) {
-  simulatorLog(SimulatorLoggingSeverity::CRITICAL,
-               "simulator::showPartialState", Twine("UNIMPLEMENTED"));
+void SimpleQuantumSimulator::showPartialState(const QubitSlice &qs) {
+  qubitRegister->showPartialState(qs, *this);
 }
 
 void SimpleQuantumSimulator::applyTransform(const QubitSlice &q,
