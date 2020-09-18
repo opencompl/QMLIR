@@ -6,16 +6,15 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Quantum/QuantumDialect.h"
-#include "Quantum/QuantumOps.h"
-#include "Quantum/QuantumTypes.h"
-
-// includes
 #include "mlir/IR/DialectImplementation.h"
 #include "mlir/IR/Module.h"
 #include "mlir/IR/Types.h"
 #include "mlir/Support/LLVM.h"
 #include "mlir/Support/LogicalResult.h"
+
+#include "Quantum/QuantumDialect.h"
+#include "Quantum/QuantumOps.h"
+#include "Quantum/QuantumTypes.h"
 
 using namespace mlir;
 using namespace mlir::quantum;
@@ -28,7 +27,7 @@ void QuantumDialect::initialize() {
   addOperations<
 #define GET_OP_LIST
 #include "Quantum/QuantumOps.cpp.inc"
-  >();
+      >();
 
   addTypes<QubitType>();
 }

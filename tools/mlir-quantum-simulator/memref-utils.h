@@ -24,17 +24,17 @@ struct MemRef1D {
   int64_t size() const;
 
   /// return the pointer to the first element
-  Elem* begin() const;
+  Elem *begin() const;
 
   /// return the pointer to one past the last element
-  Elem* end() const;
+  Elem *end() const;
 
   /// Get a dynamically allocated array with `size` elements
   static MemRef1D<Elem> get(int64_t size);
 
   /// Get a dynamically allocated array with `size` elements
   ///  and initialize them with the values in `init`
-  static MemRef1D<Elem> get(const std::vector<Elem>& init);
+  static MemRef1D<Elem> get(const std::vector<Elem> &init);
 
   void release() const;
 };
@@ -57,23 +57,23 @@ int64_t MemRef1D<Elem>::size() const {
 }
 
 template <typename Elem>
-Elem* MemRef1D<Elem>::begin() const {
+Elem *MemRef1D<Elem>::begin() const {
   return alignedPtr;
 }
 
 template <typename Elem>
-Elem* MemRef1D<Elem>::end() const {
+Elem *MemRef1D<Elem>::end() const {
   return alignedPtr + size();
 }
 
 template <typename Elem>
 static MemRef1D<Elem> MemRef1D<Elem>::get(int64_t size) {
-  Elem* mem = new Elem[size];
+  Elem *mem = new Elem[size];
   return MemRef1D<Elem>{mem, mem, 0, {size}, {1}};
 }
 
 template <typename Elem>
-static MemRef1D<Elem> MemRef1D<Elem>::get(const std::vector<Elem>& init) {
+static MemRef1D<Elem> MemRef1D<Elem>::get(const std::vector<Elem> &init) {
   auto res = MemRef1D<Elem>::get(init.size());
   std::copy(init.begin(), init.end(), res.alignedPtr);
   return res;

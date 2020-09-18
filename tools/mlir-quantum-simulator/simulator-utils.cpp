@@ -5,23 +5,23 @@
 using namespace std;
 using namespace llvm;
 
-void simulatorLog(int severity, const char* op, const Twine& err) {
+void simulatorLog(int severity, const char *op, const Twine &err) {
   switch (severity) {
-    case SimulatorLoggingSeverity::DEBUG:
-      cerr << "[DEBUG]";
-      break;
-    case SimulatorLoggingSeverity::INFO:
-      cerr << "[INFO]";
-      break;
-    case SimulatorLoggingSeverity::WARN:
-      cerr << "[WARN]";
-      break;
-    case SimulatorLoggingSeverity::ERROR:
-      cerr << "[ERROR]";
-      break;
-    case SimulatorLoggingSeverity::CRITICAL:
-      cerr << "[CRITICAL]";
-      break;
+  case SimulatorLoggingSeverity::DEBUG:
+    cerr << "[DEBUG]";
+    break;
+  case SimulatorLoggingSeverity::INFO:
+    cerr << "[INFO]";
+    break;
+  case SimulatorLoggingSeverity::WARN:
+    cerr << "[WARN]";
+    break;
+  case SimulatorLoggingSeverity::ERROR:
+    cerr << "[ERROR]";
+    break;
+  case SimulatorLoggingSeverity::CRITICAL:
+    cerr << "[CRITICAL]";
+    break;
   }
 
   cerr << " " << op << " - " << err.str() << endl;
@@ -34,11 +34,9 @@ void simulatorLog(int severity, const char* op, const Twine& err) {
 // QubitRegister
 //============================================================================//
 
-QubitRegister::QubitRegister(int64_t num):
-    numQubits(num),
-    dimension(1ll << num),
-    state(dimension, 0.0),
-    unusedIndices() {
+QubitRegister::QubitRegister(int64_t num)
+    : numQubits(num), dimension(1ll << num), state(dimension, 0.0),
+      unusedIndices() {
   // initial state is all 0s
   state[0] = 1.0;
 
@@ -48,7 +46,7 @@ QubitRegister::QubitRegister(int64_t num):
   }
 }
 
-void QubitRegister::applyIndexPermutation(const vector<int64_t>& perm,
+void QubitRegister::applyIndexPermutation(const vector<int64_t> &perm,
                                           bool invert) {
   assert(perm.size() == numQubits);
 
@@ -75,13 +73,13 @@ void QubitRegister::applyIndexPermutation(const vector<int64_t>& perm,
   swap(state, stateCopy);
 }
 
-void QubitRegister::moveSliceToMSB(const vector<int64_t>& subset, bool invert) {
+void QubitRegister::moveSliceToMSB(const vector<int64_t> &subset, bool invert) {
   vector<int64_t> perm(numQubits, -1);
   int64_t idx = numQubits - 1;
-  for (auto i: subset) {
+  for (auto i : subset) {
     perm[i] = idx--;
   }
-  for (auto& i: perm) {
+  for (auto &i : perm) {
     if (i == -1)
       i = idx--;
   }
@@ -89,13 +87,13 @@ void QubitRegister::moveSliceToMSB(const vector<int64_t>& subset, bool invert) {
   applyIndexPermutation(perm, invert);
 }
 
-void QubitRegister::moveSliceToLSB(const vector<int64_t>& subset, bool invert) {
+void QubitRegister::moveSliceToLSB(const vector<int64_t> &subset, bool invert) {
   vector<int64_t> perm(numQubits, -1);
   int64_t idx = 0;
-  for (auto i: subset) {
+  for (auto i : subset) {
     perm[i] = idx++;
   }
-  for (auto& i: perm) {
+  for (auto &i : perm) {
     if (i == -1)
       i = idx++;
   }
@@ -103,12 +101,10 @@ void QubitRegister::moveSliceToLSB(const vector<int64_t>& subset, bool invert) {
   applyIndexPermutation(perm, invert);
 }
 
-
 QubitSlice QubitRegister::acquireQubits(int64_t size) {
   if (unusedIndices.size() < size) {
-    simulatorLog(SimulatorLoggingSeverity::ERROR,
-                   "allocate",
-                   Twine("Unable to allocate ")
+    simulatorLog(SimulatorLoggingSeverity::ERROR, "allocate",
+                 Twine("Unable to allocate ")
                      .concat(Twine(size))
                      .concat(" qubits, only have ")
                      .concat(Twine(unusedIndices.size()))
@@ -116,17 +112,19 @@ QubitSlice QubitRegister::acquireQubits(int64_t size) {
   }
 
   vector<int64_t> allocated;
-  for (auto i: unusedIndices) {
+  for (auto i : unusedIndices) {
     allocated.push_back(i);
-    if (allocated.size() == size) break;
+    if (allocated.size() == size)
+      break;
   }
-  for (int i: allocated) {
+  for (int i : allocated) {
     unusedIndices.erase(i);
   }
   return QubitSlice::get(allocated);
 }
 
-QubitSlice QubitRegister::concatQubits(const QubitSlice& q1, const QubitSlice& q2) {
+QubitSlice QubitRegister::concatQubits(const QubitSlice &q1,
+                                       const QubitSlice &q2) {
   vector<int64_t> combined;
 
   combined.insert(combined.end(), q1.begin(), q1.end());
@@ -138,11 +136,11 @@ QubitSlice QubitRegister::concatQubits(const QubitSlice& q1, const QubitSlice& q
   return QubitSlice::get(combined);
 }
 
-pair<QubitSlice, QubitSlice> QubitRegister::splitQubits(const QubitSlice& q, int64_t size1, int64_t size2) {
+pair<QubitSlice, QubitSlice>
+QubitRegister::splitQubits(const QubitSlice &q, int64_t size1, int64_t size2) {
   if (q.size() != size1 + size2) {
-    simulatorLog(SimulatorLoggingSeverity::ERROR,
-                   "split",
-                   Twine("Mismatched split sizes, got ")
+    simulatorLog(SimulatorLoggingSeverity::ERROR, "split",
+                 Twine("Mismatched split sizes, got ")
                      .concat(Twine(q.size()))
                      .concat(" qubits, but requested to split into ")
                      .concat(Twine(size1))
@@ -150,14 +148,16 @@ pair<QubitSlice, QubitSlice> QubitRegister::splitQubits(const QubitSlice& q, int
                      .concat(Twine(size2)));
   }
 
-  QubitSlice q1 = QubitSlice::get(vector<int64_t>(q.begin(), q.begin() + size1));
+  QubitSlice q1 =
+      QubitSlice::get(vector<int64_t>(q.begin(), q.begin() + size1));
   QubitSlice q2 = QubitSlice::get(vector<int64_t>(q.begin() + size1, q.end()));
   q.release();
 
   return {q1, q2};
 }
 
-ResultRef QubitRegister::measureQubits(const QubitSlice& q, QuantumSimulator& simulator) {
+ResultRef QubitRegister::measureQubits(const QubitSlice &q,
+                                       QuantumSimulator &simulator) {
   ResultRef result = ResultRef::get(q.size());
 
   // Moving to MSB makes measurement simple
@@ -166,7 +166,7 @@ ResultRef QubitRegister::measureQubits(const QubitSlice& q, QuantumSimulator& si
 
     double p0 = 0;
     for (int64_t i = 0; i < state.size() / 2; i++) {
-      p0 += abs(state[i]*conj(state[i]));
+      p0 += abs(state[i] * conj(state[i]));
     }
     double p1 = 1.0 - p0;
 
@@ -174,7 +174,8 @@ ResultRef QubitRegister::measureQubits(const QubitSlice& q, QuantumSimulator& si
       double scale = sqrt(p0);
       // measured |0⟩
       // scale the first half
-      for (auto it = state.begin(); it != state.begin() + state.size() / 2; it++) {
+      for (auto it = state.begin(); it != state.begin() + state.size() / 2;
+           it++) {
         *it /= scale;
       }
       // set the second half to 0
@@ -187,7 +188,8 @@ ResultRef QubitRegister::measureQubits(const QubitSlice& q, QuantumSimulator& si
       // set the first half to zero
       fill(state.begin(), state.begin() + state.size() / 2, 0.0);
       // scale the second half
-      for (auto it = state.begin() + state.size() / 2; it != state.end(); it++) {
+      for (auto it = state.begin() + state.size() / 2; it != state.end();
+           it++) {
         *it /= scale;
       }
 
@@ -222,7 +224,7 @@ void QubitRegister::applyTransform(const QubitSlice &q, const Matrix &gate) {
 void QubitRegister::showFullState() const {
   cerr << "> state = {";
   bool first = true;
-  for (auto v: state) {
+  for (auto v : state) {
     if (!first) {
       cerr << ", ";
     }
@@ -236,9 +238,7 @@ void QubitRegister::showFullState() const {
 // QuantumSimulator
 //============================================================================//
 QuantumSimulator::QuantumSimulator(uint64_t seed)
-  : generator(seed),
-  equiprobableDistribution(0.0, 1.0) {
-}
+    : generator(seed), equiprobableDistribution(0.0, 1.0) {}
 
 double QuantumSimulator::getRandomReal() {
   return equiprobableDistribution(generator);
@@ -252,17 +252,16 @@ bool QuantumSimulator::getTrueWithProbP(double p) {
 // SimpleQuantumSimulator
 //============================================================================//
 
-SimpleQuantumSimulator::SimpleQuantumSimulator(int64_t numQubits, uint64_t seed): QuantumSimulator(seed) {
-  simulatorLog(SimulatorLoggingSeverity::INFO,
-               "simulator",
+SimpleQuantumSimulator::SimpleQuantumSimulator(int64_t numQubits, uint64_t seed)
+    : QuantumSimulator(seed) {
+  simulatorLog(SimulatorLoggingSeverity::INFO, "simulator",
                Twine("starting simulation with ")
-               .concat(Twine(numQubits))
-               .concat(" qubits..."));
+                   .concat(Twine(numQubits))
+                   .concat(" qubits..."));
   qubitRegister = make_unique<QubitRegister>(numQubits);
 }
 SimpleQuantumSimulator::~SimpleQuantumSimulator() {
-  simulatorLog(SimulatorLoggingSeverity::INFO,
-               "simulator",
+  simulatorLog(SimulatorLoggingSeverity::INFO, "simulator",
                Twine("shutting down..."));
 }
 
@@ -270,32 +269,35 @@ SimpleQuantumSimulator::~SimpleQuantumSimulator() {
 QubitSlice SimpleQuantumSimulator::acquireQubits(int64_t size) {
   return qubitRegister->acquireQubits(size);
 }
-QubitSlice SimpleQuantumSimulator::concatQubits(const QubitSlice& q1, const QubitSlice& q2) {
+QubitSlice SimpleQuantumSimulator::concatQubits(const QubitSlice &q1,
+                                                const QubitSlice &q2) {
   return qubitRegister->concatQubits(q1, q2);
 }
-pair<QubitSlice, QubitSlice> SimpleQuantumSimulator::splitQubits(const QubitSlice& q, int64_t size1, int64_t size2) {
+pair<QubitSlice, QubitSlice>
+SimpleQuantumSimulator::splitQubits(const QubitSlice &q, int64_t size1,
+                                    int64_t size2) {
   return qubitRegister->splitQubits(q, size1, size2);
 }
-ResultRef SimpleQuantumSimulator::measureQubits(const QubitSlice& q) {
+ResultRef SimpleQuantumSimulator::measureQubits(const QubitSlice &q) {
   return qubitRegister->measureQubits(q, *this);
 }
 
-void SimpleQuantumSimulator::showFullState() {
-  qubitRegister->showFullState();
-}
+void SimpleQuantumSimulator::showFullState() { qubitRegister->showFullState(); }
 
-void SimpleQuantumSimulator::showPartialState(const QubitSlice& q) {
+void SimpleQuantumSimulator::showPartialState(const QubitSlice &q) {
   simulatorLog(SimulatorLoggingSeverity::CRITICAL,
-               "simulator::showPartialState",
-               Twine("UNIMPLEMENTED"));
+               "simulator::showPartialState", Twine("UNIMPLEMENTED"));
 }
 
-void SimpleQuantumSimulator::applyTransform(const QubitSlice &q, const Matrix &gate) {
+void SimpleQuantumSimulator::applyTransform(const QubitSlice &q,
+                                            const Matrix &gate) {
   qubitRegister->applyTransform(q, gate);
 }
 
-void SimpleQuantumSimulator::applyTransformToEach(const QubitSlice &q, const Matrix &gate) {
-  if (q.size() == 0) return;
+void SimpleQuantumSimulator::applyTransformToEach(const QubitSlice &q,
+                                                  const Matrix &gate) {
+  if (q.size() == 0)
+    return;
   Matrix fullGate = gate;
   for (int64_t i = 1; i < q.size(); i++) {
     fullGate = fullGate.tensorProduct(gate);

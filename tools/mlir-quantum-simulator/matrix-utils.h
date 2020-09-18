@@ -1,8 +1,8 @@
 #ifndef QUANTUM_SIMULATOR__MATRIX_UTILS_H_
 #define QUANTUM_SIMULATOR__MATRIX_UTILS_H_
 
-#include <vector>
 #include <complex>
+#include <vector>
 
 using Complex = std::complex<double>;
 using Ket = std::vector<Complex>;
@@ -27,30 +27,30 @@ public:
   Matrix(int64_t n);
 
   /// Create a matrix from a 2D vector
-  Matrix(const std::vector<Ket>& v);
+  Matrix(const std::vector<Ket> &v);
 
   /// Accessors
   Complex at(int64_t i, int64_t j) const;
-  Complex& at(int64_t i, int64_t j);
+  Complex &at(int64_t i, int64_t j);
 
   /// Attributes
   int64_t getNumRows() const;
   int64_t getNumCols() const;
 
   /// right-multiply `other` and return the result
-  Matrix multiply(const Matrix& other) const;
+  Matrix multiply(const Matrix &other) const;
 
   /// Compute the tensor product of this and other
-  Matrix tensorProduct(const Matrix& other) const;
+  Matrix tensorProduct(const Matrix &other) const;
 
   /// Apply on a state-ket
-  void applyFull(Ket& ket) const;
+  void applyFull(Ket &ket) const;
 
   /// Apply partially on a key, starting at index `offset`
-  void applyPartial(Ket& ket, int64_t offset = 0) const;
+  void applyPartial(Ket &ket, int64_t offset = 0) const;
 
   /// Apply in blocks
-  void applyBlocks(Ket& ket, int64_t offset = 0) const;
+  void applyBlocks(Ket &ket, int64_t offset = 0) const;
 };
 
 #endif // QUANTUM_SIMULATOR__MATRIX_UTILS_H_

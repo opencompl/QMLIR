@@ -16,7 +16,6 @@ namespace quantum {
 
 #include "Quantum/QuantumOpsDialect.h.inc"
 
-
 } // namespace quantum
 } // namespace mlir
 

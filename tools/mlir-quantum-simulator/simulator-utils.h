@@ -1,28 +1,28 @@
 #ifndef QUANTUM_SIMULATOR__SIMULATOR_UTILS_H_
 #define QUANTUM_SIMULATOR__SIMULATOR_UTILS_H_
 
-#include <vector>
-#include <set>
-#include <utility>
+#include "llvm/ADT/Twine.h"
 #include <complex>
 #include <random>
-#include "llvm/ADT/Twine.h"
+#include <set>
+#include <utility>
+#include <vector>
 
-#include "memref-utils.h"
 #include "matrix-utils.h"
+#include "memref-utils.h"
 
 /// Simulator Error helpers
 namespace SimulatorLoggingSeverity {
-  enum SimulatorLoggingSeverity {
-    DEBUG = 0,
-    INFO = 1,
-    WARN = 2,
-    ERROR = 3,
-    CRITICAL = 4
-  };
+enum SimulatorLoggingSeverity {
+  DEBUG = 0,
+  INFO = 1,
+  WARN = 2,
+  ERROR = 3,
+  CRITICAL = 4
+};
 };
 
-void simulatorLog(int severity, const char* op, const llvm::Twine& err);
+void simulatorLog(int severity, const char *op, const llvm::Twine &err);
 
 using QubitSlice = MemRef1D<int64_t>;
 using ResultRef = MemRef1D<bool>;
@@ -54,13 +54,11 @@ public:
   virtual QubitSlice concatQubits(const QubitSlice &q1,
                                   const QubitSlice &q2) = 0;
 
-
   /// Split a slice of qubits into two,
   /// with `size1` qubits on the left, and `size2` on the right
   /// If the sizes don't match, print an error message and quit
-  virtual std::pair<QubitSlice, QubitSlice> splitQubits(const QubitSlice &q,
-                                                        int64_t size1,
-                                                        int64_t size2) = 0;
+  virtual std::pair<QubitSlice, QubitSlice>
+  splitQubits(const QubitSlice &q, int64_t size1, int64_t size2) = 0;
 
   /// Measure the qubits in the slice,
   ///  and release them back to the simulator
@@ -70,11 +68,12 @@ public:
   /// Apply a particular gate on a qubit slice.
   /// Gate is provided as a matrix.
   /// If the sizes don't match, print an error message and quit
-  virtual void applyTransform(const QubitSlice& q, const Matrix& gate) = 0;
+  virtual void applyTransform(const QubitSlice &q, const Matrix &gate) = 0;
 
   /// Apply a single qubit gate to all qubits in the slice
   /// `gate` has to be a 2x2 matrix
-  virtual void applyTransformToEach(const QubitSlice& q, const Matrix& gate) = 0;
+  virtual void applyTransformToEach(const QubitSlice &q,
+                                    const Matrix &gate) = 0;
 
   /// Show the full underlying state of the simulator
   virtual void showFullState() = 0;
@@ -86,7 +85,8 @@ public:
 
 /// Qubit Register
 /// Stores the entire register of qubits, as a single state vector
-/// Each qubit array in the language corresponds to a subset of qubits in the register
+/// Each qubit array in the language corresponds to a subset of qubits in the
+/// register
 class QubitRegister {
   /// Number of qubits in the register
   int64_t numQubits;
@@ -102,26 +102,28 @@ class QubitRegister {
   std::set<int64_t> unusedIndices;
 
   /// Permute the register. Place `i` at `perm[i]`
-  void applyIndexPermutation(const std::vector<int64_t>& perm, bool invert = false);
+  void applyIndexPermutation(const std::vector<int64_t> &perm,
+                             bool invert = false);
 
   /// Moves the subset of qubits to the end of the register
-  void moveSliceToMSB(const std::vector<int64_t>& subset, bool invert = false);
+  void moveSliceToMSB(const std::vector<int64_t> &subset, bool invert = false);
 
   /// Moves the subset of qubits to the start of the register
-  void moveSliceToLSB(const std::vector<int64_t>& subset, bool invert = false);
+  void moveSliceToLSB(const std::vector<int64_t> &subset, bool invert = false);
 
 public:
   QubitRegister(int64_t num);
 
   QubitSlice acquireQubits(int64_t size);
 
-  QubitSlice concatQubits(const QubitSlice& q1, const QubitSlice& q2);
+  QubitSlice concatQubits(const QubitSlice &q1, const QubitSlice &q2);
 
-  std::pair<QubitSlice, QubitSlice> splitQubits(const QubitSlice& q, int64_t size1, int64_t size2);
+  std::pair<QubitSlice, QubitSlice> splitQubits(const QubitSlice &q,
+                                                int64_t size1, int64_t size2);
 
-  ResultRef measureQubits(const QubitSlice& q, QuantumSimulator &simulator);
+  ResultRef measureQubits(const QubitSlice &q, QuantumSimulator &simulator);
 
-  void applyTransform(const QubitSlice& q, const Matrix& gate);
+  void applyTransform(const QubitSlice &q, const Matrix &gate);
 
   void showFullState() const;
 };
@@ -135,15 +137,16 @@ public:
   ~SimpleQuantumSimulator();
 
   QubitSlice acquireQubits(int64_t size) override;
-  QubitSlice concatQubits(const QubitSlice& q1, const QubitSlice& q2) override;
-  std::pair<QubitSlice, QubitSlice> splitQubits(const QubitSlice& q, int64_t size1, int64_t size2) override;
-  ResultRef measureQubits(const QubitSlice& q) override;
+  QubitSlice concatQubits(const QubitSlice &q1, const QubitSlice &q2) override;
+  std::pair<QubitSlice, QubitSlice>
+  splitQubits(const QubitSlice &q, int64_t size1, int64_t size2) override;
+  ResultRef measureQubits(const QubitSlice &q) override;
 
-  void applyTransform(const QubitSlice& q, const Matrix& gate) override;
-  void applyTransformToEach(const QubitSlice& q, const Matrix& gate) override;
+  void applyTransform(const QubitSlice &q, const Matrix &gate) override;
+  void applyTransformToEach(const QubitSlice &q, const Matrix &gate) override;
 
   void showFullState();
-  void showPartialState(const QubitSlice& q);
+  void showPartialState(const QubitSlice &q);
 };
 
 #endif // QUANTUM_SIMULATOR__SIMULATOR_UTILS_H_
