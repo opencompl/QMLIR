@@ -31,7 +31,7 @@ def Quantum_Dialect : Dialect {
       static StringRef getQubitTypeName() { return "qubit"; }
     }];
     
-    let cppNamespace = "quantum";
+    let cppNamespace = "::mlir::quantum";
 }
 
 //===----------------------------------------------------------------------===//

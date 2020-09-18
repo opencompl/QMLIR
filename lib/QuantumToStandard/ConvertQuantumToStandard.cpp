@@ -7,15 +7,15 @@
 //===----------------------------------------------------------------------===//
 
 #include "QuantumToStandard/ConvertQuantumToStandard.h"
-#include "QuantumToStandard/Passes.h"
+#include "PassDetail.h"
 #include "Quantum/QuantumDialect.h"
 #include "Quantum/QuantumOps.h"
 #include "Quantum/QuantumTypes.h"
-#include "PassDetail.h"
+#include "QuantumToStandard/Passes.h"
 #include "mlir/Dialect/Affine/IR/AffineOps.h"
+#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/SCF/SCF.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
-#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/IR/AffineMap.h"
 #include "mlir/IR/BlockAndValueMapping.h"
 #include "mlir/IR/Builders.h"
@@ -94,17 +94,17 @@ public:
     auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
 
     auto acquireFuncType = rewriter.getFunctionType(
-      {rewriter.getIndexType()},
-      {MemRefType::get({MemRefType::kDynamicSize},
-                       rewriter.getI64Type())});
-    auto acquireFunc = module.lookupSymbol<FuncOp>(
-      "__mlir_quantum_simulator__acquire_qubits");
+        {rewriter.getIndexType()},
+        {MemRefType::get({MemRefType::kDynamicSize}, rewriter.getI64Type())});
+    auto acquireFunc =
+        module.lookupSymbol<FuncOp>("__mlir_quantum_simulator__acquire_qubits");
     if (!acquireFunc) {
       // Declare the acquire_qubits function
       OpBuilder::InsertionGuard guard(rewriter);
       rewriter.setInsertionPointToStart(module.getBody());
       acquireFunc = rewriter.create<FuncOp>(
-        rewriter.getUnknownLoc(), "__mlir_quantum_simulator__acquire_qubits", acquireFuncType);
+          rewriter.getUnknownLoc(), "__mlir_quantum_simulator__acquire_qubits",
+          acquireFuncType);
     }
 
     auto allocateOp = cast<AllocateOp>(operation);
@@ -112,26 +112,20 @@ public:
 
     if (qubitType.hasStaticSize()) {
       rewriter.setInsertionPoint(operation);
-      auto sizeOp = rewriter.create<ConstantIndexOp>(
-        rewriter.getUnknownLoc(), qubitType.getSize());
+      auto sizeOp = rewriter.create<ConstantIndexOp>(rewriter.getUnknownLoc(),
+                                                     qubitType.getSize());
       auto qubitSize = sizeOp.getResult();
       auto acquireCallOp = rewriter.create<CallOp>(
-        rewriter.getUnknownLoc(),
-        acquireFunc,
-        ValueRange{qubitSize});
+          rewriter.getUnknownLoc(), acquireFunc, ValueRange{qubitSize});
       auto castOp = rewriter.create<MemRefCastOp>(
-        rewriter.getUnknownLoc(),
-        acquireCallOp.getResults()[0],
-        typeConverter.convertType(qubitType)
-      );
+          rewriter.getUnknownLoc(), acquireCallOp.getResults()[0],
+          typeConverter.convertType(qubitType));
       rewriter.replaceOp(operation, castOp.getResult());
     } else {
       // pass size to `acquire_qubits`
       auto qubitSize = allocateOp.getOperand(0);
       auto acquireCallOp = rewriter.create<CallOp>(
-        rewriter.getUnknownLoc(),
-        acquireFunc,
-        ValueRange{qubitSize});
+          rewriter.getUnknownLoc(), acquireFunc, ValueRange{qubitSize});
       rewriter.replaceOp(operation, acquireCallOp.getResults());
     }
 
@@ -153,15 +147,12 @@ public:
     auto dimensionOp = cast<DimensionOp>(operation);
     DimensionOp::Adaptor transformed(operands);
 
-    auto convertedDimOp =
-      rewriter.create<::mlir::DimOp>(
-        rewriter.getUnknownLoc(),
-        transformed.getODSOperands(0).front(),
-        0);
+    auto convertedDimOp = rewriter.create<::mlir::DimOp>(
+        rewriter.getUnknownLoc(), transformed.getODSOperands(0).front(), 0);
 
     rewriter.replaceOp(operation,
                        ValueRange{transformed.getODSOperands(0).front(),
-                       convertedDimOp.getResult()});
+                                  convertedDimOp.getResult()});
     return success();
   }
 };
@@ -183,7 +174,8 @@ public:
     auto dstType = castOp.getType();
 
     auto convertedCastOp = rewriter.create<MemRefCastOp>(
-      rewriter.getUnknownLoc(), transformed.getODSOperands(0)[0], typeConverter.convertType(dstType));
+        rewriter.getUnknownLoc(), transformed.getODSOperands(0)[0],
+        typeConverter.convertType(dstType));
 
     rewriter.replaceOp(castOp, convertedCastOp.getResult());
 
@@ -205,21 +197,19 @@ public:
     // Find the concat_qubits function, or declare if it doesn't exist.
     auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
 
-    auto qLibMemRefType = MemRefType::get({MemRefType::kDynamicSize},
-                                          rewriter.getI64Type());
+    auto qLibMemRefType =
+        MemRefType::get({MemRefType::kDynamicSize}, rewriter.getI64Type());
     auto concatFuncType = rewriter.getFunctionType(
-      {qLibMemRefType, qLibMemRefType},
-      {qLibMemRefType});
-    auto concatFunc = module.lookupSymbol<FuncOp>(
-      "__mlir_quantum_simulator__concat_qubits");
+        {qLibMemRefType, qLibMemRefType}, {qLibMemRefType});
+    auto concatFunc =
+        module.lookupSymbol<FuncOp>("__mlir_quantum_simulator__concat_qubits");
     if (!concatFunc) {
       // Declare the concat_qubits function
       OpBuilder::InsertionGuard guard(rewriter);
       rewriter.setInsertionPointToStart(module.getBody());
       concatFunc = rewriter.create<FuncOp>(
-        rewriter.getUnknownLoc(),
-        "__mlir_quantum_simulator__concat_qubits",
-        concatFuncType);
+          rewriter.getUnknownLoc(), "__mlir_quantum_simulator__concat_qubits",
+          concatFuncType);
     }
 
     auto concatOp = cast<ConcatOp>(operation);
@@ -227,12 +217,11 @@ public:
 
     // Convert operands to dynamic size (for library call compatibility)
     SmallVector<Value, 2> convertedOperands;
-    for (auto en: transformed.getODSOperands(0)) {
+    for (auto en : transformed.getODSOperands(0)) {
       auto argType = en.getType().cast<MemRefType>();
       if (argType.hasStaticShape()) {
         auto castOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
-                                                    en,
-                                                    qLibMemRefType);
+                                                    en, qLibMemRefType);
         convertedOperands.push_back(castOp.getResult());
       } else {
         convertedOperands.push_back(en);
@@ -240,15 +229,14 @@ public:
     }
 
     // call library concat function
-    auto concatLibCall = rewriter.create<CallOp>(rewriter.getUnknownLoc(),
-                                                concatFunc,
-                                                ValueRange(convertedOperands));
+    auto concatLibCall = rewriter.create<CallOp>(
+        rewriter.getUnknownLoc(), concatFunc, ValueRange(convertedOperands));
 
     auto resultQubitType = concatOp.getType().cast<QubitType>();
     if (resultQubitType.hasStaticSize()) {
-      auto resultCastOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
-                                                        concatLibCall.getResult(0),
-                                                        typeConverter.convertType(resultQubitType));
+      auto resultCastOp = rewriter.create<MemRefCastOp>(
+          rewriter.getUnknownLoc(), concatLibCall.getResult(0),
+          typeConverter.convertType(resultQubitType));
       rewriter.replaceOp(operation, resultCastOp.getResult());
     } else {
       rewriter.replaceOp(operation, concatLibCall.getResult(0));
@@ -257,7 +245,6 @@ public:
     return success();
   }
 };
-
 
 //===----------------------------------------------------------------------===//
 // Split Op Lowering
@@ -273,22 +260,21 @@ public:
     // Find the split function, or declare if it doesn't exist.
     auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
 
-    auto qLibMemRefType = MemRefType::get({MemRefType::kDynamicSize},
-                                          rewriter.getI64Type());
+    auto qLibMemRefType =
+        MemRefType::get({MemRefType::kDynamicSize}, rewriter.getI64Type());
     auto qLibIndexType = rewriter.getIndexType();
-    auto splitFuncType = rewriter.getFunctionType(
-      {qLibMemRefType, qLibIndexType, qLibIndexType},
-      {qLibMemRefType, qLibMemRefType});
-    auto splitFunc = module.lookupSymbol<FuncOp>(
-        "__mlir_quantum_simulator__split_qubits");
+    auto splitFuncType =
+        rewriter.getFunctionType({qLibMemRefType, qLibIndexType, qLibIndexType},
+                                 {qLibMemRefType, qLibMemRefType});
+    auto splitFunc =
+        module.lookupSymbol<FuncOp>("__mlir_quantum_simulator__split_qubits");
     if (!splitFunc) {
       // Declare the split function
       OpBuilder::InsertionGuard guard(rewriter);
       rewriter.setInsertionPointToStart(module.getBody());
       splitFunc = rewriter.create<FuncOp>(
-        rewriter.getUnknownLoc(),
-        "__mlir_quantum_simulator__split_qubits",
-        splitFuncType);
+          rewriter.getUnknownLoc(), "__mlir_quantum_simulator__split_qubits",
+          splitFuncType);
     }
 
     auto splitOp = cast<SplitOp>(operation);
@@ -300,9 +286,8 @@ public:
     // Convert operand to dynamic size (for library call compatibility)
     Value convertedOperand = transformed.getODSOperands(0).front();
     if (convertedOperand.getType().cast<MemRefType>().hasStaticShape()) {
-      auto castOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
-                                                  convertedOperand,
-                                                  qLibMemRefType);
+      auto castOp = rewriter.create<MemRefCastOp>(
+          rewriter.getUnknownLoc(), convertedOperand, qLibMemRefType);
       convertedOperand = castOp.getResult();
     }
     splitLibCallOperands.push_back(convertedOperand);
@@ -310,37 +295,35 @@ public:
     // Get split-size index operands
     auto indexOperandRange = transformed.getODSOperands(1);
     auto indexValueIter = indexOperandRange.begin();
-    for (auto en: llvm::enumerate(splitOp.getResults())) {
+    for (auto en : llvm::enumerate(splitOp.getResults())) {
       auto qubitType = en.value().getType().cast<QubitType>();
       if (qubitType.hasStaticSize()) {
         // create a constant, to pass to splitLibCall
         auto indexOp = rewriter.create<ConstantIndexOp>(
-          rewriter.getUnknownLoc(), qubitType.getSize());
+            rewriter.getUnknownLoc(), qubitType.getSize());
         splitLibCallOperands.push_back(indexOp.getResult());
       } else {
         // use a provided size operand
-        assert(indexValueIter != indexOperandRange.end()
-               && "not enough index operands");
+        assert(indexValueIter != indexOperandRange.end() &&
+               "not enough index operands");
         splitLibCallOperands.push_back(*indexValueIter);
         indexValueIter++;
       }
     }
-    assert(indexValueIter == indexOperandRange.end()
-               && "unused index operands");
+    assert(indexValueIter == indexOperandRange.end() &&
+           "unused index operands");
 
     // call library split function
-    auto splitLibCall = rewriter.create<CallOp>(rewriter.getUnknownLoc(),
-                                                splitFunc,
-                                                ValueRange(splitLibCallOperands));
+    auto splitLibCall = rewriter.create<CallOp>(
+        rewriter.getUnknownLoc(), splitFunc, ValueRange(splitLibCallOperands));
 
     // Un-cast static sized arrays
     SmallVector<Value, 2> results;
-    for (auto en: llvm::enumerate(splitOp.getResults())) {
+    for (auto en : llvm::enumerate(splitOp.getResults())) {
       if (en.value().getType().cast<QubitType>().hasStaticSize()) {
         auto resultCastOp = rewriter.create<MemRefCastOp>(
-          rewriter.getUnknownLoc(),
-          splitLibCall.getResult(en.index()),
-          typeConverter.convertType(en.value().getType()));
+            rewriter.getUnknownLoc(), splitLibCall.getResult(en.index()),
+            typeConverter.convertType(en.value().getType()));
         results.push_back(resultCastOp.getResult());
       } else {
         results.push_back(splitLibCall.getResult(en.index()));
@@ -352,7 +335,6 @@ public:
     return success();
   }
 };
-
 
 //===----------------------------------------------------------------------===//
 // Measure Op Lowering
@@ -368,21 +350,20 @@ public:
     // Find the measure function, or declare if it doesn't exist.
     auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
 
-    auto qLibMemRefType = MemRefType::get({MemRefType::kDynamicSize},
-                                          rewriter.getI64Type());
+    auto qLibMemRefType =
+        MemRefType::get({MemRefType::kDynamicSize}, rewriter.getI64Type());
     auto measureFuncType = rewriter.getFunctionType(
-      {qLibMemRefType},
-      {MemRefType::get({MemRefType::kDynamicSize},
-                       rewriter.getI1Type())});
-    auto measureFunc = module.lookupSymbol<FuncOp>("__mlir_quantum_simulator__measure_qubits");
+        {qLibMemRefType},
+        {MemRefType::get({MemRefType::kDynamicSize}, rewriter.getI1Type())});
+    auto measureFunc =
+        module.lookupSymbol<FuncOp>("__mlir_quantum_simulator__measure_qubits");
     if (!measureFunc) {
       // Declare the measure function
       OpBuilder::InsertionGuard guard(rewriter);
       rewriter.setInsertionPointToStart(module.getBody());
       measureFunc = rewriter.create<FuncOp>(
-        rewriter.getUnknownLoc(),
-        "__mlir_quantum_simulator__measure_qubits",
-        measureFuncType);
+          rewriter.getUnknownLoc(), "__mlir_quantum_simulator__measure_qubits",
+          measureFuncType);
     }
 
     auto measureOp = cast<MeasureOp>(operation);
@@ -394,9 +375,8 @@ public:
       auto currentOperand = transformed.getODSOperands(i).front();
       auto argType = currentOperand.getType().cast<MemRefType>();
       if (argType.hasStaticShape()) {
-        auto castOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
-                                                    currentOperand,
-                                                    qLibMemRefType);
+        auto castOp = rewriter.create<MemRefCastOp>(
+            rewriter.getUnknownLoc(), currentOperand, qLibMemRefType);
         convertedOperands.push_back(castOp.getResult());
       } else {
         convertedOperands.push_back(currentOperand);
@@ -404,15 +384,13 @@ public:
     }
 
     // call library measure function
-    auto measureLibCall = rewriter.create<CallOp>(rewriter.getUnknownLoc(),
-                                                measureFunc,
-                                                ValueRange(convertedOperands));
+    auto measureLibCall = rewriter.create<CallOp>(
+        rewriter.getUnknownLoc(), measureFunc, ValueRange(convertedOperands));
 
     auto resultType = measureOp.getType().cast<MemRefType>();
     if (resultType.hasStaticShape()) {
-      auto resultCastOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
-                                                        measureLibCall.getResult(0),
-                                                        resultType);
+      auto resultCastOp = rewriter.create<MemRefCastOp>(
+          rewriter.getUnknownLoc(), measureLibCall.getResult(0), resultType);
       rewriter.replaceOp(operation, resultCastOp.getResult());
     } else {
       rewriter.replaceOp(operation, measureLibCall.getResult(0));
@@ -422,15 +400,16 @@ public:
   }
 };
 
-
 //===----------------------------------------------------------------------===//
 // Primitive Gate Op Lowering
 //===----------------------------------------------------------------------===//
 
-template<typename PrimitiveGateOp>
+template <typename PrimitiveGateOp>
 class PrimitiveGateOpLowering : public QuantumOpToStdPattern<PrimitiveGateOp> {
-  static_assert(llvm::is_one_of<PrimitiveGateOp,
-    PauliXGateOp, PauliYGateOp, PauliZGateOp, HadamardGateOp, CNOTGateOp>::value);
+  static_assert(
+      llvm::is_one_of<PrimitiveGateOp, PauliXGateOp, PauliYGateOp, PauliZGateOp,
+                      HadamardGateOp, CNOTGateOp>::value);
+
 public:
   using QuantumOpToStdPattern<PrimitiveGateOp>::QuantumOpToStdPattern;
 
@@ -443,25 +422,23 @@ public:
     auto module = rewriter.getInsertionPoint()->getParentOfType<ModuleOp>();
 
     // Find the corresponding gate function, or declare if it doesn't exist.
-    auto qLibMemRefType = MemRefType::get({MemRefType::kDynamicSize},
-                                          rewriter.getI64Type());
-    auto gateFuncType = rewriter.getFunctionType(
-      {qLibMemRefType},
-      {qLibMemRefType});
+    auto qLibMemRefType =
+        MemRefType::get({MemRefType::kDynamicSize}, rewriter.getI64Type());
+    auto gateFuncType =
+        rewriter.getFunctionType({qLibMemRefType}, {qLibMemRefType});
 
     // get the operation name, without the leading `quantum.`
     StringRef opName = primitiveGateOp.getOperationName().split('.').second;
-    std::string name = std::string("__mlir_quantum_simulator__gate_")
-                       + std::string(opName.data());
+    std::string name = std::string("__mlir_quantum_simulator__gate_") +
+                       std::string(opName.data());
     auto gateFunc = module.lookupSymbol<FuncOp>(StringRef(name));
 
     if (!gateFunc) {
       // Declare the gate function
       OpBuilder::InsertionGuard guard(rewriter);
       rewriter.setInsertionPointToStart(module.getBody());
-      gateFunc = rewriter.create<FuncOp>(rewriter.getUnknownLoc(),
-                                         name,
-                                         gateFuncType);
+      gateFunc =
+          rewriter.create<FuncOp>(rewriter.getUnknownLoc(), name, gateFuncType);
     }
 
     // Convert operand to dynamic size (for library call compatibility)
@@ -470,24 +447,21 @@ public:
     auto argType = inputQubit.getType().template cast<MemRefType>();
     if (argType.hasStaticShape()) {
       auto castOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
-                                                  inputQubit,
-                                                  qLibMemRefType);
+                                                  inputQubit, qLibMemRefType);
       convertedOperands.push_back(castOp.getResult());
     } else {
       convertedOperands.push_back(inputQubit);
     }
 
     // call library gate function
-    auto gateLibCall = rewriter.create<CallOp>(rewriter.getUnknownLoc(),
-                                               gateFunc,
-                                               ValueRange(convertedOperands));
+    auto gateLibCall = rewriter.create<CallOp>(
+        rewriter.getUnknownLoc(), gateFunc, ValueRange(convertedOperands));
 
     auto resultType = primitiveGateOp.getType().template cast<QubitType>();
     if (resultType.hasStaticSize()) {
       auto resultCastOp = rewriter.create<MemRefCastOp>(
-        rewriter.getUnknownLoc(),
-        gateLibCall.getResult(0),
-        this->typeConverter.convertType(resultType));
+          rewriter.getUnknownLoc(), gateLibCall.getResult(0),
+          this->typeConverter.convertType(resultType));
       rewriter.replaceOp(operation, resultCastOp.getResult());
     } else {
       rewriter.replaceOp(operation, gateLibCall.getResult(0));
@@ -496,7 +470,6 @@ public:
     return success();
   }
 };
-
 
 //===----------------------------------------------------------------------===//
 // Conversion Target
@@ -525,18 +498,18 @@ void QuantumToStandardPass::runOnOperation() {
   populateQuantumToStdConversionPatterns(typeConverter, patterns);
 
   QuantumToStdTarget target(*(module.getContext()));
-  
+
   target.addLegalDialect<AffineDialect>();
   target.addLegalDialect<StandardOpsDialect>();
   target.addLegalDialect<LLVM::LLVMDialect>();
   target.addLegalDialect<scf::SCFDialect>();
   target.addDynamicallyLegalOp<FuncOp>([](FuncOp funcOp) {
     auto funcType = funcOp.getType();
-    for (auto& arg: llvm::enumerate(funcType.getInputs())) {
+    for (auto &arg : llvm::enumerate(funcType.getInputs())) {
       if (arg.value().isa<QubitType>())
         return false;
     }
-    for (auto& arg: llvm::enumerate(funcType.getResults())) {
+    for (auto &arg : llvm::enumerate(funcType.getResults())) {
       if (arg.value().isa<QubitType>())
         return false;
     }
@@ -545,7 +518,7 @@ void QuantumToStandardPass::runOnOperation() {
   target.addLegalOp<ModuleOp, ModuleTerminatorOp>();
 
   target.addIllegalDialect<QuantumDialect>();
-  
+
   if (failed(applyFullConversion(module, target, patterns))) {
     signalPassFailure();
   }
@@ -560,24 +533,18 @@ namespace quantum {
 void populateQuantumToStdConversionPatterns(
     QuantumTypeConverter &typeConverter,
     mlir::OwningRewritePatternList &patterns) {
-  patterns.insert<
-    FuncOpLowering,
+  patterns.insert<FuncOpLowering,
 
-    // Quantum Ops
-    AllocateOpLowering,
-    CastOpLowering,
-    DimensionOpLowering,
-    ConcatOpLowering,
-    SplitOpLowering,
-    MeasureOpLowering,
+                  // Quantum Ops
+                  AllocateOpLowering, CastOpLowering, DimensionOpLowering,
+                  ConcatOpLowering, SplitOpLowering, MeasureOpLowering,
 
-    // Quantum Primitive Gate Ops
-    PrimitiveGateOpLowering<PauliXGateOp>,
-    PrimitiveGateOpLowering<PauliYGateOp>,
-    PrimitiveGateOpLowering<PauliZGateOp>,
-    PrimitiveGateOpLowering<HadamardGateOp>,
-    PrimitiveGateOpLowering<CNOTGateOp>
-    >(typeConverter);
+                  // Quantum Primitive Gate Ops
+                  PrimitiveGateOpLowering<PauliXGateOp>,
+                  PrimitiveGateOpLowering<PauliYGateOp>,
+                  PrimitiveGateOpLowering<PauliZGateOp>,
+                  PrimitiveGateOpLowering<HadamardGateOp>,
+                  PrimitiveGateOpLowering<CNOTGateOp>>(typeConverter);
 }
 
 //===----------------------------------------------------------------------===//

@@ -6,11 +6,11 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "QuantumToStandard/Passes.h"
 #include "Quantum/QuantumDialect.h"
+#include "QuantumToStandard/Passes.h"
+#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/SCF/SCF.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
-#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/IR/AsmState.h"
 #include "mlir/InitAllDialects.h"
 #include "mlir/InitAllPasses.h"
@@ -22,9 +22,7 @@
 
 using namespace mlir;
 
-void registerQuantumPasses() {
-  registerQuantumConversionPasses();
-}
+void registerQuantumPasses() { registerQuantumConversionPasses(); }
 
 int main(int argc, char **argv) {
   mlir::DialectRegistry registry;

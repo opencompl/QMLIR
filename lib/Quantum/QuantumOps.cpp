@@ -8,7 +8,6 @@
 
 #include "Quantum/QuantumOps.h"
 #include "Quantum/QuantumDialect.h"
-#include "mlir/IR/OpImplementation.h"
 #include "mlir/IR/Attributes.h"
 #include "mlir/IR/Block.h"
 #include "mlir/IR/BlockAndValueMapping.h"
@@ -28,10 +27,9 @@
 using namespace mlir;
 using namespace quantum;
 
-static ParseResult parseDimAndSymbolList(OpAsmParser &parser,
-                                        SmallVectorImpl<Value> &operands,
-                                        unsigned &numDims,
-                                        OpAsmParser::Delimiter delim = OpAsmParser::Delimiter::Paren) {
+static ParseResult parseDimAndSymbolList(
+    OpAsmParser &parser, SmallVectorImpl<Value> &operands, unsigned &numDims,
+    OpAsmParser::Delimiter delim = OpAsmParser::Delimiter::Paren) {
   SmallVector<OpAsmParser::OperandType, 8> opInfos;
   if (parser.parseOperandList(opInfos, delim))
     return failure();
@@ -67,19 +65,18 @@ static ParseResult parseAllocateOp(OpAsmParser &parser, OperationState &state) {
   if (type.hasStaticSize() && numDimOperands != 0)
     return parser.emitError(parser.getNameLoc())
            << "Too many dynamic dimension operands provided";
-  
+
   if (!type.hasStaticSize() && numDimOperands == 0)
     return parser.emitError(parser.getNameLoc())
            << "Dynamic dimension operand not provided";
-  
-  
+
   state.types.push_back(type);
   return success();
 }
 
 static void print(quantum::AllocateOp allocateOp, OpAsmPrinter &printer) {
   printer << allocateOp.getOperationName();
-  
+
   // print size operands
   printer << "(";
   printer.printOperands(allocateOp.dynamicsize());
@@ -93,7 +90,6 @@ static void print(quantum::AllocateOp allocateOp, OpAsmPrinter &printer) {
   printer.printType(allocateOp.qout().getType());
 }
 
-
 //===----------------------------------------------------------------------===//
 // ConcatOp
 //===----------------------------------------------------------------------===//
@@ -106,8 +102,7 @@ static ParseResult parseConcatOp(OpAsmParser &parser, OperationState &state) {
       parser.parseColonType(opType))
     return failure();
 
-  if (failed(parser.resolveOperands(operands,
-                                    opType.getInputs(),
+  if (failed(parser.resolveOperands(operands, opType.getInputs(),
                                     parser.getCurrentLocation(),
                                     state.operands)))
     return failure();
@@ -133,9 +128,7 @@ static void print(ConcatOp concatOp, OpAsmPrinter &printer) {
 static ParseResult verify(ConcatOp concatOp) {
   auto numInputs = concatOp.getODSOperandIndexAndLength(0).second;
   if (numInputs != 2)
-    return
-      concatOp.emitOpError("expected 2 arguments, provided ")
-        << numInputs;
+    return concatOp.emitOpError("expected 2 arguments, provided ") << numInputs;
   return success();
 }
 
@@ -152,9 +145,7 @@ static ParseResult parseSplitOp(OpAsmParser &parser, OperationState &state) {
   unsigned numSizeOperands;
   QubitType inputQubitType;
   SmallVector<Type, 2> resultTypes;
-  if (parseDimAndSymbolList(parser,
-                            sizeOperands,
-                            numSizeOperands,
+  if (parseDimAndSymbolList(parser, sizeOperands, numSizeOperands,
                             OpAsmParser::Delimiter::OptionalSquare) ||
       parser.parseOptionalAttrDict(state.attributes) ||
       parser.parseColonType(inputQubitType) ||
@@ -162,14 +153,14 @@ static ParseResult parseSplitOp(OpAsmParser &parser, OperationState &state) {
     return failure();
 
   int numDynamicSizeTypes = 0;
-  for (auto e: resultTypes) {
+  for (auto e : resultTypes) {
     if (auto qubitType = e.cast<QubitType>()) {
       if (!qubitType.hasStaticSize()) {
         numDynamicSizeTypes++;
       }
     } else {
       return parser.emitError(parser.getNameLoc())
-           << "Invalid type, expected qubit";
+             << "Invalid type, expected qubit";
     }
   }
 
@@ -189,8 +180,8 @@ static ParseResult parseSplitOp(OpAsmParser &parser, OperationState &state) {
 }
 
 static void print(SplitOp splitOp, OpAsmPrinter &printer) {
-  printer << splitOp.getOperationName()
-          << ' ' << splitOp.getODSOperands(0).front();
+  printer << splitOp.getOperationName() << ' '
+          << splitOp.getODSOperands(0).front();
 
   // print size operands
   auto sizeOperands = splitOp.getODSOperands(1);
@@ -212,9 +203,8 @@ static void print(SplitOp splitOp, OpAsmPrinter &printer) {
 static ParseResult verify(SplitOp splitOp) {
   auto numOutputs = splitOp.getODSResultIndexAndLength(0).second;
   if (numOutputs != 2)
-    return
-      splitOp.emitOpError("expected to split into 2 results, provided ")
-        << numOutputs;
+    return splitOp.emitOpError("expected to split into 2 results, provided ")
+           << numOutputs;
   return success();
 }
 
@@ -223,9 +213,9 @@ static ParseResult verify(SplitOp splitOp) {
 //===----------------------------------------------------------------------===//
 
 static ParseResult parseGateParameters(OpAsmParser &parser,
-                                        SmallVectorImpl<Value> &operands) {
+                                       SmallVectorImpl<Value> &operands) {
   int numParams = 0;
-  for (bool first = true; ; first = false) {
+  for (bool first = true;; first = false) {
     if (first) {
       // parse optional open `(`
       if (failed(parser.parseOptionalLParen()))
@@ -258,7 +248,7 @@ static ParseResult parseGateParameters(OpAsmParser &parser,
 }
 
 static ParseResult parseQubitOperandAndType(OpAsmParser &parser,
-                                        SmallVectorImpl<Value> &operands) {
+                                            SmallVectorImpl<Value> &operands) {
   OpAsmParser::OperandType qubitParam;
   if (failed(parser.parseOperand(qubitParam)))
     return failure();
@@ -272,7 +262,8 @@ static ParseResult parseQubitOperandAndType(OpAsmParser &parser,
   return success();
 }
 
-static ParseResult parsePrimitiveGateOp(OpAsmParser &parser, OperationState &state) {
+static ParseResult parsePrimitiveGateOp(OpAsmParser &parser,
+                                        OperationState &state) {
   SmallVector<Value, 10> operands;
 
   // parse the floating point gate parameters
@@ -294,7 +285,8 @@ static ParseResult parsePrimitiveGateOp(OpAsmParser &parser, OperationState &sta
   return success();
 }
 
-static ParseResult parsePrimitiveControlledGateOp(OpAsmParser &parser, OperationState &state) {
+static ParseResult parsePrimitiveControlledGateOp(OpAsmParser &parser,
+                                                  OperationState &state) {
   SmallVector<Value, 10> operands;
   SmallVector<Type, 2> resultTypes;
 
@@ -327,44 +319,39 @@ static ParseResult parsePrimitiveControlledGateOp(OpAsmParser &parser, Operation
 
 template <typename SimplePrimitiveGateOp>
 static LogicalResult verify(SimplePrimitiveGateOp op) {
-  static_assert(llvm::is_one_of<SimplePrimitiveGateOp,
-    PauliXGateOp,
-    PauliYGateOp,
-    PauliZGateOp,
-    HadamardGateOp,
-    CNOTGateOp>::value,
-                "applies to the quantum parameterless primitive gate ops only");
+  static_assert(
+      llvm::is_one_of<SimplePrimitiveGateOp, PauliXGateOp, PauliYGateOp,
+                      PauliZGateOp, HadamardGateOp, CNOTGateOp>::value,
+      "applies to the quantum parameterless primitive gate ops only");
 
   // check if the floating point parameter list is empty
   auto numParams = op.getODSOperandIndexAndLength(0).second;
   if (numParams != 0)
-    return op.emitOpError("excessive parameters: expected 0, found ") << numParams;
+    return op.emitOpError("excessive parameters: expected 0, found ")
+           << numParams;
 
   return success();
 }
 
 template <typename SimplePrimitiveGateOp>
 static void print(SimplePrimitiveGateOp op, OpAsmPrinter &printer) {
-  static_assert(llvm::is_one_of<SimplePrimitiveGateOp,
-    PauliXGateOp,
-    PauliYGateOp,
-    PauliZGateOp,
-    HadamardGateOp,
-    CNOTGateOp>::value,
-                "applies to the quantum parameterless primitive gate ops only");
+  static_assert(
+      llvm::is_one_of<SimplePrimitiveGateOp, PauliXGateOp, PauliYGateOp,
+                      PauliZGateOp, HadamardGateOp, CNOTGateOp>::value,
+      "applies to the quantum parameterless primitive gate ops only");
 
   printer << op.getOperationName();
   auto numParams = op.getODSOperandIndexAndLength(0).second;
   if (numParams > 0) {
     printer << "(";
-//    bool first = true;
-//    for (Value v: op.getODSOperands(0)) {
-//      if (!first) {
-//        printer << ", ";
-//        first = false;
-//      }
-//      printer << v << " : " << v.getType();
-//    }
+    //    bool first = true;
+    //    for (Value v: op.getODSOperands(0)) {
+    //      if (!first) {
+    //        printer << ", ";
+    //        first = false;
+    //      }
+    //      printer << v << " : " << v.getType();
+    //    }
     llvm::interleaveComma(op.getODSOperands(0), printer, [&](Value v) {
       printer << v << " : " << v.getType();
     });

@@ -20,19 +20,13 @@ using namespace mlir::quantum;
 struct quantum::detail::QubitTypeStorage : public TypeStorage {
   using KeyTy = int64_t;
 
-  QubitTypeStorage(int64_t size)
-      : size(size) {
-    memRefShape.push_back(size);
-  }
+  QubitTypeStorage(int64_t size) : size(size) { memRefShape.push_back(size); }
 
-  bool operator==(const KeyTy &key) const {
-    return key == KeyTy(size);
-  }
+  bool operator==(const KeyTy &key) const { return key == KeyTy(size); }
 
   static QubitTypeStorage *construct(TypeStorageAllocator &allocator,
-                                       const KeyTy &key) {
-    return new (allocator.allocate<QubitTypeStorage>())
-        QubitTypeStorage(key);
+                                     const KeyTy &key) {
+    return new (allocator.allocate<QubitTypeStorage>()) QubitTypeStorage(key);
   }
 
   // number of qubits in the array
@@ -48,9 +42,7 @@ bool QubitType::hasStaticSize() const {
   return getImpl()->size != kDynamicSize;
 }
 
-int64_t QubitType::getSize() const {
-  return getImpl()->size;
-}
+int64_t QubitType::getSize() const { return getImpl()->size; }
 
 ArrayRef<int64_t> QubitType::getMemRefShape() const {
   return getImpl()->memRefShape;

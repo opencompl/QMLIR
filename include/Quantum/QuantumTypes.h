@@ -9,9 +9,9 @@
 #ifndef QUANTUM_QUANTUMTYPES_H
 #define QUANTUM_QUANTUMTYPES_H
 
-#include "mlir/IR/Types.h"
-#include "mlir/IR/TypeSupport.h"
 #include "mlir/IR/StandardTypes.h"
+#include "mlir/IR/TypeSupport.h"
+#include "mlir/IR/Types.h"
 
 namespace mlir {
 namespace quantum {
@@ -21,8 +21,8 @@ struct QubitTypeStorage;
 } // namespace detail
 
 // Qubit type: qubit<n>, n is an unsigned integer
-class QubitType : public Type::TypeBase<QubitType, Type,
-                                          detail::QubitTypeStorage> {
+class QubitType
+    : public Type::TypeBase<QubitType, Type, detail::QubitTypeStorage> {
 public:
   using Base::Base;
 

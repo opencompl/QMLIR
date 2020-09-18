@@ -7,14 +7,10 @@
 //===----------------------------------------------------------------------===//
 
 #include "Quantum/QuantumDialect.h"
-#include "Quantum/QuantumTypes.h"
 #include "Quantum/QuantumOps.h"
-
-#include "mlir/IR/StandardTypes.h"
+#include "Quantum/QuantumTypes.h"
 
 // includes
-#include "mlir/IR/Attributes.h"
-#include "mlir/IR/Builders.h"
 #include "mlir/IR/DialectImplementation.h"
 #include "mlir/IR/Module.h"
 #include "mlir/IR/Types.h"
@@ -53,7 +49,8 @@ Type QuantumDialect::parseType(mlir::DialectAsmParser &parser) const {
     }
 
     uint64_t size = -1;
-    if (!parser.parseOptionalInteger<uint64_t>(size).hasValue() && failed(parser.parseOptionalQuestion())) {
+    if (!parser.parseOptionalInteger<uint64_t>(size).hasValue() &&
+        failed(parser.parseOptionalQuestion())) {
       parser.emitError(parser.getNameLoc(), "expected an integer size or `?`");
       return Type();
     }
@@ -71,7 +68,7 @@ Type QuantumDialect::parseType(mlir::DialectAsmParser &parser) const {
 }
 
 void QuantumDialect::printType(mlir::Type type,
-                           mlir::DialectAsmPrinter &printer) const {
+                               mlir::DialectAsmPrinter &printer) const {
   if (type.isa<QubitType>()) {
     QubitType qubit = type.cast<QubitType>();
 

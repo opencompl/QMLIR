@@ -49,8 +49,7 @@ class QuantumOpToStdPattern : public QuantumToStdPattern {
 public:
   QuantumOpToStdPattern(QuantumTypeConverter &typeConverter,
                         PatternBenefit benefit = 1)
-      : QuantumToStdPattern(OpTy::getOperationName(), typeConverter,
-                            benefit) {}
+      : QuantumToStdPattern(OpTy::getOperationName(), typeConverter, benefit) {}
 };
 
 /// Helper method to populate the conversion pattern list
