@@ -120,7 +120,6 @@ extern "C" QubitSlice __mlir_quantum_simulator__gate_pauliZ(
   return arg;
 }
 
-
 /// Shows the full underlying qubit state
 extern "C" void quantum_show_full_state() { simulator->showFullState(); }
 

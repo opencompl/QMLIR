@@ -33,7 +33,6 @@ class QuantumSimulator {
   std::mt19937 generator;
   std::uniform_real_distribution<> equiprobableDistribution;
 
-
 public:
   /// Epsilon, for floating comparisions
   static constexpr double eps = 1e-8;
@@ -45,7 +44,7 @@ public:
   virtual bool getTrueWithProbP(double p);
 
   /// Check if two states are equal (including phase)
-  virtual bool checkStatesEqual(const Ket& a, const Ket& b);
+  virtual bool checkStatesEqual(const Ket &a, const Ket &b);
 
 public:
   QuantumSimulator(uint64_t seed);
@@ -133,7 +132,7 @@ public:
   void applyTransform(const QubitSlice &q, const Matrix &gate);
 
   void showFullState() const;
-  void showPartialState(const QubitSlice& qs, QuantumSimulator& simulator);
+  void showPartialState(const QubitSlice &qs, QuantumSimulator &simulator);
 };
 
 /// Implements a single linear register simulator

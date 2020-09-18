@@ -225,7 +225,9 @@ void QubitRegister::showFullState() const {
   cerr << "> state = {";
   llvm::interleave(
       state,
-      [&](const complex<double> &v) { cerr << v.real() << "+" << v.imag() << "i"; },
+      [&](const complex<double> &v) {
+        cerr << v.real() << "+" << v.imag() << "i";
+      },
       [&]() { cerr << ", "; });
   cerr << "}" << endl;
 }
@@ -288,7 +290,9 @@ void QubitRegister::showPartialState(const QubitSlice &qs,
   cerr << "] = {";
   llvm::interleave(
       partialState.getValue(),
-      [&](const complex<double> &v) { cerr << v.real() << "+" << v.imag() << "i"; },
+      [&](const complex<double> &v) {
+        cerr << v.real() << "+" << v.imag() << "i";
+      },
       [&]() { cerr << ", "; });
   cerr << "}" << endl;
 }
@@ -325,16 +329,9 @@ bool QuantumSimulator::checkStatesEqual(const Ket &a, const Ket &b) {
 
 SimpleQuantumSimulator::SimpleQuantumSimulator(int64_t numQubits, uint64_t seed)
     : QuantumSimulator(seed) {
-//  simulatorLog(SimulatorLoggingSeverity::INFO, "simulator",
-//               Twine("starting simulation with ")
-//                   .concat(Twine(numQubits))
-//                   .concat(" qubits..."));
   qubitRegister = make_unique<QubitRegister>(numQubits);
 }
-SimpleQuantumSimulator::~SimpleQuantumSimulator() {
-//  simulatorLog(SimulatorLoggingSeverity::INFO, "simulator",
-//               Twine("shutting down..."));
-}
+SimpleQuantumSimulator::~SimpleQuantumSimulator() {}
 
 // Simulation support functions
 QubitSlice SimpleQuantumSimulator::acquireQubits(int64_t size) {
