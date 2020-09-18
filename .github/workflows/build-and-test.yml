@@ -11,7 +11,7 @@ jobs:
     name: Check formatting
     runs-on: ubuntu-latest
     steps:
-      - name: Get Template Code
+      - name: Get Project Code
         uses: actions/checkout@v2
       - name: clang-format
         uses: DoozyX/clang-format-lint-action@v0.6
@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Configure Environment
         run: echo "::add-path::$GITHUB_WORKSPACE/llvm-project/prefix/bin"
-      - name: Get Template Code
+      - name: Get Project Code
         uses: actions/checkout@v2
         with:
           path: 'mlir-standalone'

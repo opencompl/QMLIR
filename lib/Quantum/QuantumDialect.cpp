@@ -66,14 +66,13 @@ Type QuantumDialect::parseType(DialectAsmParser &parser) const {
   return Type();
 }
 
-void QuantumDialect::printType(Type type,
-                               DialectAsmPrinter &printer) const {
+void QuantumDialect::printType(Type type, DialectAsmPrinter &printer) const {
   if (type.isa<QubitType>()) {
-    QubitType qubit = type.cast<QubitType>();
+    QubitType qubitType = type.cast<QubitType>();
 
-    printer << "qubit<";
-    if (qubit.hasStaticSize())
-      printer << qubit.getSize();
+    printer << getQubitTypeName() << "<";
+    if (qubitType.hasStaticSize())
+      printer << qubitType.getSize();
     else
       printer << "?";
     printer << ">";

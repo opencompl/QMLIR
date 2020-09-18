@@ -10,6 +10,7 @@
 #define QUANTUM_QUANTUMDIALECT_H
 
 #include "mlir/IR/Dialect.h"
+
 #include "Quantum/QuantumOpsDialect.h.inc"
 #include "QuantumTypes.h"
 
