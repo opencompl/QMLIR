@@ -22,8 +22,6 @@
     - More Qubit Types
     - Circuit Optimizations
 
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-
 # 0. About MLIR
 > The [MLIR](https://mlir.llvm.org/) project is a novel approach to building reusable and extensible compiler infrastructure. MLIR aims to address software fragmentation, improve compilation for heterogeneous hardware, significantly reduce the cost of building domain specific compilers, and aid in connecting existing compilers together.
 
@@ -31,8 +29,6 @@ For the purpose of this presentation, the key features of MLIR that are used can
 - Co-existing dialects, each introducing some operations and types.
 - SSA based IR.
 - Basic blocks of instructions, and Regions containing them.
-
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 
 # 1. QMLIR Types
 
@@ -42,8 +38,6 @@ Linear qubit arrays. Can have dynamic sizes.
 qubit<10> // static
 qubit<?> // dynamic
 ```
-
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 
 # 2. QMLIR Operations
 
@@ -58,7 +52,7 @@ Allocate a qubit array of a given size.
 // %n : index
 %q = allocate(%n) : qubit<?>
 ```
-<br/><br/><br/><br/><br/><br/>
+
 ## 2.2. Manipulation
 
 ### Split and Merge
@@ -89,7 +83,7 @@ The `dim` operation is used to extract the size of a dynamic qubit array.
 // %q0 : qubit<?>
 %q1, %n = dim %q0 : qubit<?>
 ```
-<br/><br/><br/><br/><br/><br/>
+
 ## 2.3. Measurement
 
 Measure (and deallocate) qubits in the standard bases (Pauli-X) and return an array of bits.
@@ -97,7 +91,7 @@ Measure (and deallocate) qubits in the standard bases (Pauli-X) and return an ar
 // %q0 : qubit<?>
 %res = measure %q0 : qubit<?> -> memref<? x i1>
 ```
-<br/><br/><br/><br/><br/><br/>
+
 ## 2.4. Transformations
 
 Currently, a simple gate set is supported - the Pauli gates, Hadamard, CNOT. 
@@ -124,8 +118,6 @@ It also supports unregistered transformations - which can be converted by optimi
 // %qc : qubit<1> // control qubit
 %q1 = controlled(%alpha : f32) { name = "C-Rx" } [qc : qubit<1>] %q0 : qubit<?>
 ```
-
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 
 # 3. Examples
 
@@ -262,8 +254,6 @@ func @deutsch_josza(%n : index) -> i1 { // %n : number of input bits
 }
 ```
 
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-
 # 4. Current Features
 
 ### 4.1. Simulation
@@ -272,8 +262,6 @@ Only supports the basic gates mentioned above (`X, Y, Z, CNOT, H`)
 
 ### 4.2. Lowering to LLVMIR
 A pass currently can lower our dialect into the standard dialect, which is in-turn lowered into LLVMIR and can be executed (by calling simulator functions)
-
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 
 # 5. Ideas for further work
 
