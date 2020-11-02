@@ -11,7 +11,7 @@
 //     U |x⟩|y⟩ = |x⟩|y ⊕ f(x)⟩
 //===----------------------------------------------------------------------===//
 
-// RUN: quantum-opt %s | quantum-opt 
+// RUN: quantum-opt %s | quantum-opt
 
 // implements U|x⟩|y⟩ = |x⟩|y ⊕ f(x)⟩
 func @oracle(%x : !quantum.qubit<?>, %y : !quantum.qubit<1>)
@@ -31,41 +31,23 @@ func @phase_flip_oracle(%x : !quantum.qubit<?>)
   return %x1: !quantum.qubit<?>
 }
 
-func @applyH(%qs : !quantum.qubit<?>) -> !quantum.qubit<?> {
-  %1 = constant 1 : index
-  %qs1, %n = quantum.dim %qs : !quantum.qubit<?>
-  %nminus1 = subi %n, %1 : index
-
-  %qf = scf.for %i = %1 to %n step %1
-    iter_args(%q0 = %qs1) -> !quantum.qubit<?> {
-    %qh, %qr = quantum.split %q0[%nminus1] : !quantum.qubit<?> -> (!quantum.qubit<1>, !quantum.qubit<?>)
-    %qh1 = quantum.H %qh : !quantum.qubit<1>
-    %q1 = quantum.concat %qr, %qh1 : (!quantum.qubit<?>, !quantum.qubit<1>) -> !quantum.qubit<?>
-    scf.yield %q1 : !quantum.qubit<?>
-  }
-
-  return %qf : !quantum.qubit<?>
-}
-
 // return false for constant, true for balanced
-func @deutsch_josza() -> i1 {
-  %x0 = quantum.allocate() : !quantum.qubit<10>
-  %x1 = quantum.cast %x0 : !quantum.qubit<10> to !quantum.qubit<?>
-  %x2 = call @applyH(%x1) : (!quantum.qubit<?>) -> !quantum.qubit<?>
-  %x3 = call @phase_flip_oracle(%x2) : (!quantum.qubit<?>) -> !quantum.qubit<?>
-  %x4 = call @applyH(%x3) : (!quantum.qubit<?>) -> !quantum.qubit<?>
-  %x5 = quantum.cast %x4 : !quantum.qubit<?> to !quantum.qubit<10>
-  %res = quantum.measure %x5 : !quantum.qubit<10> -> memref<10xi1>
+func @deutsch_josza(%n : index) -> i1 { // %n : number of input bits
+  %x0 = quantum.allocate(%n) : !quantum.qubit<?>
+  %x1 = quantum.H %x0 : !quantum.qubit<?>
+  %x2 = call @phase_flip_oracle(%x1) : (!quantum.qubit<?>) -> !quantum.qubit<?>
+  %x3 = quantum.H %x2 : !quantum.qubit<?>
+  %res = quantum.measure %x3 : !quantum.qubit<?> -> memref<?xi1>
 
+  // compute bitwise-OR of all the bits in %res
   %false = constant 0 : i1
   %0 = constant 0 : index
   %1 = constant 1 : index
-  %n = constant 10 : index
   %lst = subi %n, %1 : index
 
   %ans = scf.for %i = %0 to %lst step %1
     iter_args(%out = %false) -> i1 {
-    %v = load %res[%i] : memref<10xi1>
+    %v = load %res[%i] : memref<?xi1>
     %cur = or %out, %v : i1
     scf.yield %cur : i1
   }
