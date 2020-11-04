@@ -144,7 +144,7 @@ public:
   LogicalResult
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
                   ConversionPatternRewriter &rewriter) const override {
-    auto dimensionOp = cast<DimensionOp>(operation);
+    //    auto dimensionOp = cast<DimensionOp>(operation);
     DimensionOp::Adaptor transformed(operands);
 
     auto convertedDimOp = rewriter.create<::mlir::DimOp>(
@@ -408,7 +408,7 @@ template <typename PrimitiveGateOp>
 class PrimitiveGateOpLowering : public QuantumOpToStdPattern<PrimitiveGateOp> {
   static_assert(
       llvm::is_one_of<PrimitiveGateOp, PauliXGateOp, PauliYGateOp, PauliZGateOp,
-                      HadamardGateOp, CNOTGateOp>::value);
+                      HadamardGateOp, CNOTGateOp>::value, "invalid gate OP");
 
 public:
   using QuantumOpToStdPattern<PrimitiveGateOp>::QuantumOpToStdPattern;
@@ -519,7 +519,7 @@ void QuantumToStandardPass::runOnOperation() {
 
   target.addIllegalDialect<QuantumDialect>();
 
-  if (failed(applyFullConversion(module, target, patterns))) {
+  if (failed(applyPartialConversion(module, target, std::move(patterns)))) {
     signalPassFailure();
   }
 }
