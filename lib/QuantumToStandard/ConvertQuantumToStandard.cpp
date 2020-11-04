@@ -408,7 +408,8 @@ template <typename PrimitiveGateOp>
 class PrimitiveGateOpLowering : public QuantumOpToStdPattern<PrimitiveGateOp> {
   static_assert(
       llvm::is_one_of<PrimitiveGateOp, PauliXGateOp, PauliYGateOp, PauliZGateOp,
-                      HadamardGateOp, CNOTGateOp>::value, "invalid gate OP");
+                      HadamardGateOp, CNOTGateOp>::value,
+      "invalid gate OP");
 
 public:
   using QuantumOpToStdPattern<PrimitiveGateOp>::QuantumOpToStdPattern;
