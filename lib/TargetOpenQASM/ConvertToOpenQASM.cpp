@@ -62,14 +62,13 @@ public:
   }
 
   std::vector<QubitRef> getQubits(Value v) {
-    for (auto& [vv, qref]: qubits) {
+    for (auto &[vv, qref] : qubits) {
       if (v == vv) {
         return qref;
       }
     }
     assert(false && "invalid state: qubit slice not found");
   }
-
 };
 
 /// Convert MLIR to OpenQASM
@@ -99,9 +98,9 @@ static void ModuleToOpenQASM(ModuleOp op, raw_ostream &output) {
   op.walk([&](PauliXGateOp pauliXGateOp) {
     auto argument = pauliXGateOp.qinp();
     auto qubits = qubitRegistry.getQubits(argument);
-    for (auto& qubit: qubits) {
-      auto& name = qubit.first;
-      auto& index = qubit.second;
+    for (auto &qubit : qubits) {
+      auto &name = qubit.first;
+      auto &index = qubit.second;
       output << "x " << name << '[' << index << "];\n";
     }
     qubitRegistry.update(argument, pauliXGateOp.getResult());
@@ -118,10 +117,11 @@ static void ModuleToOpenQASM(ModuleOp op, raw_ostream &output) {
     numBitArrays++;
 
     int i = 0;
-    for (auto& e: qubitRegistry.getQubits(arg)) {
+    for (auto &e : qubitRegistry.getQubits(arg)) {
       auto name = e.first;
       auto index = e.second;
-      output << resName << '[' << i << "] = measure " << name << "[" << index << "];\n";
+      output << resName << '[' << i << "] = measure " << name << "[" << index
+             << "];\n";
       i++;
     }
 
