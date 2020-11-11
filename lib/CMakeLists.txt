@@ -1,2 +1,3 @@
 add_subdirectory(Quantum)
 add_subdirectory(QuantumToStandard)
+add_subdirectory(TargetOpenQASM)

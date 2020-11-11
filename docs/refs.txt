@@ -1,0 +1,15 @@
+HPVM: http://rsim.cs.illinois.edu/Pubs/17-PPOPP-HPVM.pdf
+
+uIR: UIR -An intermediate representation for transforming and optimizing the microarchitecture of application accelerators
+https://dl.acm.org/doi/10.1145/3352460.3358292
+
+Sabre qubit allocation paper, ASPLOS 2019
+
+Qubit Allocation, Siraichi et al., CGO 2018
+
+Enfield compiler: https://github.com/ysiraichi/enfield
+
+This paper: https://arxiv.org/pdf/1902.01474.pdf
+
+
+Fred. Chong from Univ. Chicago - gate decomposition
