@@ -30,7 +30,7 @@ def Quantum_Dialect : Dialect {
 
       static StringRef getQubitTypeName() { return "qubit"; }
     }];
-    
+
     let cppNamespace = "::mlir::quantum";
 }
 
@@ -40,6 +40,44 @@ def Quantum_Dialect : Dialect {
 
 class Quantum_Op<string mnemonic, list<OpTrait> traits = []> :
         Op<Quantum_Dialect, mnemonic, traits> {
+
+    // For each Quantum op, the following static functions need to be defined in
+    // QuantumOps.cpp:
+    //
+    // * static ParseResult parse<op-c++-class-name>(OpAsmParser &parser,
+    //                                               OperationState &state);
+    // * static void print(OpAsmPrinter &p, <op-c++-class-name> op)
+    // * static LogicalResult verify(<op-c++-class-name> op)
+    let parser = [{ return ::parse$cppClass(parser, result); }];
+    let printer = [{ ::print(*this, p); }];
+    let verifier = [{ return ::verify(*this); }];
+}
+
+//===----------------------------------------------------------------------===//
+// QASM dialect definition.
+//===----------------------------------------------------------------------===//
+
+def QASM_Dialect : Dialect {
+    let name = "qasm";
+    let summary = "QASM MLIR dialect.";
+    let description = [{
+      Dialect for QASM
+    }];
+
+    let extraClassDeclaration = [{
+      Type parseType(DialectAsmParser &parser) const override;
+      void printType(Type type, DialectAsmPrinter &os) const override;
+    }];
+
+    let cppNamespace = "::mlir::qasm";
+}
+
+//===----------------------------------------------------------------------===//
+// Base QASM operation definition.
+//===----------------------------------------------------------------------===//
+
+class QASM_Op<string mnemonic, list<OpTrait> traits = []> :
+        Op<QASM_Dialect, mnemonic, traits> {
 
     // For each Quantum op, the following static functions need to be defined in
     // QuantumOps.cpp:

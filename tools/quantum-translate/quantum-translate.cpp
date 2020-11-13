@@ -6,5 +6,5 @@ using namespace mlir;
 
 int main(int argc, char **argv) {
   registerToOpenQASMTranslation();
-  return failed(mlirTranslateMain(argc, argv, "MLIR Quantum Targeting Tool"));
+  return failed(mlirTranslateMain(argc, argv, "MLIR Quantum Translation Tool"));
 }

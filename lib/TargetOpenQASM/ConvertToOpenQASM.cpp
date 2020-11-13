@@ -37,7 +37,9 @@ class QubitRegistry {
 public:
   QubitRegistry() : numQubitArrays(0), varNames(), qubits() {}
   std::string getName(Value v) {
-    for (auto &[vv, name] : varNames) {
+    for (auto &var: varNames) {
+      auto vv = var.first;
+      auto name = var.second;
       if (v == vv)
         return name;
     }
@@ -62,7 +64,9 @@ public:
   }
 
   std::vector<QubitRef> getQubits(Value v) {
-    for (auto &[vv, qref] : qubits) {
+    for (auto &qubit : qubits) {
+      auto vv = qubit.first;
+      auto qref = qubit.second;
       if (v == vv) {
         return qref;
       }

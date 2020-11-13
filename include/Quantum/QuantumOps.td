@@ -373,4 +373,7 @@ def CNOTGateOp : SimplePrimitiveGateOp<"CNOT"> {
 // TODO Support for generic gate ops, which can be modified and replaced
 //      by IR tranformations.
 
+//===----------------------------------------------------------------------===//
+// QASM Dialect Ops
+//===----------------------------------------------------------------------===//
 #endif // QUANTUM_OPS

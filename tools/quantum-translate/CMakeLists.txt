@@ -9,8 +9,8 @@ set(LIBS
     MLIRParser
     MLIRSupport
     )
-add_llvm_executable(mlir-quantum-target mlir-quantum-target.cpp)
+add_llvm_executable(quantum-translate quantum-translate.cpp)
 
-llvm_update_compile_flags(mlir-quantum-target)
-target_link_libraries(mlir-quantum-target PRIVATE ${LIBS})
+llvm_update_compile_flags(quantum-translate)
+target_link_libraries(quantum-translate PRIVATE ${LIBS})
 
