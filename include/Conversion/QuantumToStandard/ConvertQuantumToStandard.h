@@ -9,7 +9,7 @@
 #ifndef CONVERSION_QUANTUMTOSTANDARD_CONVERTQUANTUMTOSTANDARD_H
 #define CONVERSION_QUANTUMTOSTANDARD_CONVERTQUANTUMTOSTANDARD_H
 
-#include "Quantum/QuantumOps.h"
+#include "Dialect/Quantum/QuantumOps.h"
 #include "mlir/IR/MLIRContext.h"
 #include "mlir/IR/StandardTypes.h"
 #include "mlir/Support/LLVM.h"

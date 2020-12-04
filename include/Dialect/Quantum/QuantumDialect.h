@@ -11,7 +11,7 @@
 
 #include "mlir/IR/Dialect.h"
 
-#include "Quantum/QuantumOpsDialect.h.inc"
+#include "Dialect/Quantum/QuantumOpsDialect.h.inc"
 #include "QuantumTypes.h"
 
 #endif // QUANTUM_QUANTUMDIALECT_H

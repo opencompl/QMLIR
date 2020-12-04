@@ -16,9 +16,9 @@
 #include "mlir/IR/StandardTypes.h"
 #include "mlir/Interfaces/SideEffectInterfaces.h"
 
-#include "Quantum/QuantumTypes.h"
+#include "QuantumTypes.h"
 
 #define GET_OP_CLASSES
-#include "Quantum/QuantumOps.h.inc"
+#include "Dialect/Quantum/QuantumOps.h.inc"
 
 #endif // QUANTUM_QUANTUMOPS_H

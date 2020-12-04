@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Quantum/QuantumDialect.h"
-#include "QuantumToStandard/Passes.h"
+#include "Conversion/QuantumToStandard/Passes.h"
+#include "Dialect/Quantum/QuantumDialect.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/SCF/SCF.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
@@ -18,7 +18,7 @@
 #include "mlir/Pass/PassManager.h"
 #include "mlir/Support/MlirOptMain.h"
 
-#include "Quantum/QuantumDialect.h"
+#include "Dialect/Quantum/QuantumDialect.h"
 
 using namespace mlir;
 

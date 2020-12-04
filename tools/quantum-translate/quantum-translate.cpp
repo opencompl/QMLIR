@@ -1,4 +1,4 @@
-#include "TargetOpenQASM/ConvertToOpenQASM.h"
+#include "Target/OpenQASM/ConvertToOpenQASM.h"
 #include "mlir/InitAllTranslations.h"
 #include "mlir/Support/LogicalResult.h"
 #include "mlir/Translation.h"

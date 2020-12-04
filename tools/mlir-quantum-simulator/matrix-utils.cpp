@@ -72,16 +72,17 @@ Matrix Matrix::tensorProduct(const Matrix &other) const {
 void Matrix::applyFull(Ket &ket) const { apply(ket.begin(), ket.end()); }
 
 void Matrix::applyPartial(Ket &ket, int64_t offset) const {
-  assert(offset + numCols <= ket.size() && "Invalid offset, too few elements");
+  assert(offset + numCols <= (int64_t)ket.size() &&
+         "Invalid offset, too few elements");
   apply(ket.begin() + offset, ket.begin() + offset + numCols);
 }
 
 void Matrix::applyBlocks(Ket &ket, int64_t offset) const {
   assert(offset >= 0);
-  assert(offset < ket.size() && "Invalid offset, too few elements");
+  assert(offset < (int64_t)ket.size() && "Invalid offset, too few elements");
 
   int64_t numBlocks = (ket.size() - offset) / numCols;
-  assert(numBlocks * numCols + offset == ket.size() &&
+  assert(numBlocks * numCols + offset == (int64_t)ket.size() &&
          "Invalid offset and/or remaining size, unable to segment");
 
   for (int64_t i = 0; i < numBlocks; i++) {

@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Quantum/QuantumTypes.h"
+#include "Dialect/Quantum/QuantumTypes.h"
 #include "mlir/IR/StandardTypes.h"
 #include "mlir/Support/LLVM.h"
 

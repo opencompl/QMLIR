@@ -1,3 +1,3 @@
-add_subdirectory(Quantum)
-add_subdirectory(QuantumToStandard)
-add_subdirectory(TargetOpenQASM)
+add_subdirectory(Dialect)
+add_subdirectory(Conversion)
+add_subdirectory(Target)

@@ -6,12 +6,12 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "QuantumToStandard/ConvertQuantumToStandard.h"
+#include "Conversion/QuantumToStandard/ConvertQuantumToStandard.h"
+#include "Conversion/QuantumToStandard/Passes.h"
+#include "Dialect/Quantum/QuantumDialect.h"
+#include "Dialect/Quantum/QuantumOps.h"
+#include "Dialect/Quantum/QuantumTypes.h"
 #include "PassDetail.h"
-#include "Quantum/QuantumDialect.h"
-#include "Quantum/QuantumOps.h"
-#include "Quantum/QuantumTypes.h"
-#include "QuantumToStandard/Passes.h"
 #include "mlir/Dialect/Affine/IR/AffineOps.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/SCF/SCF.h"

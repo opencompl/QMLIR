@@ -48,7 +48,7 @@ QubitRegister::QubitRegister(int64_t num)
 
 void QubitRegister::applyIndexPermutation(const vector<int64_t> &perm,
                                           bool invert) {
-  assert(perm.size() == numQubits);
+  assert((int64_t)perm.size() == numQubits);
 
   Ket stateCopy(state.size());
 
@@ -102,7 +102,7 @@ void QubitRegister::moveSliceToLSB(const vector<int64_t> &subset, bool invert) {
 }
 
 QubitSlice QubitRegister::acquireQubits(int64_t size) {
-  if (unusedIndices.size() < size) {
+  if ((int64_t)unusedIndices.size() < size) {
     simulatorLog(SimulatorLoggingSeverity::ERROR, "allocate",
                  Twine("Unable to allocate ")
                      .concat(Twine(size))
@@ -114,7 +114,7 @@ QubitSlice QubitRegister::acquireQubits(int64_t size) {
   vector<int64_t> allocated;
   for (auto i : unusedIndices) {
     allocated.push_back(i);
-    if (allocated.size() == size)
+    if ((int64_t)allocated.size() == size)
       break;
   }
   for (int i : allocated) {
@@ -165,7 +165,7 @@ ResultRef QubitRegister::measureQubits(const QubitSlice &q,
     moveSliceToMSB({q[index]});
 
     double p0 = 0;
-    for (int64_t i = 0; i < state.size() / 2; i++) {
+    for (int64_t i = 0; i < (int64_t)state.size() / 2; i++) {
       p0 += abs(state[i] * conj(state[i]));
     }
     double p1 = 1.0 - p0;
@@ -242,7 +242,7 @@ void QubitRegister::showPartialState(const QubitSlice &qs,
   llvm::sort(usedQubits);
   vector<int64_t> remainingQubits;
   for (int64_t i = 0, j = 0, k = 0; i < this->numQubits; i++) {
-    if (j < usedQubits.size() && usedQubits[j] == i) {
+    if (j < (int64_t)usedQubits.size() && usedQubits[j] == i) {
       j++;
     } else {
       remainingQubits.push_back(i);

@@ -20,7 +20,7 @@ enum SimulatorLoggingSeverity {
   ERROR = 3,
   CRITICAL = 4
 };
-};
+} // namespace SimulatorLoggingSeverity
 
 void simulatorLog(int severity, const char *op, const llvm::Twine &err);
 
@@ -152,8 +152,8 @@ public:
   void applyTransform(const QubitSlice &q, const Matrix &gate) override;
   void applyTransformToEach(const QubitSlice &q, const Matrix &gate) override;
 
-  void showFullState();
-  void showPartialState(const QubitSlice &q);
+  void showFullState() override;
+  void showPartialState(const QubitSlice &q) override;
 };
 
 #endif // QUANTUM_SIMULATOR__SIMULATOR_UTILS_H_

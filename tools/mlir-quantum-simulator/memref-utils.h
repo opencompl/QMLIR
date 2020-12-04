@@ -67,13 +67,13 @@ Elem *MemRef1D<Elem>::end() const {
 }
 
 template <typename Elem>
-static MemRef1D<Elem> MemRef1D<Elem>::get(int64_t size) {
+MemRef1D<Elem> MemRef1D<Elem>::get(int64_t size) {
   Elem *mem = new Elem[size];
   return MemRef1D<Elem>{mem, mem, 0, {size}, {1}};
 }
 
 template <typename Elem>
-static MemRef1D<Elem> MemRef1D<Elem>::get(const std::vector<Elem> &init) {
+MemRef1D<Elem> MemRef1D<Elem>::get(const std::vector<Elem> &init) {
   auto res = MemRef1D<Elem>::get(init.size());
   std::copy(init.begin(), init.end(), res.alignedPtr);
   return res;

@@ -10,9 +10,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "TargetOpenQASM/ConvertToOpenQASM.h"
-#include "Quantum/QuantumDialect.h"
-#include "Quantum/QuantumOps.h"
+#include "Target/OpenQASM/ConvertToOpenQASM.h"
+#include "Dialect/Quantum/QuantumDialect.h"
+#include "Dialect/Quantum/QuantumOps.h"
 
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
 #include "mlir/Target/LLVMIR/ModuleTranslation.h"
@@ -20,7 +20,6 @@
 #include "mlir/Translation.h"
 
 #include "llvm/Support/ToolOutputFile.h"
-#include <map>
 #include <string>
 #include <vector>
 using namespace mlir;

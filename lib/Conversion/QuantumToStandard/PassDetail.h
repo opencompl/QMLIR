@@ -14,7 +14,7 @@
 namespace mlir {
 
 #define GEN_PASS_CLASSES
-#include "QuantumToStandard/Passes.h.inc"
+#include "Conversion/QuantumToStandard/Passes.h.inc"
 
 } // end namespace mlir
 

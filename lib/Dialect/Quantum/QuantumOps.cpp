@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Quantum/QuantumOps.h"
-#include "Quantum/QuantumDialect.h"
+#include "Dialect/Quantum/QuantumOps.h"
+#include "Dialect/Quantum/QuantumDialect.h"
 #include "mlir/IR/Attributes.h"
 #include "mlir/IR/Block.h"
 #include "mlir/IR/BlockAndValueMapping.h"
@@ -152,7 +152,7 @@ static ParseResult parseSplitOp(OpAsmParser &parser, OperationState &state) {
       parser.parseArrowTypeList(resultTypes))
     return failure();
 
-  int numDynamicSizeTypes = 0;
+  unsigned int numDynamicSizeTypes = 0;
   for (auto e : resultTypes) {
     if (auto qubitType = e.cast<QubitType>()) {
       if (!qubitType.hasStaticSize()) {
@@ -285,8 +285,8 @@ static ParseResult parsePrimitiveGateOp(OpAsmParser &parser,
   return success();
 }
 
-static ParseResult parsePrimitiveControlledGateOp(OpAsmParser &parser,
-                                                  OperationState &state) {
+[[maybe_unused]] static ParseResult
+parsePrimitiveControlledGateOp(OpAsmParser &parser, OperationState &state) {
   SmallVector<Value, 10> operands;
   SmallVector<Type, 2> resultTypes;
 
@@ -360,4 +360,4 @@ static void print(SimplePrimitiveGateOp op, OpAsmPrinter &printer) {
 }
 
 #define GET_OP_CLASSES
-#include "Quantum/QuantumOps.cpp.inc"
+#include "Dialect/Quantum/QuantumOps.cpp.inc"

@@ -12,9 +12,9 @@
 #include "mlir/Support/LLVM.h"
 #include "mlir/Support/LogicalResult.h"
 
-#include "Quantum/QuantumDialect.h"
-#include "Quantum/QuantumOps.h"
-#include "Quantum/QuantumTypes.h"
+#include "Dialect/Quantum/QuantumDialect.h"
+#include "Dialect/Quantum/QuantumOps.h"
+#include "Dialect/Quantum/QuantumTypes.h"
 
 using namespace mlir;
 using namespace mlir::quantum;
@@ -26,7 +26,7 @@ using namespace mlir::quantum;
 void QuantumDialect::initialize() {
   addOperations<
 #define GET_OP_LIST
-#include "Quantum/QuantumOps.cpp.inc"
+#include "Dialect/Quantum/QuantumOps.cpp.inc"
       >();
 
   addTypes<QubitType>();
