@@ -1,1 +1,1 @@
-add_subdirectory(TargetOpenQASM)
+add_subdirectory(OpenQASM)

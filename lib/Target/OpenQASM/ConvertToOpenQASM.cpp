@@ -36,7 +36,7 @@ class QubitRegistry {
 public:
   QubitRegistry() : numQubitArrays(0), varNames(), qubits() {}
   std::string getName(Value v) {
-    for (auto &var: varNames) {
+    for (auto &var : varNames) {
       auto vv = var.first;
       auto name = var.second;
       if (v == vv)
