@@ -65,8 +65,7 @@ public:
                           results.getConvertedTypes(), funcOp.getContext());
 
     // Replace the function by a function with an updated signature
-    auto newFuncOp =
-        rewriter.create<FuncOp>(loc, funcOp.getName(), funcType, llvm::None);
+    auto newFuncOp = rewriter.create<FuncOp>(loc, funcOp.getName(), funcType);
     rewriter.inlineRegionBefore(funcOp.getBody(), newFuncOp.getBody(),
                                 newFuncOp.end());
 
@@ -103,6 +102,7 @@ public:
       acquireFunc = rewriter.create<FuncOp>(
           rewriter.getUnknownLoc(), "__mlir_quantum_simulator__acquire_qubits",
           acquireFuncType);
+      acquireFunc.sym_visibilityAttr(rewriter.getStringAttr("private"));
     }
 
     auto allocateOp = cast<AllocateOp>(operation);
@@ -208,6 +208,7 @@ public:
       concatFunc = rewriter.create<FuncOp>(
           rewriter.getUnknownLoc(), "__mlir_quantum_simulator__concat_qubits",
           concatFuncType);
+      concatFunc.sym_visibilityAttr(rewriter.getStringAttr("private"));
     }
 
     auto concatOp = cast<ConcatOp>(operation);
@@ -273,6 +274,7 @@ public:
       splitFunc = rewriter.create<FuncOp>(
           rewriter.getUnknownLoc(), "__mlir_quantum_simulator__split_qubits",
           splitFuncType);
+      splitFunc.sym_visibilityAttr(rewriter.getStringAttr("private"));
     }
 
     auto splitOp = cast<SplitOp>(operation);
@@ -362,6 +364,7 @@ public:
       measureFunc = rewriter.create<FuncOp>(
           rewriter.getUnknownLoc(), "__mlir_quantum_simulator__measure_qubits",
           measureFuncType);
+      measureFunc.sym_visibilityAttr(rewriter.getStringAttr("private"));
     }
 
     auto measureOp = cast<MeasureOp>(operation);
@@ -438,6 +441,7 @@ public:
       rewriter.setInsertionPointToStart(module.getBody());
       gateFunc =
           rewriter.create<FuncOp>(rewriter.getUnknownLoc(), name, gateFuncType);
+      gateFunc.sym_visibilityAttr(rewriter.getStringAttr("private"));
     }
 
     // Convert operand to dynamic size (for library call compatibility)
@@ -532,18 +536,26 @@ namespace quantum {
 void populateQuantumToStdConversionPatterns(
     QuantumTypeConverter &typeConverter,
     mlir::OwningRewritePatternList &patterns) {
-  patterns.insert<FuncOpLowering,
+  // clang-format off
+  patterns.insert<
+    FuncOpLowering,
 
-                  // Quantum Ops
-                  AllocateOpLowering, CastOpLowering, DimensionOpLowering,
-                  ConcatOpLowering, SplitOpLowering, MeasureOpLowering,
+    // Quantum Ops
+    AllocateOpLowering,
+    CastOpLowering,
+    DimensionOpLowering,
+    ConcatOpLowering,
+    SplitOpLowering,
+    MeasureOpLowering,
 
-                  // Quantum Primitive Gate Ops
-                  PrimitiveGateOpLowering<PauliXGateOp>,
-                  PrimitiveGateOpLowering<PauliYGateOp>,
-                  PrimitiveGateOpLowering<PauliZGateOp>,
-                  PrimitiveGateOpLowering<HadamardGateOp>,
-                  PrimitiveGateOpLowering<CNOTGateOp>>(typeConverter);
+    // Quantum Primitive Gate Ops
+    PrimitiveGateOpLowering<PauliXGateOp>,
+    PrimitiveGateOpLowering<PauliYGateOp>,
+    PrimitiveGateOpLowering<PauliZGateOp>,
+    PrimitiveGateOpLowering<HadamardGateOp>,
+    PrimitiveGateOpLowering<CNOTGateOp>
+  >(typeConverter);
+  // clang-format on
 }
 
 //===----------------------------------------------------------------------===//

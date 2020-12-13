@@ -14,7 +14,7 @@
 // RUN: quantum-opt %s | quantum-opt
 
 // implements U|x⟩|y⟩ = |x⟩|y ⊕ f(x)⟩
-func @oracle(%x : !quantum.qubit<?>, %y : !quantum.qubit<1>)
+func private @oracle(%x : !quantum.qubit<?>, %y : !quantum.qubit<1>)
   -> (!quantum.qubit<?>, !quantum.qubit<1>)
 
 // implements U|x⟩ = (-1)^{f(x)} |x⟩
