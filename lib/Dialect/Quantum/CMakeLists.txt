@@ -1,14 +1,14 @@
 add_mlir_dialect_library(MLIRQuantum
-        QuantumDialect.cpp
-        QuantumTypes.cpp
-        QuantumOps.cpp
+  QuantumDialect.cpp
+  QuantumTypes.cpp
+  QuantumOps.cpp
 
-        ADDITIONAL_HEADER_DIRS
-        ${PROJECT_SOURCE_DIR}/include/Dialect/Quantum
+  ADDITIONAL_HEADER_DIRS
+  ${PROJECT_SOURCE_DIR}/include/Dialect/Quantum
 
-        DEPENDS
-        MLIRQuantumOpsIncGen
+  DEPENDS
+  MLIRQuantumOpsIncGen
 
-	LINK_LIBS PUBLIC
-	MLIRIR
-	)
+  LINK_LIBS PUBLIC
+  MLIRIR
+)

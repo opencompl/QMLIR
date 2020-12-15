@@ -11,4 +11,8 @@
 
 include "mlir/IR/OpBase.td"
 
+// !qasm.qubit
+def QASM_QubitType :
+  Type<CPred<"$_self.isa<QubitType>()">, "QASM Qubit Type">;
+
 #endif // QASM_TYPES

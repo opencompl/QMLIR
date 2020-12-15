@@ -12,11 +12,15 @@ def QASM_Dialect : Dialect {
     let summary = "Dialect for OpenQASM";
     let description = [{
         Dialect to represent OpenQASM programs.
+        Spec Version 3.0: https://qiskit.github.io/openqasm/
+        - Version 2.0: https://github.com/Qiskit/openqasm/tree/OpenQASM2.x
     }];
 
     let extraClassDeclaration = [{
       Type parseType(DialectAsmParser &parser) const override;
       void printType(Type type, DialectAsmPrinter &os) const override;
+
+      static StringRef getQubitTypeName() { return "qubit"; };
     }];
 
     let cppNamespace = "::mlir::QASM";

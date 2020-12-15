@@ -18,4 +18,7 @@ include "mlir/Interfaces/SideEffectInterfaces.td"
 // include "mlir/Interfaces/VectorInterfaces.td"
 // include "mlir/Interfaces/ViewLikeInterface.td"
 
+include "QASMDialect.td"
+include "QASMTypes.td"
+
 #endif // QASM_OPS

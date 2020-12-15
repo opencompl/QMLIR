@@ -11,6 +11,6 @@
 
 #include "mlir/IR/Dialect.h"
 
-#include "Dialect/QASM/QASMDialect.h.inc"
+#include "Dialect/QASM/QASMOpsDialect.h.inc"
 
 #endif // QASM_QASMDIALECT_H
