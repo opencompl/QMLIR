@@ -16,6 +16,8 @@
 #include "mlir/IR/StandardTypes.h"
 #include "mlir/Interfaces/SideEffectInterfaces.h"
 
+#include "QASMTypes.h"
+
 #define GET_OP_CLASSES
 #include "Dialect/QASM/QASMOps.h.inc"
 
