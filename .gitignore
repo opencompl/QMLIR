@@ -15,3 +15,5 @@ local_opts.sh
 test/Scratches/
 qmlir.code-workspace
 Output/
+
+.ipynb_checkpoints
