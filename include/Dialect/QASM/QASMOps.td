@@ -32,6 +32,40 @@ def QASM_AllocateOp : QASM_Op<"allocate", []> {
   }];
 }
 
+def QASM_ResetOp : QASM_Op<"reset", []> {
+  let summary = "Reset a qubit array";
+  let description = [{
+    qasm.reset %q : !qasm.qubit<10>
+  }];
+
+  let arguments = (ins QASM_QubitType:$qinp);
+
+  let assemblyFormat = [{
+    $qinp attr-dict `:` type($qinp)
+  }];
+
+  let verifier = [{
+    return success();
+  }];
+}
+
+def QASM_MeasureOp : QASM_Op<"measure", []> {
+  let summary = "Reset a qubit array";
+  let description = [{
+    qasm.reset %q : !qasm.qubit<10>
+  }];
+
+  let arguments = (ins QASM_QubitType:$qinp, MemRef);
+
+  let assemblyFormat = [{
+    $qinp attr-dict `:` type($qinp)
+  }];
+
+  let verifier = [{
+    return success();
+  }];
+}
+
 //======================
 // Builtin Gates
 //======================

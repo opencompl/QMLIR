@@ -8,6 +8,7 @@ func @allocate_op() {
   %t = constant 0.0 : f32
   qasm.U (%t : f32, %t : f32, %t : f32) %a : !qasm.qubit<1>
   qasm.gphase(%t : f32)
+  qasm.reset %q : !qasm.qubit<10>
   return
 }
 
