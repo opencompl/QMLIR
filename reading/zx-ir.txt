@@ -1,0 +1,31 @@
+// inputs %0 %1
+%a, %m = Z(%0)
+%b = X(%m, %1)
+// outputs %a %b
+
+%b, %n = X(%1)
+%a = Z(%n, %0)
+
+
+// wire
+%wl, %wr = wire
+
+X(%0, %a, %wl)
+Z(%1, %b, %wr)
+/// equiv
+X(%0, %a, %wr)
+Z(%1, %b, %wl)
+
+wire %wl %wr
+
+
+// some new SSA thingy
+%a, %m = Z(%0, %n)
+%b, %n = X(%1, %m)
+wire(%m, %n)
+
+func main(%a, %b):
+   %p, %q, %r = X
+   wire(%a, %p)
+   %p2, %q2, %r2 = Z
+   wire(%q, %q2)
