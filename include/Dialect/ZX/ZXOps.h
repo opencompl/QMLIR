@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef QASM_QASMOPS_H
-#define QASM_QASMOPS_H
+#ifndef ZX_ZXOPS_H
+#define ZX_ZXOPS_H
 
 #include "mlir/IR/Attributes.h"
 #include "mlir/IR/Builders.h"
@@ -16,9 +16,9 @@
 #include "mlir/IR/StandardTypes.h"
 #include "mlir/Interfaces/SideEffectInterfaces.h"
 
-#include "QASMTypes.h"
+#include "ZXTypes.h"
 
 #define GET_OP_CLASSES
-#include "Dialect/QASM/QASMOps.h.inc"
+#include "Dialect/ZX/ZXOps.h.inc"
 
-#endif // QASM_QASMOPS_H
+#endif // ZX_ZXOPS_H

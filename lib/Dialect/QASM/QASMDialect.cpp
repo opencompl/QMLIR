@@ -3,9 +3,9 @@
 #include "mlir/Support/LLVM.h"
 #include "mlir/Support/LogicalResult.h"
 
-#include "Dialect/QASM/QASMDialect.h"
 #include "Dialect/QASM/QASMOps.h"
 #include "Dialect/QASM/QASMTypes.h"
+#include "Dialect/QASM/ZXDialect.h"
 
 using namespace mlir;
 using namespace mlir::QASM;

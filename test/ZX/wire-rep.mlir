@@ -1,3 +1,4 @@
+// RUN: echo ""
 
 func @CNOT(%0 : node, %1 : node
            %a : node, %b : node) {

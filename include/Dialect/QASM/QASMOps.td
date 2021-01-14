@@ -55,7 +55,7 @@ def QASM_MeasureOp : QASM_Op<"measure", []> {
     qasm.reset %q : !qasm.qubit<10>
   }];
 
-  let arguments = (ins QASM_QubitType:$qinp, MemRef);
+  let arguments = (ins QASM_QubitType:$qinp);
 
   let assemblyFormat = [{
     $qinp attr-dict `:` type($qinp)

@@ -1,12 +1,13 @@
 get_property(dialect_libs GLOBAL PROPERTY MLIR_DIALECT_LIBS)
 get_property(conversion_libs GLOBAL PROPERTY MLIR_CONVERSION_LIBS)
 set(LIBS
-        ${dialect_libs}
-        ${conversion_libs}
-        MLIROptLib
-        MLIRQuantum
-        MLIRQASM
-        )
+    ${dialect_libs}
+    ${conversion_libs}
+    MLIROptLib
+    MLIRQuantum
+    MLIRQASM
+    MLIRZX
+    )
 add_llvm_executable(quantum-opt quantum-opt.cpp)
 
 llvm_update_compile_flags(quantum-opt)
