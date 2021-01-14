@@ -1,7 +1,7 @@
 #ifndef QASM_QASMTYPES_H
 #define QASM_QASMTYPES_H
 
-#include "mlir/IR/StandardTypes.h"
+#include "mlir/IR/BuiltinTypes.h"
 #include "mlir/IR/TypeSupport.h"
 #include "mlir/IR/Types.h"
 
@@ -10,7 +10,7 @@ namespace QASM {
 
 namespace detail {
 struct QubitTypeStorage;
-}
+} // namespace detail
 
 class QubitType
     : public Type::TypeBase<QubitType, Type, detail::QubitTypeStorage> {

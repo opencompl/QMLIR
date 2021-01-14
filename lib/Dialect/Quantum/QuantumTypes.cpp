@@ -6,9 +6,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Dialect/Quantum/QuantumTypes.h"
-#include "mlir/IR/StandardTypes.h"
+#include "mlir/IR/BuiltinTypes.h"
 #include "mlir/Support/LLVM.h"
+
+#include "Dialect/Quantum/QuantumTypes.h"
 
 using namespace mlir;
 using namespace mlir::quantum;
@@ -49,5 +50,5 @@ ArrayRef<int64_t> QubitType::getMemRefShape() const {
 }
 
 Type QubitType::getMemRefType() const {
-  return IntegerType::get(64, getContext());
+  return IntegerType::get(getContext(), 64);
 }

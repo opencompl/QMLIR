@@ -10,8 +10,8 @@
 #define CONVERSION_QUANTUMTOSTANDARD_CONVERTQUANTUMTOSTANDARD_H
 
 #include "Dialect/Quantum/QuantumOps.h"
+#include "mlir/IR/BuiltinTypes.h"
 #include "mlir/IR/MLIRContext.h"
-#include "mlir/IR/StandardTypes.h"
 #include "mlir/Support/LLVM.h"
 #include "mlir/Transforms/DialectConversion.h"
 

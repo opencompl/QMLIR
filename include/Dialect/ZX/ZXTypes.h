@@ -1,7 +1,7 @@
 #ifndef ZX_ZXTYPES_H
 #define ZX_ZXTYPES_H
 
-#include "mlir/IR/StandardTypes.h"
+#include "mlir/IR/BuiltinTypes.h"
 #include "mlir/IR/TypeSupport.h"
 #include "mlir/IR/Types.h"
 

@@ -11,6 +11,7 @@
 #include "Dialect/Quantum/QuantumDialect.h"
 #include "Dialect/Quantum/QuantumOps.h"
 #include "Dialect/Quantum/QuantumTypes.h"
+
 #include "PassDetail.h"
 #include "mlir/Dialect/Affine/IR/AffineOps.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
@@ -19,9 +20,9 @@
 #include "mlir/IR/AffineMap.h"
 #include "mlir/IR/BlockAndValueMapping.h"
 #include "mlir/IR/Builders.h"
+#include "mlir/IR/BuiltinTypes.h"
 #include "mlir/IR/MLIRContext.h"
 #include "mlir/IR/PatternMatch.h"
-#include "mlir/IR/StandardTypes.h"
 #include "mlir/IR/Value.h"
 #include "mlir/Pass/Pass.h"
 #include "mlir/Support/LLVM.h"
@@ -61,8 +62,8 @@ public:
       results.addInputs(en.index(), typeConverter.convertType(en.value()));
 
     auto funcType =
-        FunctionType::get(inputs.getConvertedTypes(),
-                          results.getConvertedTypes(), funcOp.getContext());
+        FunctionType::get(funcOp.getContext(), inputs.getConvertedTypes(),
+                          results.getConvertedTypes());
 
     // Replace the function by a function with an updated signature
     auto newFuncOp = rewriter.create<FuncOp>(loc, funcOp.getName(), funcType);

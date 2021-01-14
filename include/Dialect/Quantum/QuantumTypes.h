@@ -9,7 +9,7 @@
 #ifndef QUANTUM_QUANTUMTYPES_H
 #define QUANTUM_QUANTUMTYPES_H
 
-#include "mlir/IR/StandardTypes.h"
+#include "mlir/IR/BuiltinTypes.h"
 #include "mlir/IR/TypeSupport.h"
 #include "mlir/IR/Types.h"
 
