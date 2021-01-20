@@ -11,9 +11,11 @@ compile_commands.json
 
 test/scratches/
 notes/
-local_opts.sh
+local_opts.*
 test/Scratches/
-qmlir.code-workspace
+*.code-workspace
 Output/
 
 .ipynb_checkpoints
+*.vim
+.vs

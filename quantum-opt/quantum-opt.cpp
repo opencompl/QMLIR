@@ -14,6 +14,7 @@
 #include "Conversion/QuantumToStandard/Passes.h"
 #include "Dialect/QASM/ZXDialect.h"
 #include "Dialect/Quantum/QuantumDialect.h"
+#include "Dialect/ZX/Transforms/Passes.h"
 #include "Dialect/ZX/ZXDialect.h"
 
 using namespace mlir;
@@ -29,6 +30,7 @@ int main(int argc, char **argv) {
 
   registerAllPasses();
   registerQuantumPasses();
+  registerZXTransformsPasses();
 
   return failed(
       mlir::MlirOptMain(argc, argv, "Quantum dialect driver\n", registry));

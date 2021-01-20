@@ -12,8 +12,8 @@
 include "mlir/IR/OpBase.td"
 include "mlir/Interfaces/SideEffectInterfaces.td"
 
-include "ZXDialect.td"
-include "ZXTypes.td"
+include "Dialect/ZX/ZXDialect.td"
+include "Dialect/ZX/ZXTypes.td"
 
 // `op` [ param : f32 ] ( args... ) : output-type
 class ZX_ParametrizedNodeOp<string mnemonic, list<OpTrait> traits = []>

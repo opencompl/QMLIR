@@ -12,3 +12,5 @@ add_mlir_dialect_library(MLIRZX
     LINK_LIBS PUBLIC
     MLIRIR
     )
+
+add_subdirectory(Transforms)
