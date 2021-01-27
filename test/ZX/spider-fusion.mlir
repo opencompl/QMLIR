@@ -24,31 +24,46 @@ func @constfoo() {
 
   // CHECK: %[[C:.*]] = constant [[_:.*]]: f32
 
-  // CHECK: %[[INP:.*]]:3 = zx.source
-  %a, %b, %c = zx.source() : () -> (!zx.wire, !zx.wire, !zx.wire)
+  // CHECK: %[[INP1:.*]] = zx.source
+  // CHECK: %[[INP2:.*]] = zx.source
+  // CHECK: %[[INP3:.*]] = zx.source
+  %a = zx.source
+  %b = zx.source
+  %c = zx.source
   %m, %x = zx.Z(%u, %a, %b) : (f32, !zx.wire, !zx.wire) -> (!zx.wire, !zx.wire)
   %y, %z = zx.Z(%v, %c, %m) : (f32, !zx.wire, !zx.wire) -> (!zx.wire, !zx.wire)
 
-  // CHECK: %[[OUT:.*]]:3 = zx.Z(%[[C]], %[[INP]]#0, %[[INP]]#1, %[[INP]]#2)
-  // CHECK: zx.sink(%[[OUT]]#0, %[[OUT]]#1, %[[OUT]]#2)
-  zx.sink(%x, %y, %z) : (!zx.wire, !zx.wire, !zx.wire) -> ()
+  // CHECK: %[[OUT:.*]]:3 = zx.Z(%[[C]], %[[INP1]], %[[INP2]], %[[INP3]])
+  // CHECK: zx.sink %[[OUT]]#0
+  // CHECK: zx.sink %[[OUT]]#1
+  // CHECK: zx.sink %[[OUT]]#2
+  zx.sink %x
+  zx.sink %y
+  zx.sink %z
 
   return
 }
 
 // CHECK: func @varfoo(%[[U:.*]]: f32, %[[V:.*]]: f32)
 func @varfoo(%u : f32, %v : f32) {
-
-  // CHECK: %[[INP:.*]]:3 = zx.source
-  %a, %b, %c = zx.source() : () -> (!zx.wire, !zx.wire, !zx.wire)
+  // CHECK: %[[INP1:.*]] = zx.source
+  // CHECK: %[[INP2:.*]] = zx.source
+  // CHECK: %[[INP3:.*]] = zx.source
+  %a = zx.source
+  %b = zx.source
+  %c = zx.source
 
   // CHECK: %[[W:.*]] = addf %[[U]], %[[V]] : f32
-  // CHECK: %[[OUT:.*]]:3 = zx.Z(%[[W]], %[[INP]]#0, %[[INP]]#1, %[[INP]]#2)
+  // CHECK: %[[OUT:.*]]:3 = zx.Z(%[[W]], %[[INP1]], %[[INP2]], %[[INP3]])
   %m, %x = zx.Z(%u, %a, %b) : (f32, !zx.wire, !zx.wire) -> (!zx.wire, !zx.wire)
   %y, %z = zx.Z(%v, %c, %m) : (f32, !zx.wire, !zx.wire) -> (!zx.wire, !zx.wire)
 
-  // CHECK: zx.sink(%[[OUT]]#0, %[[OUT]]#1, %[[OUT]]#2)
-  zx.sink(%x, %y, %z) : (!zx.wire, !zx.wire, !zx.wire) -> ()
+  // CHECK: zx.sink %[[OUT]]#0
+  // CHECK: zx.sink %[[OUT]]#1
+  // CHECK: zx.sink %[[OUT]]#2
+  zx.sink %x
+  zx.sink %y
+  zx.sink %z
 
   return
 }

@@ -74,11 +74,18 @@ def ZX_XOp : ZX_GenericNodeOp<"X"> {
 def ZX_HOp : ZX_GenericNodeOp<"H"> {
   let summary = "ZX Hadamard node";
 }
-def ZX_SourceNodeOp : ZX_GenericNodeOp<"source"> {
+def ZX_SourceNodeOp : ZX_Op<"source"> {
   let summary = "ZX Input/Source wire Op";
+  let results = (outs ZX_WireType:$output);
+  let assemblyFormat = [{ attr-dict }];
+  let verifier = [{ return success(); }];
 }
-def ZX_SinkNodeOp : ZX_GenericNodeOp<"sink"> {
+
+def ZX_SinkNodeOp : ZX_Op<"sink"> {
   let summary = "ZX Output/Sink wire Op";
+  let arguments = (ins ZX_WireType:$input);
+  let assemblyFormat = [{ $input attr-dict }];
+  let verifier = [{ return success(); }];
 }
 
 #endif // ZX_OPS

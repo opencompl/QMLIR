@@ -3,8 +3,11 @@
 // no-run: quantum-opt -apply-zx-rewrites %s | FileCheck %s
 
 func @varfoo(%u : f32, %v : f32, %w: f32) {
-  %a, %b, %c, %d, %e = zx.source()
-                         : () -> (!zx.wire, !zx.wire, !zx.wire, !zx.wire, !zx.wire)
+  %a = zx.source
+  %b = zx.source
+  %c = zx.source
+  %d = zx.source
+  %e = zx.source
 
   %x, %y, %m1 = zx.Z(%u, %a, %b)
                   : (f32, !zx.wire, !zx.wire) -> (!zx.wire, !zx.wire, !zx.wire)
@@ -12,8 +15,11 @@ func @varfoo(%u : f32, %v : f32, %w: f32) {
                   : (f32, !zx.wire, !zx.wire, !zx.wire) -> (!zx.wire, !zx.wire)
   %p, %q = zx.Z(%w, %m2, %e) : (f32, !zx.wire, !zx.wire) -> (!zx.wire, !zx.wire)
 
-  zx.sink(%x, %y, %z) : (!zx.wire, !zx.wire, !zx.wire) -> ()
-  zx.sink(%p, %q) : (!zx.wire, !zx.wire) -> ()
+  zx.sink %x
+  zx.sink %y
+  zx.sink %z
+  zx.sink %p
+  zx.sink %q
 
   return
 }
