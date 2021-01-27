@@ -16,18 +16,48 @@ include "Dialect/ZX/ZXDialect.td"
 include "Dialect/ZX/ZXTypes.td"
 
 // `op` [ param : f32 ] ( args... ) : output-type
-class ZX_ParametrizedNodeOp<string mnemonic, list<OpTrait> traits = []>
+class ZX_GenericNodeOp<string mnemonic, list<OpTrait> traits = []>
   : ZX_Op<mnemonic, traits> {
+  let description = [{
+    Inputs:
+      - Optional floating parameter
+      - Any number of wires
+    Outputs:
+      - Any number of wires
 
-  let arguments = (ins AnyFloat:$angle, Variadic<ZX_WireType>:$input);
+    Getters:
+      - hasParam() -> bool
+      - getParam() -> Value
+      - getInputWires() -> Values
+      - getResults() -> Values
+  }];
+
+  let arguments = (ins Variadic<AnyType>:$input);
   let results = (outs Variadic<ZX_WireType>:$output);
 
   let assemblyFormat = [{
-    `[` $angle `:` type($angle) `]` `(` $input `)` attr-dict  `:` type($output)
+    `(` $input  `)` attr-dict `:` functional-type($input, results)
   }];
-
   let verifier = [{
     return success();
+  }];
+
+  let extraClassDeclaration = [{
+    bool hasParam() {
+      auto operands = getODSOperands(0);
+      if (operands.empty()) return false;
+      auto param = *operands.begin();
+      return param.getType().isa<FloatType>();
+    }
+    ::mlir::Value getParam() {
+      assert(hasParam() && "No floating point parameter provided!");
+      return *getODSOperands(0).begin();
+    }
+    ::mlir::Operation::operand_range getInputWires() {
+      unsigned st = hasParam() ? 1 : 0;
+      return {std::next(getOperation()->operand_begin(), st),
+              getOperation()->operand_end()};
+    }
   }];
 }
 
@@ -35,78 +65,20 @@ class ZX_ParametrizedNodeOp<string mnemonic, list<OpTrait> traits = []>
 // Specific node types
 //====================================
 
-def ZX_ZOp : ZX_ParametrizedNodeOp<"Z"> {
+def ZX_ZOp : ZX_GenericNodeOp<"Z"> {
   let summary = "ZX Z node";
-  let description = [{
-    // %theta: f32
-    %d, %e = zx.Z[%theta: f32] (%a, %b, %c)
-  }];
 }
-
-def ZX_XOp : ZX_ParametrizedNodeOp<"X"> {
+def ZX_XOp : ZX_GenericNodeOp<"X"> {
   let summary = "ZX X node";
-  let description = [{
-    // %theta: f32
-    %d, %e = zx.X[%theta: f32] (%a, %b, %c)
-  }];
 }
-
-def ZX_HOp : ZX_Op<"H"> {
+def ZX_HOp : ZX_GenericNodeOp<"H"> {
   let summary = "ZX Hadamard node";
-  let description = [{
-    %b = zx.H (%a)
-  }];
-
-  let arguments = (ins ZX_WireType:$input);
-  let results = (outs ZX_WireType:$output);
-
-  let assemblyFormat = [{
-    `(` $input `)` attr-dict
-  }];
-
-  let verifier = [{
-    return success();
-  }];
 }
-
-//======================
-// Terminating wires
-//======================
-
-def ZX_InputNodeOp : ZX_Op<"input"> {
-  let summary = "ZX Input wire Op";
-  let description = [{
-    Create an input wire
-    %a = zx.input
-  }];
-
-  let results = (outs ZX_WireType:$output);
-
-  let assemblyFormat = [{
-    attr-dict
-  }];
-
-  let verifier = [{
-    return success();
-  }];
+def ZX_SourceNodeOp : ZX_GenericNodeOp<"source"> {
+  let summary = "ZX Input/Source wire Op";
 }
-
-def ZX_OutputNodeOp : ZX_Op<"output"> {
-  let summary = "ZX Output wire Op";
-  let description = [{
-    Sink an existing wire.
-    zx.output %a
-  }];
-
-  let arguments = (outs ZX_WireType:$input);
-
-  let assemblyFormat = [{
-    $input attr-dict
-  }];
-
-  let verifier = [{
-    return success();
-  }];
+def ZX_SinkNodeOp : ZX_GenericNodeOp<"sink"> {
+  let summary = "ZX Output/Sink wire Op";
 }
 
 #endif // ZX_OPS

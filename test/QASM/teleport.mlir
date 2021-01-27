@@ -1,4 +1,4 @@
-// RUN: quantum-opt %s
+// no-run: quantum-opt %s
 // https://github.com/Qiskit/openqasm/blob/fa516eb3c3da4a8546b226e312f0e8bcc791a233/examples/teleport.qasm
 
 module {
