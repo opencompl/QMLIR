@@ -81,8 +81,9 @@ public:
 
     auto combinedAngle = rewriter.create<AddFOp>(
         rewriter.getUnknownLoc(), rootNodeOp.getParam().getType(),
-        rootNodeOp.getParam(), childNodeOp.getParam());
+        childNodeOp.getParam(), rootNodeOp.getParam());
 
+    /// angle, childNodeInputs..., rootNodeInputs...
     SmallVector<Value, 10> combinedInputs;
     combinedInputs.push_back(combinedAngle);
     combinedInputs.append(childNodeOp.getInputWires().begin(),
@@ -99,20 +100,22 @@ public:
 
     NodeOp combinedNodeOp = rewriter.create<NodeOp>(
         rewriter.getUnknownLoc(), combinedOutputTypes, combinedInputs);
-    auto combinedOutputs = combinedNodeOp.getResults();
+    /// childNodeOutputs..., rootNodeOutputs...
+    ResultRange combinedOutputs = combinedNodeOp.getResults();
 
-    SourceNodeOp dummySource = rewriter.create<SourceNodeOp>(
-        rewriter.getUnknownLoc(), TypeRange{rewriter.getType<ZX::WireType>()},
-        ValueRange{});
-    SmallVector<Value, 10> newChildNodeResults{combinedOutputs.begin() +
-                                                   rootNodeOp.getNumResults(),
-                                               combinedOutputs.end()};
-    newChildNodeResults.append(dummySource.getResults().begin(),
-                               dummySource.getResults().end());
-
-    rewriter.replaceOp(rootNodeOp,
-                       combinedOutputs.take_front(rootNodeOp.getNumResults()));
-    rewriter.replaceOp(childNodeOp, newChildNodeResults);
+    auto outputIt = combinedOutputs.begin();
+    for (Value output : childNodeOp.getResults()) {
+      if (output != middleWire) {
+        output.replaceAllUsesWith(*outputIt);
+        ++outputIt;
+      }
+    }
+    for (Value output : rootNodeOp.getResults()) {
+      output.replaceAllUsesWith(*outputIt);
+      ++outputIt;
+    }
+    rewriter.eraseOp(rootNodeOp);
+    rewriter.eraseOp(childNodeOp);
 
     return success();
   }
