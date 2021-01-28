@@ -8,6 +8,7 @@ namespace mlir {
 class Pass;
 
 std::unique_ptr<FunctionPass> createTransformZXRewritePass();
+std::unique_ptr<FunctionPass> createZXCheckSingleUsePass();
 
 //===----------------------------------------------------------------------===//
 // Registration

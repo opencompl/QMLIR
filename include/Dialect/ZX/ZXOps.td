@@ -71,8 +71,12 @@ def ZX_ZOp : ZX_GenericNodeOp<"Z"> {
 def ZX_XOp : ZX_GenericNodeOp<"X"> {
   let summary = "ZX X node";
 }
-def ZX_HOp : ZX_GenericNodeOp<"H"> {
+def ZX_HOp : ZX_Op<"H"> {
   let summary = "ZX Hadamard node";
+  let arguments = (ins ZX_WireType:$input);
+  let results = (outs ZX_WireType:$output);
+  let assemblyFormat = [{ $input attr-dict }];
+  let verifier = [{ return success(); }];
 }
 def ZX_SourceNodeOp : ZX_Op<"source"> {
   let summary = "ZX Input/Source wire Op";

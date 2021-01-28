@@ -1,4 +1,5 @@
 // RUN: quantum-opt %s | quantum-opt
+// RUN: quantum-opt --zx-check-single-use %s
 
 func @CNOT(%0: !zx.wire, %1 : !zx.wire) -> (!zx.wire, !zx.wire) {
   // inputs %0 %1

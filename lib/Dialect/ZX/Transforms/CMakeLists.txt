@@ -1,5 +1,6 @@
 add_mlir_dialect_library(ZXTransforms
   ZXTransforms.cpp
+  CheckSingleUse.cpp
 
   ADDITIONAL_HEADER_DIRS
   ${PROJECT_SOURCE_DIR}/include/Dialect/ZX/Transforms

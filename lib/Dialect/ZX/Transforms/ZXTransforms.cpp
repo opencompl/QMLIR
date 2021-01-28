@@ -55,8 +55,8 @@ public:
 };
 
 //======================== ZX Rewrite Rules ===============================//
-/// Rules 1, 2: Z/X Spider Fusion
 
+/// Rules 1, 2: Z/X Spider Fusion
 template <typename NodeOp>
 class ZXSpiderFusionPattern : public ZXRewritePattern<NodeOp> {
 public:
@@ -121,11 +121,83 @@ public:
   }
 };
 
+/// Hadamard Color Change
+/// --H--Z--H-- = ----X----
+template <typename NodeOp, typename NewNodeOp>
+class ZXHadamardColorChangePattern : public ZXRewritePattern<NodeOp> {
+public:
+  using ZXRewritePattern<NodeOp>::ZXRewritePattern;
+
+  LogicalResult matchAndRewrite(Operation *op,
+                                PatternRewriter &rewriter) const override {
+    // TODO: Implement.
+    return failure();
+    NodeOp rootNodeOp = cast<NodeOp>(op);
+
+    bool matched = false;
+    for (auto input : rootNodeOp.getInputWires()) {
+      if (!input.template getDefiningOp<HOp>()) {
+        matched = false;
+        break;
+      }
+    }
+    Value r;
+    r.getUsers();
+    for (auto output : rootNodeOp.getResults()) {
+      (void)output;
+    }
+    if (!matched)
+      return failure();
+
+    // auto combinedAngle = rewriter.create<AddFOp>(
+    //     rewriter.getUnknownLoc(), rootNodeOp.getParam().getType(),
+    //     childNodeOp.getParam(), rootNodeOp.getParam());
+
+    // /// angle, childNodeInputs..., rootNodeInputs...
+    // SmallVector<Value, 10> combinedInputs;
+    // combinedInputs.push_back(combinedAngle);
+    // combinedInputs.append(childNodeOp.getInputWires().begin(),
+    //                       childNodeOp.getInputWires().end());
+    // for (auto input : rootNodeOp.getInputWires()) {
+    //   if (input != middleWire) {
+    //     combinedInputs.push_back(input);
+    //   }
+    // }
+
+    // SmallVector<Type, 10> combinedOutputTypes(
+    //     (childNodeOp.getNumResults() + rootNodeOp.getNumResults()) - 1,
+    //     rewriter.getType<ZX::WireType>());
+
+    // NodeOp combinedNodeOp = rewriter.create<NodeOp>(
+    //     rewriter.getUnknownLoc(), combinedOutputTypes, combinedInputs);
+    // /// childNodeOutputs..., rootNodeOutputs...
+    // ResultRange combinedOutputs = combinedNodeOp.getResults();
+
+    // auto outputIt = combinedOutputs.begin();
+    // for (Value output : childNodeOp.getResults()) {
+    //   if (output != middleWire) {
+    //     output.replaceAllUsesWith(*outputIt);
+    //     ++outputIt;
+    //   }
+    // }
+    // for (Value output : rootNodeOp.getResults()) {
+    //   output.replaceAllUsesWith(*outputIt);
+    //   ++outputIt;
+    // }
+    // rewriter.eraseOp(rootNodeOp);
+    // rewriter.eraseOp(childNodeOp);
+
+    return success();
+  }
+};
+
 /// Populate the pattern list.
 void collectZXRewritePatterns(OwningRewritePatternList &patterns,
                               MLIRContext *ctx) {
   patterns.insert<ZXSpiderFusionPattern<ZOp>>(1, ctx);
   patterns.insert<ZXSpiderFusionPattern<XOp>>(1, ctx);
+  patterns.insert<ZXHadamardColorChangePattern<ZOp, XOp>>(1, ctx);
+  patterns.insert<ZXHadamardColorChangePattern<XOp, ZOp>>(1, ctx);
 }
 
 void ZXRewritePass::runOnFunction() {
