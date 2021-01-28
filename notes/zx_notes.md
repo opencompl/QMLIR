@@ -8,3 +8,8 @@ What we could do
 ----------------
 1. Use it to check equivalence - use ZX to simplify
 1. Use ZX to optimize
+
+References
+----------
+[ZX-calculus for the working quantum computer scientist](https://arxiv.org/abs/2012.13966.pdf) - A good review
+

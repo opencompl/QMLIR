@@ -10,7 +10,6 @@ cmake-build-*/
 compile_commands.json
 
 test/scratches/
-notes/
 local_opts.*
 test/Scratches/
 *.code-workspace
