@@ -12,6 +12,8 @@ def ZX_Dialect : Dialect {
   let summary = "Dialect for ZX-calculus description of quantum programs";
   let description = [{
     https://en.wikipedia.org/wiki/ZX-calculus
+    - All angles are specified as fractions of pi
+    - Wires (SSA-values) must be used exactly once. This includes branching.
   }];
 
   let extraClassDeclaration = [{

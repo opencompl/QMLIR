@@ -20,7 +20,7 @@ class ZX_GenericNodeOp<string mnemonic, list<OpTrait> traits = []>
   : ZX_Op<mnemonic, traits> {
   let description = [{
     Inputs:
-      - Optional floating parameter
+      - Optional floating parameter (angle, as a fraction of pi)
       - Any number of wires
     Outputs:
       - Any number of wires

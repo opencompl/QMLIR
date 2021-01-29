@@ -1,12 +1,12 @@
 add_mlir_dialect_library(ZXTransforms
-  ZXTransforms.cpp
-  CheckSingleUse.cpp
+    ZXRewrites.cpp
+    CheckSingleUse.cpp
 
-  ADDITIONAL_HEADER_DIRS
-  ${PROJECT_SOURCE_DIR}/include/Dialect/ZX/Transforms
+    ADDITIONAL_HEADER_DIRS
+    ${PROJECT_SOURCE_DIR}/include/Dialect/ZX/Transforms
 
-  DEPENDS
-  MLIRZXTransformsPassIncGen
-)
+    DEPENDS
+    MLIRZXTransformsPassIncGen
+    )
 
 target_link_libraries(ZXTransforms PUBLIC MLIRIR)
