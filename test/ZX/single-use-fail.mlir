@@ -8,3 +8,9 @@ func @foo() {
   zx.sink %0
   return
 }
+
+func @bar() {
+  // CHECK: error: ZX Wire declared here is not used.
+  %0 = zx.source
+  return
+}

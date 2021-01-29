@@ -23,10 +23,15 @@ void ZXCheckSingleUsePass::runOnFunction() {
   f.walk([](Operation *op) {
     for (auto res : op->getResults()) {
       if (res.getType().isa<WireType>() && !res.hasOneUse()) {
-        emitError(res.getLoc())
-            << "ZX Wire declared here is used multiple times.";
-        for (auto *user : res.getUsers()) {
-          emitError(user->getLoc()) << "used here";
+        if (res.getUses().empty()) {
+          emitError(res.getLoc()) << "ZX Wire declared here is not used. "
+                                     "Perhaps missing `zx.sink`?";
+        } else {
+          emitError(res.getLoc())
+              << "ZX Wire declared here is used multiple times.";
+          for (auto *user : res.getUsers()) {
+            emitError(user->getLoc()) << "used here";
+          }
         }
       }
     }
