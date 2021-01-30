@@ -33,20 +33,21 @@ template <typename MyOp>
 class ZXRewritePattern : public RewritePattern {
   /// Helpers
 protected:
-  template <typename TypeType = Float32Type>
-  Value insertConstantFloat(PatternRewriter &rewriter, APFloat v) const {
+  ConstantFloatOp insertConstantFloat(PatternRewriter &rewriter, APFloat v,
+                                      FloatType floatType = FloatType()) const {
     // TODO: figure out the right way to do this
     return rewriter.create<ConstantFloatOp>(rewriter.getUnknownLoc(), v,
-                                            rewriter.getType<TypeType>());
+                                            floatType);
   }
 
   Value addAngles(PatternRewriter &rewriter, Value a, Value b) const {
+    assert(a.getType().isa<FloatType>() && "Angle not float!!!");
     auto combinedAngle =
         rewriter.create<AddFOp>(rewriter.getUnknownLoc(), a.getType(), a, b);
-    auto two = rewriter.create<ConstantFloatOp>(
-        rewriter.getUnknownLoc(), APFloat(2.0), a.getType().cast<FloatType>());
+    auto two = insertConstantFloat(rewriter, APFloat(2.0f),
+                                   a.getType().cast<FloatType>());
     auto combinedAngleModuloTwo = rewriter.create<RemFOp>(
-        rewriter.getUnknownLoc(), combinedAngle.getResult(), two);
+        rewriter.getUnknownLoc(), combinedAngle.getResult(), two.getResult());
     return combinedAngleModuloTwo;
   }
 
@@ -239,15 +240,66 @@ public:
   }
 };
 
+template <typename NodeOp>
+class ZXIdentityResultPattern : public ZXRewritePattern<NodeOp> {
+public:
+  using ZXRewritePattern<NodeOp>::ZXRewritePattern;
+
+  LogicalResult match(Operation *op) const override {
+    NodeOp nodeOp = cast<NodeOp>(op);
+    Value param = nodeOp.getParam();
+    if (ConstantFloatOp paramOp = param.getDefiningOp<ConstantFloatOp>()) {
+      if (paramOp.getValue().isZero() && nodeOp.getInputWires().size() == 0 &&
+          nodeOp.getResults().size() == 2)
+        return success();
+    }
+    return failure();
+  }
+
+  void rewrite(Operation *op, PatternRewriter &rewriter) const override {
+    NodeOp nodeOp = cast<NodeOp>(op);
+    Value input = *nodeOp.getInputWires().begin();
+    Value output = *nodeOp.getResults().begin();
+    output.replaceAllUsesWith(input);
+    rewriter.eraseOp(nodeOp);
+  }
+};
+
+//====== Auxillary Rewrites ================================================//
+class RemFRewrite : public ZXRewritePattern<RemFOp> {
+public:
+  using ZXRewritePattern<RemFOp>::ZXRewritePattern;
+
+  LogicalResult matchAndRewrite(Operation *op,
+                                PatternRewriter &rewriter) const override {
+    RemFOp remFOp = cast<RemFOp>(op);
+    Value lhs = remFOp.lhs(), rhs = remFOp.rhs();
+    ConstantFloatOp lhsOp, rhsOp;
+    if (!(lhsOp = lhs.getDefiningOp<ConstantFloatOp>()))
+      return failure();
+    if (!(rhsOp = rhs.getDefiningOp<ConstantFloatOp>()))
+      return failure();
+
+    APFloat rem = lhsOp.getValue();
+    rem.mod(rhsOp.getValue());
+    auto computed =
+        insertConstantFloat(rewriter, rem, lhs.getType().cast<FloatType>());
+
+    rewriter.replaceOp(op, computed.getResult());
+    return success();
+  }
+};
+
 /// Populate the pattern list.
 void collectZXRewritePatterns(OwningRewritePatternList &patterns,
                               MLIRContext *ctx) {
   patterns.insert<ZXSpiderFusionPattern<ZOp>>(1, ctx);
   patterns.insert<ZXSpiderFusionPattern<XOp>>(1, ctx);
-  patterns.insert<ZXHadamardColorChangePattern<ZOp, XOp>>(1, ctx);
-  patterns.insert<ZXHadamardColorChangePattern<XOp, ZOp>>(1, ctx);
+  // patterns.insert<ZXHadamardColorChangePattern<ZOp, XOp>>(1, ctx);
+  // patterns.insert<ZXHadamardColorChangePattern<XOp, ZOp>>(1, ctx);
   patterns.insert<ZXIdentityPattern<ZOp>>(1, ctx);
   patterns.insert<ZXIdentityPattern<XOp>>(1, ctx);
+  patterns.insert<RemFRewrite>(1, ctx);
 }
 
 void ZXRewritePass::runOnFunction() {

@@ -16,7 +16,7 @@ include "Dialect/ZX/ZXDialect.td"
 include "Dialect/ZX/ZXTypes.td"
 
 // `op` [ param : f32 ] ( args... ) : output-type
-class ZX_GenericNodeOp<string mnemonic, list<OpTrait> traits = []>
+class ZX_GenericNodeOp<string mnemonic, list<OpTrait> traits = [NoSideEffect]>
   : ZX_Op<mnemonic, traits> {
   let description = [{
     Inputs:
@@ -71,21 +71,21 @@ def ZX_ZOp : ZX_GenericNodeOp<"Z"> {
 def ZX_XOp : ZX_GenericNodeOp<"X"> {
   let summary = "ZX X node";
 }
-def ZX_HOp : ZX_Op<"H"> {
+def ZX_HOp : ZX_Op<"H", [NoSideEffect]> {
   let summary = "ZX Hadamard node";
   let arguments = (ins ZX_WireType:$input);
   let results = (outs ZX_WireType:$output);
   let assemblyFormat = [{ $input attr-dict }];
   let verifier = [{ return success(); }];
 }
-def ZX_SourceNodeOp : ZX_Op<"source"> {
+def ZX_SourceNodeOp : ZX_Op<"source", []> {
   let summary = "ZX Input/Source wire Op";
   let results = (outs ZX_WireType:$output);
   let assemblyFormat = [{ attr-dict }];
   let verifier = [{ return success(); }];
 }
 
-def ZX_SinkNodeOp : ZX_Op<"sink"> {
+def ZX_SinkNodeOp : ZX_Op<"sink", []> {
   let summary = "ZX Output/Sink wire Op";
   let arguments = (ins ZX_WireType:$input);
   let assemblyFormat = [{ $input attr-dict }];

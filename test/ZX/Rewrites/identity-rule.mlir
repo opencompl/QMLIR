@@ -1,5 +1,5 @@
 // RUN: quantum-opt %s | quantum-opt
-// RUN: quantum-opt --apply-zx-rewrites %s | quantum-opt
+// RUN: quantum-opt --apply-zx-rewrites --canonicalize %s | quantum-opt
 // RUN: quantum-opt --zx-check-single-use
 
 func @id() {
@@ -26,12 +26,11 @@ func @id_with_scf() {
 }
 
 func @id_with_fusion() {
-  %zero = constant 0.0 : f32
-  %pi = constant 3.141592653589793 : f32
+  %one = constant 1.0 : f32
 
   %0 = zx.source
-  %1 = zx.Z(%pi, %0) : (f32, !zx.wire) -> (!zx.wire)
-  %2 = zx.Z(%pi, %1) : (f32, !zx.wire) -> (!zx.wire)
+  %1 = zx.Z(%one, %0) : (f32, !zx.wire) -> (!zx.wire)
+  %2 = zx.Z(%one, %1) : (f32, !zx.wire) -> (!zx.wire)
   zx.sink %2
 
   return
