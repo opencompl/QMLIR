@@ -7,6 +7,7 @@ set(LIBS
     MLIRQuantum
     MLIRQASM
     MLIRZX
+    MLIRZXGraph
     )
 add_llvm_executable(quantum-opt quantum-opt.cpp)
 

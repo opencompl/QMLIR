@@ -16,21 +16,30 @@
 #include "Dialect/Quantum/QuantumDialect.h"
 #include "Dialect/ZX/Transforms/Passes.h"
 #include "Dialect/ZX/ZXDialect.h"
+#include "Dialect/ZXGraph/Transforms/Passes.h"
+#include "Dialect/ZXGraph/ZXGraphDialect.h"
 
 using namespace mlir;
 
-void registerQuantumPasses() { registerQuantumConversionPasses(); }
-
-int main(int argc, char **argv) {
-  mlir::DialectRegistry registry;
-  registerAllDialects(registry);
+void registerQuantumDialects(DialectRegistry &registry) {
   registry.insert<quantum::QuantumDialect>();
   registry.insert<QASM::QASMDialect>();
   registry.insert<ZX::ZXDialect>();
+  registry.insert<ZXGraph::ZXGraphDialect>();
+}
+void registerQuantumPasses() {
+  registerQuantumConversionPasses();
+  registerZXTransformsPasses();
+  registerZXGraphTransformsPasses();
+}
+
+int main(int argc, char **argv) {
+  DialectRegistry registry;
+  registerAllDialects(registry);
+  registerQuantumDialects(registry);
 
   registerAllPasses();
   registerQuantumPasses();
-  registerZXTransformsPasses();
 
   return failed(
       mlir::MlirOptMain(argc, argv, "Quantum dialect driver\n", registry));

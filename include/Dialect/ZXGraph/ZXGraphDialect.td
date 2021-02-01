@@ -1,19 +1,17 @@
-#ifndef ZX_DIALECT
-#define ZX_DIALECT
-
+#ifndef ZXGRAPH_DIALECT
+#define ZXGRAPH_DIALECT
 include "mlir/IR/OpBase.td"
 
 //===----------------------------------------------------------------------===//
-// ZX dialect definition.
+// ZX Graph dialect definition.
 //===----------------------------------------------------------------------===//
 
-def ZX_Dialect : Dialect {
-  let name = "zx";
+def ZXGraph_Dialect : Dialect {
+  let name = "zxg";
   let summary = "Dialect for ZX-calculus description of quantum programs";
   let description = [{
-    https://en.wikipedia.org/wiki/ZX-calculus
-    - All angles are specified as fractions of pi
-    - Wires (SSA-values) must be used exactly once. This includes branching.
+    Undirected graph version of the ZX dialect
+    First declare nodes, and then join them using wires
   }];
 
   let extraClassDeclaration = [{
@@ -21,15 +19,15 @@ def ZX_Dialect : Dialect {
     void printType(Type type, DialectAsmPrinter & os) const override;
   }];
 
-  let cppNamespace = "::mlir::ZX";
+  let cppNamespace = "::mlir::ZXGraph";
 }
 
 //===----------------------------------------------------------------------===//
 // Base ZX operation definition.
 //===----------------------------------------------------------------------===//
 
-class ZX_Op<string mnemonic, list<OpTrait> traits = []>
-    : Op<ZX_Dialect, mnemonic, traits> {
+class ZXGraph_Op<string mnemonic, list<OpTrait> traits = []>
+    : Op<ZXGraph_Dialect, mnemonic, traits> {
 
   // For each op, the following static functions need to be defined
   //
@@ -42,4 +40,4 @@ class ZX_Op<string mnemonic, list<OpTrait> traits = []>
   let verifier = [{ return ::verify(*this); }];
 }
 
-#endif // ZX_DIALECT
+#endif // ZXGRAPH_DIALECT

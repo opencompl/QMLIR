@@ -15,6 +15,10 @@ include "mlir/Interfaces/SideEffectInterfaces.td"
 include "Dialect/ZX/ZXDialect.td"
 include "Dialect/ZX/ZXTypes.td"
 
+//===========================================================================//
+// ZX Dialect Ops
+//===========================================================================//
+
 // `op` [ param : f32 ] ( args... ) : output-type
 class ZX_GenericNodeOp<string mnemonic, list<OpTrait> traits = [NoSideEffect]>
   : ZX_Op<mnemonic, traits> {
@@ -61,10 +65,7 @@ class ZX_GenericNodeOp<string mnemonic, list<OpTrait> traits = [NoSideEffect]>
   }];
 }
 
-//====================================
 // Specific node types
-//====================================
-
 def ZX_ZOp : ZX_GenericNodeOp<"Z"> {
   let summary = "ZX Z node";
 }

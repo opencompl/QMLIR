@@ -18,3 +18,5 @@ Output/
 .ipynb_checkpoints
 *.vim
 .vs
+*autosave*
+*~
