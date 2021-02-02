@@ -4,4 +4,5 @@
 // CHECK-DIALECT: scf
 // CHECK-DIALECT: std
 // CHECK-DIALECT: zxg
-// CHECK-OPTION: --apply-zxg-rewrites
+// CHECK-OPTION: --zxg-apply-rewrites
+// CHECK-OPTION: --zxg-canonicalize-blocks

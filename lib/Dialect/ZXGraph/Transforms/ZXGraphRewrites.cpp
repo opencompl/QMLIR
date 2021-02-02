@@ -26,6 +26,7 @@ using namespace mlir::ZXGraph;
 namespace {
 // DEBUG HELPERS
 static void debugBeforeRewrite(StringRef patName, Operation *op) {
+  if (!::llvm::DebugFlag) return;
   llvm::errs() << std::string(40, '>');
   llvm::errs() << "\n";
   llvm::errs() << ">>>> REWRITING: " << patName << "\n";
@@ -39,7 +40,9 @@ static void debugBeforeRewrite(StringRef patName, Operation *op) {
 } // namespace
 
 // source: https://mlir.llvm.org/docs/PatternRewriter/
-
+//=========================================================================//
+// ZX Graph Rewrites
+//=========================================================================//
 namespace {
 // Generic Rewrite Pattern for ZX Ops
 template <typename MyOp>
@@ -112,7 +115,16 @@ public:
 
     debugBeforeRewrite("SPIDER FUSION", op);
 
-    rewriter.setInsertionPointAfterValue(lhsOp.getResult());
+    // FIXME: select insertion point properly
+    for (auto &inst : *op->getBlock()) {
+      if (!isa<NodeOp>(inst))
+        continue;
+      auto curOp = dyn_cast<NodeOp>(inst);
+      if (curOp == lhsOp || curOp == rhsOp)
+        rewriter.setInsertionPointAfterValue(curOp.getResult());
+    }
+
+    // rewriter.setInsertionPointAfterValue(lhsOp.getResult());
     Value angle = addAngles(rewriter, lhsOp.param(), rhsOp.param());
     NodeOp combinedOp =
         rewriter.create<NodeOp>(rewriter.getUnknownLoc(), angle);
@@ -169,6 +181,178 @@ public:
   }
 };
 
+class MultiEdgeElimination : public ZXGraphRewritePattern<WireOp> {
+  LogicalResult checkCNOT(WireOp wireOp) const {
+    if (wireOp.lhs().getDefiningOp<ZNodeOp>() &&
+        wireOp.rhs().getDefiningOp<XNodeOp>())
+      return success();
+    if (wireOp.rhs().getDefiningOp<ZNodeOp>() &&
+        wireOp.lhs().getDefiningOp<XNodeOp>())
+      return success();
+    return failure();
+  }
+
+public:
+  using ZXGraphRewritePattern::ZXGraphRewritePattern;
+
+  LogicalResult matchAndRewrite(Operation *op,
+                                PatternRewriter &rewriter) const override {
+    WireOp wireOp = cast<WireOp>(op);
+    if (failed(checkCNOT(wireOp)))
+      return failure();
+
+    SmallVector<WireOp, 10> parallelWires;
+    for (auto *useOp : wireOp.lhs().getUsers()) {
+      if (auto currentWire = dyn_cast<WireOp>(useOp)) {
+        if (currentWire == wireOp)
+          continue;
+        if (currentWire.getOtherOperand(wireOp.lhs()) == wireOp.rhs()) {
+          parallelWires.push_back(currentWire);
+        }
+      }
+    }
+
+    if (parallelWires.empty())
+      return failure();
+
+    debugBeforeRewrite("MULTIEDGE ELIMINATION", op);
+
+    if (parallelWires.size() % 2 == 0)
+      parallelWires.pop_back();
+    rewriter.eraseOp(wireOp);
+    for (auto wire : parallelWires)
+      rewriter.eraseOp(wire);
+    return success();
+  }
+};
+
+class DoubleHadamardChainElimination : public ZXGraphRewritePattern<WireOp> {
+  SmallVector<WireOp> getHadamardInputs(HNodeOp hadamard,
+                                        WireOp excludeWire) const {
+    SmallVector<WireOp> v;
+    for (auto *use : hadamard->getUsers()) {
+      if (auto wire = dyn_cast<WireOp>(use)) {
+        if (wire != excludeWire)
+          v.push_back(wire);
+      }
+    }
+    return v;
+  }
+
+public:
+  using ZXGraphRewritePattern::ZXGraphRewritePattern;
+
+  LogicalResult matchAndRewrite(Operation *op,
+                                PatternRewriter &rewriter) const override {
+    WireOp wireOp = cast<WireOp>(op);
+    HNodeOp lhsOp, rhsOp;
+    if (!(lhsOp = wireOp.lhs().getDefiningOp<HNodeOp>()))
+      return failure();
+    if (!(rhsOp = wireOp.rhs().getDefiningOp<HNodeOp>()))
+      return failure();
+
+    auto lhsInputs = getHadamardInputs(lhsOp, wireOp);
+    auto rhsInputs = getHadamardInputs(rhsOp, wireOp);
+
+    if (lhsInputs.size() != 1 || rhsInputs.size() != 1)
+      return failure();
+
+    debugBeforeRewrite("HADAMARD CHAIN ELIMINATION", op);
+
+    rewriter.setInsertionPoint(op->getBlock()->getTerminator());
+    rewriter.create<WireOp>(rewriter.getUnknownLoc(),
+                            lhsInputs[0].getOtherOperand(wireOp.lhs()),
+                            rhsInputs[0].getOtherOperand(wireOp.rhs()));
+    rewriter.eraseOp(wireOp);
+    rewriter.eraseOp(lhsInputs[0]);
+    rewriter.eraseOp(rhsInputs[0]);
+    rewriter.eraseOp(lhsOp);
+    rewriter.eraseOp(rhsOp);
+
+    return success();
+  }
+};
+
+template <typename NodeOp, typename OtherNodeOp, int Benefit>
+class ColorChange : public ZXGraphRewritePattern<NodeOp> {
+  int computeBenefit(int hadamard, int total) const {
+    int nonHadamard = total - hadamard;
+    return hadamard - nonHadamard;
+  }
+  bool verifyBenefit(int hadamard, int total) const {
+    return computeBenefit(hadamard, total) >= Benefit;
+  }
+  SmallVector<WireOp> getHadamardInputs(HNodeOp hadamard,
+                                        WireOp excludeWire) const {
+    SmallVector<WireOp> v;
+    for (auto *use : hadamard->getUsers()) {
+      if (auto wire = dyn_cast<WireOp>(use)) {
+        if (wire != excludeWire)
+          v.push_back(wire);
+      }
+    }
+    return v;
+  }
+
+public:
+  using ZXGraphRewritePattern<NodeOp>::ZXGraphRewritePattern;
+
+  LogicalResult matchAndRewrite(Operation *op,
+                                PatternRewriter &rewriter) const override {
+    NodeOp nodeOp = cast<NodeOp>(op);
+
+    SmallVector<WireOp> hadamardWires, nonHadamardWires, allWires;
+    for (auto *inst : nodeOp->getUsers()) {
+      if (auto wire = dyn_cast<WireOp>(inst)) {
+        if (wire.getOtherOperand(nodeOp.getResult())
+                .template getDefiningOp<HNodeOp>()) {
+          hadamardWires.push_back(wire);
+        } else {
+          nonHadamardWires.push_back(wire);
+        }
+        allWires.push_back(wire);
+      }
+    }
+    if (!verifyBenefit(hadamardWires.size(), allWires.size()))
+      return failure();
+
+    debugBeforeRewrite("COLOR CHANGE (H switch)", op);
+
+    for (auto wire : nonHadamardWires) {
+      Value otherNode = wire.getOtherOperand(nodeOp);
+
+      rewriter.setInsertionPointToStart(op->getBlock());
+      auto middleHNode = rewriter.create<HNodeOp>(rewriter.getUnknownLoc());
+
+      rewriter.setInsertionPoint(op->getBlock()->getTerminator());
+      rewriter.create<WireOp>(rewriter.getUnknownLoc(), nodeOp, middleHNode);
+      rewriter.create<WireOp>(rewriter.getUnknownLoc(), middleHNode, otherNode);
+
+      rewriter.eraseOp(wire);
+    }
+
+    rewriter.setInsertionPoint(op->getBlock()->getTerminator());
+    for (auto wire : hadamardWires) {
+      Value otherNode = wire.getOtherOperand(nodeOp);
+      auto hWires = getHadamardInputs(otherNode.getDefiningOp<HNodeOp>(), wire);
+      for (auto otherWire : hWires) {
+        Value thirdNode = otherWire.getOtherOperand(otherNode);
+        rewriter.eraseOp(wire);
+        rewriter.eraseOp(otherWire);
+        rewriter.eraseOp(otherNode.getDefiningOp<HNodeOp>());
+        rewriter.create<WireOp>(rewriter.getUnknownLoc(), nodeOp, thirdNode);
+      }
+    }
+
+    rewriter.setInsertionPointAfter(op);
+    auto newNode =
+        rewriter.create<OtherNodeOp>(rewriter.getUnknownLoc(), nodeOp.param());
+    rewriter.replaceOp(op, newNode.getResult());
+
+    return success();
+  }
+};
+
 //====== Auxillary Rewrites ================================================//
 class RemFRewrite : public ZXGraphRewritePattern<RemFOp> {
 public:
@@ -198,10 +382,28 @@ public:
 static void collectZXGraphRewritePatterns(OwningRewritePatternList &patterns,
                                           MLIRContext *ctx) {
   patterns.insert<RemFRewrite>(1, ctx);
-  patterns.insert<SpiderFusion<ZNodeOp>>(1, ctx);
-  patterns.insert<SpiderFusion<XNodeOp>>(1, ctx);
+
+  patterns.insert<SpiderFusion<ZNodeOp>>(10, ctx);
+  patterns.insert<SpiderFusion<XNodeOp>>(10, ctx);
+
   patterns.insert<IdentityRule<ZNodeOp>>(10, ctx);
   patterns.insert<IdentityRule<XNodeOp>>(10, ctx);
+
+  patterns.insert<MultiEdgeElimination>(10, ctx);
+  patterns.insert<MultiEdgeElimination>(10, ctx);
+
+  patterns.insert<DoubleHadamardChainElimination>(10, ctx);
+
+  patterns.insert<ColorChange<ZNodeOp, XNodeOp, 1>>(1, ctx);
+  patterns.insert<ColorChange<ZNodeOp, XNodeOp, 2>>(2, ctx);
+  patterns.insert<ColorChange<ZNodeOp, XNodeOp, 3>>(3, ctx);
+  patterns.insert<ColorChange<ZNodeOp, XNodeOp, 4>>(4, ctx);
+
+  patterns.insert<ColorChange<XNodeOp, ZNodeOp, 1>>(1, ctx);
+  patterns.insert<ColorChange<XNodeOp, ZNodeOp, 2>>(2, ctx);
+  patterns.insert<ColorChange<XNodeOp, ZNodeOp, 3>>(3, ctx);
+  patterns.insert<ColorChange<XNodeOp, ZNodeOp, 4>>(4, ctx);
+
   WireOp::getCanonicalizationPatterns(patterns, ctx);
 }
 
@@ -221,10 +423,71 @@ void ZXGraphRewritePass::runOnFunction() {
 
 } // namespace
 
+//===========================================================================//
+// ZX Block Canonicalizer
+//===========================================================================//
+namespace {
+
+class ZXWireCanonicalizerPattern : public ZXGraphRewritePattern<WireOp> {
+public:
+  using ZXGraphRewritePattern::ZXGraphRewritePattern;
+  LogicalResult match(Operation *op) const override {
+    auto wireOp = cast<WireOp>(op);
+    bool opSeen = false;
+    for (auto &inst : *op->getBlock()) {
+      if (isa<WireOp>(inst)) {
+        auto currentWireOp = cast<WireOp>(inst);
+        if (currentWireOp == wireOp)
+          opSeen = true;
+      } else {
+        if (inst.isKnownTerminator())
+          continue;
+        if (opSeen)
+          return success();
+      }
+    }
+    return failure();
+  }
+  void rewrite(Operation *op, PatternRewriter &rewriter) const override {
+    auto wireOp = cast<WireOp>(op);
+    rewriter.setInsertionPoint(op->getBlock()->getTerminator());
+    rewriter.create<WireOp>(rewriter.getUnknownLoc(), wireOp.lhs(),
+                            wireOp.rhs());
+    rewriter.eraseOp(op);
+  }
+};
+
+/// Populate the pattern list.
+static void
+collectZXGraphCanonicalizerPatterns(OwningRewritePatternList &patterns,
+                                    MLIRContext *ctx) {
+  WireOp::getCanonicalizationPatterns(patterns, ctx);
+  patterns.insert<ZXWireCanonicalizerPattern>(1, ctx);
+}
+
+// Pattern rewriter
+class ZXGraphCanonicalizePass
+    : public ZXGraphCanonicalizePassBase<ZXGraphCanonicalizePass> {
+  void runOnFunction() override;
+};
+
+void ZXGraphCanonicalizePass::runOnFunction() {
+  FuncOp func = getFunction();
+
+  OwningRewritePatternList patterns;
+  collectZXGraphCanonicalizerPatterns(patterns, &getContext());
+  applyPatternsAndFoldGreedily(func, std::move(patterns));
+}
+} // namespace
+
 namespace mlir {
 
 std::unique_ptr<FunctionPass> createTransformZXGraphRewritePass() {
   return std::make_unique<ZXGraphRewritePass>();
+}
+
+std::unique_ptr<FunctionPass> createTransformZXGraphCanonicalizePass() {
+  return std::make_unique<ZXGraphCanonicalizePass>();
 }
 
 } // namespace mlir

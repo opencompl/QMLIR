@@ -51,6 +51,11 @@ def ZXGraph_HNodeOp : ZXGraph_Op<"H", [NoSideEffect]> {
   let results = (outs ZXGraph_NodeType:$output);
   let assemblyFormat = [{ attr-dict }];
   let verifier = [{ return success(); }];
+  let builders = [
+    OpBuilderDAG<(ins), [{
+      build($_builder, $_state, NodeType::get($_builder.getContext()));
+    }]>
+  ];
 }
 
 def ZXGraph_WireOp : ZXGraph_Op<"wire"> {
@@ -59,6 +64,13 @@ def ZXGraph_WireOp : ZXGraph_Op<"wire"> {
   let assemblyFormat = [{ $lhs $rhs attr-dict }];
   let verifier = [{ return success(); }];
   let hasCanonicalizer = 1;
+  let extraClassDeclaration = [{
+    ::mlir::Value getOtherOperand(::mlir::Value operand) {
+      if (operand == lhs())
+        return rhs();
+      return lhs();
+    }
+  }];
 }
 
 #endif // ZXGRAPH_OPS
