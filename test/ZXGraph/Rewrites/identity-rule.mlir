@@ -1,5 +1,5 @@
 // RUN: quantum-opt %s | quantum-opt
-// RUN: quantum-opt --apply-zxg-rewrites %s | quantum-opt | FileCheck %s
+// RUN: quantum-opt --zxg-apply-rewrites %s | quantum-opt | FileCheck %s
 
 func @identity() {
   %zero = constant 0.0 : f32

@@ -1,5 +1,5 @@
 // RUN: quantum-opt %s | quantum-opt
-// RUN: quantum-opt --apply-zxg-rewrites %s | quantum-opt | FileCheck %s
+// RUN: quantum-opt --zxg-canonicalize-blocks --zxg-apply-rewrites %s | quantum-opt | FileCheck %s
 
 // CHECK: func @fusion() {
 // CHECK-NEXT: return
@@ -13,7 +13,7 @@ func @fusion() {
 }
 
 func @fusionChain() {
-  %zero = constant 0.0 : f32
+  %zero = constant 0.1 : f32
   // CHECK: %[[A:.*]] = zxg.terminal
   %0 = zxg.terminal
   // CHECK: %[[B:.*]] = zxg.Z
