@@ -362,8 +362,8 @@ public:
     if (!(wireOp = dyn_cast<WireOp>(*nodeOp->getUsers().begin())))
       return failure();
     OtherNodeOp otherNodeOp;
-    if (!(otherNodeOp =
-              wireOp.getOtherOperand(nodeOp).template getDefiningOp<OtherNodeOp>()))
+    if (!(otherNodeOp = wireOp.getOtherOperand(nodeOp)
+                            .template getDefiningOp<OtherNodeOp>()))
       return failure();
 
     for (auto inst : otherNodeOp->getUsers()) {
