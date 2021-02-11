@@ -14,30 +14,30 @@
 // RUN: quantum-opt %s | quantum-opt
 
 // implements U|x⟩|y⟩ = |x⟩|y ⊕ f(x)⟩
-func private @oracle(%x : !quantum.qubit<?>, %y : !quantum.qubit<1>)
-  -> (!quantum.qubit<?>, !quantum.qubit<1>)
+func private @oracle(%x : !qssa.qubit<?>, %y : !qssa.qubit<1>)
+  -> (!qssa.qubit<?>, !qssa.qubit<1>)
 
 // implements U|x⟩ = (-1)^{f(x)} |x⟩
-func @phase_flip_oracle(%x : !quantum.qubit<?>)
-  -> !quantum.qubit<?> {
-  %y0 = quantum.allocate() : !quantum.qubit<1>
-  %y1 = quantum.pauliX %y0 : !quantum.qubit<1>
-  %y2 = quantum.H %y1 : !quantum.qubit<1>
+func @phase_flip_oracle(%x : !qssa.qubit<?>)
+  -> !qssa.qubit<?> {
+  %y0 = qssa.allocate() : !qssa.qubit<1>
+  %y1 = qssa.pauliX %y0 : !qssa.qubit<1>
+  %y2 = qssa.H %y1 : !qssa.qubit<1>
   %x1, %y3 = call @oracle(%x, %y2)
-    : (!quantum.qubit<?>, !quantum.qubit<1>) -> (!quantum.qubit<?>, !quantum.qubit<1>)
+    : (!qssa.qubit<?>, !qssa.qubit<1>) -> (!qssa.qubit<?>, !qssa.qubit<1>)
 
-  %0 = quantum.measure %y3 : !quantum.qubit<1> -> memref<1xi1>
+  %0 = qssa.measure %y3 : !qssa.qubit<1> -> memref<1xi1>
 
-  return %x1: !quantum.qubit<?>
+  return %x1: !qssa.qubit<?>
 }
 
 // return false for constant, true for balanced
 func @deutsch_josza(%n : index) -> i1 { // %n : number of input bits
-  %x0 = quantum.allocate(%n) : !quantum.qubit<?>
-  %x1 = quantum.H %x0 : !quantum.qubit<?>
-  %x2 = call @phase_flip_oracle(%x1) : (!quantum.qubit<?>) -> !quantum.qubit<?>
-  %x3 = quantum.H %x2 : !quantum.qubit<?>
-  %res = quantum.measure %x3 : !quantum.qubit<?> -> memref<?xi1>
+  %x0 = qssa.allocate(%n) : !qssa.qubit<?>
+  %x1 = qssa.H %x0 : !qssa.qubit<?>
+  %x2 = call @phase_flip_oracle(%x1) : (!qssa.qubit<?>) -> !qssa.qubit<?>
+  %x3 = qssa.H %x2 : !qssa.qubit<?>
+  %res = qssa.measure %x3 : !qssa.qubit<?> -> memref<?xi1>
 
   // compute bitwise-OR of all the bits in %res
   %false = constant 0 : i1

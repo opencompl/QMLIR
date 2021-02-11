@@ -16,7 +16,7 @@ include "mlir/IR/OpBase.td"
 //===----------------------------------------------------------------------===//
 
 def Quantum_Dialect : Dialect {
-    let name = "quantum";
+    let name = "qssa";
     let summary = "A quantum MLIR dialect.";
     let description = [{
         A WIP Quantum dialect for MLIR. Attempts to gather ideas from current 
