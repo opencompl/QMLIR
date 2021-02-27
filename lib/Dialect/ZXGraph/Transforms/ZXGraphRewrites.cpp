@@ -456,7 +456,8 @@ void ZXGraphRewritePass::runOnFunction() {
   OwningRewritePatternList patterns;
   collectZXGraphRewritePatterns(patterns, &getContext());
 
-  applyPatternsAndFoldGreedily(func, std::move(patterns));
+  if (failed(applyPatternsAndFoldGreedily(func, std::move(patterns)))) {
+  }
 }
 
 } // namespace
@@ -478,7 +479,7 @@ public:
         if (currentWireOp == wireOp)
           opSeen = true;
       } else {
-        if (inst.isKnownTerminator())
+        if (inst.hasTrait<OpTrait::IsTerminator>())
           continue;
         if (opSeen)
           return success();
@@ -514,7 +515,8 @@ void ZXGraphCanonicalizePass::runOnFunction() {
 
   OwningRewritePatternList patterns;
   collectZXGraphCanonicalizerPatterns(patterns, &getContext());
-  applyPatternsAndFoldGreedily(func, std::move(patterns));
+  if (failed(applyPatternsAndFoldGreedily(func, std::move(patterns))))
+    ;
 }
 } // namespace
 

@@ -8,18 +8,9 @@
 namespace mlir {
 namespace QASM {
 
-namespace detail {
-struct QubitTypeStorage;
-} // namespace detail
-
-class QubitType
-    : public Type::TypeBase<QubitType, Type, detail::QubitTypeStorage> {
+class QubitType : public Type::TypeBase<QubitType, Type, TypeStorage> {
 public:
   using Base::Base;
-
-  static QubitType get(MLIRContext *ctx, uint64_t size);
-
-  uint64_t getSize() const;
 };
 
 } // namespace QASM

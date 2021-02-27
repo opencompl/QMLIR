@@ -26,16 +26,9 @@ Type QASMDialect::parseType(DialectAsmParser &parser) const {
     return Type();
   }
 
-  // Qubit type: !qasm.qubit<n>
+  // Qubit type: !qasm.qubit
   if (keyword == getQubitTypeName()) {
-    uint64_t size;
-    if (failed(parser.parseLess()) || failed(parser.parseInteger(size)) ||
-        failed(parser.parseGreater())) {
-      parser.emitError(parser.getCurrentLocation(),
-                       "Invalid syntax for qubit type.");
-      return Type();
-    }
-    return QubitType::get(parser.getBuilder().getContext(), size);
+    return QubitType::get(parser.getBuilder().getContext());
   }
 
   parser.emitError(parser.getNameLoc(), "QASM dialect: unknown type");
@@ -44,7 +37,7 @@ Type QASMDialect::parseType(DialectAsmParser &parser) const {
 
 void QASMDialect::printType(Type type, DialectAsmPrinter &printer) const {
   if (auto qubit = type.cast<QubitType>()) {
-    printer << getQubitTypeName() << "<" << qubit.getSize() << ">";
+    printer << getQubitTypeName();
     return;
   }
 

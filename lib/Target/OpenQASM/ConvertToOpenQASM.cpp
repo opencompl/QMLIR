@@ -14,6 +14,7 @@
 #include "Dialect/Quantum/QuantumDialect.h"
 #include "Dialect/Quantum/QuantumOps.h"
 
+#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
 #include "mlir/Target/LLVMIR/ModuleTranslation.h"
 #include "mlir/Transforms/GreedyPatternRewriteDriver.h"

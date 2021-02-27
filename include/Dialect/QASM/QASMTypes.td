@@ -11,17 +11,9 @@
 
 include "mlir/IR/OpBase.td"
 
-// !qasm.qubit<N>
-def QASM_QubitType :
-  Type<CPred<"$_self.isa<QubitType>()">, "QASM Qubit Type (qubit<N>)">;
-
-// !qasm.qubit<1>
-def QASM_SingleQubitType :
-  Type<
-    And<[
-      CPred<"$_self.isa<QubitType>()">,
-      CPred<"$_self.cast<QubitType>().getSize() == 1">
-    ]>,
-    "QASM Single Qubit (qubit<1>)">;
+// !qasm.qubit
+def QASM_QubitType
+  : Type<CPred<"$_self.isa<QubitType>()">, "QASM Qubit Type (!qubit)">
+  , BuildableType<"QubitType::get($_builder.getContext())">;
 
 #endif // QASM_TYPES
