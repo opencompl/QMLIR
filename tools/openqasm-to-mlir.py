@@ -1,6 +1,14 @@
-#! env python3
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
 
 # OpenQASM Lang Spec: https://arxiv.org/pdf/1707.03429v2.pdf
+
+
+# In[ ]:
+
 
 import sys
 import logging
@@ -11,37 +19,82 @@ from typing import Union
 from qiskit.qasm import Qasm
 import qiskit.qasm.node as Node
 
+
+# In[ ]:
+
+
+def setupLogger(lev):
+    logger = logging.getLogger('Notebook')
+
+    if 'loggerSetupDone' in globals(): return logger
+
+    global loggerSetupDone
+    loggerSetupDone = True
+
+    logger.setLevel(lev)
+
+    # https://docs.python.org/3/howto/logging.html#configuring-logging
+    ch = logging.StreamHandler()
+    ch.setLevel(lev)
+    formatter = logging.Formatter('[%(levelname)s] %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    return logger
+
+logger = setupLogger(logging.WARNING)
+
+
+# In[ ]:
+
+
 class ConversionError(Exception):
     pass
 
 class UnimplementedError(Exception):
     pass
 
-################################################################################
+def showtree(node, indent=0):
+    if type(node) is str:
+        node = Qasm(data=node).parse()
+    pref = ' ' * (indent*4)
+    logger.debug(f'{pref}{type(node)}')
+    for child in node.children:
+        showtree(child, indent + 1)
+
+
+# In[ ]:
+
+
 """ Base class for MLIR Objects """
 class MLIRBase:
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         pass
     def __str__(self):
         return '\n'.join(self.serialize())
     def indent(self, lines: list[str], size:int=1) -> list[str]:
         return list(map(lambda l: ' ' * (2 * size) + l, lines))
-    def build(self, *args, **kwargs):
+    def build(self):
         pass
     def serialize(self) -> list[str]:
         raise UnimplementedError("Serialize")
     def show(self) -> str:
         raise UnimplementedError("Abstract Method")
 
-############################################################
+
+# In[ ]:
+
+
 """ Base class for MLIR Types
 Form: [ `!` $dialect `.` ] $name
 """
 class MLIRType(MLIRBase):
-    name = None
-    dialect = 'std'
+    name: str = '<unknown_op>'
+    dialect: str = 'std'
     def __init__(self, *args, **kwargs):
-        self.build(args, kwargs)
+        self.args = args
+        self.kwargs = kwargs
+        self.build()
     def show(self) -> str:
         prefix = f'!{self.dialect}.' if self.dialect != 'std' else ''
         return prefix + self.name
@@ -51,14 +104,41 @@ class MLIRType(MLIRBase):
 
 """ Specific Type constructors """
 class FloatType(MLIRType):
-    def build(self, prec: int = 32):
-        name = f'f{prec}'
+    """build(<prec>)
+    """
+    def build(self):
+        prec: int = 32
+        if len(self.args) >= 1:
+            prec = self.args[0]
+        self.name = f'f{prec}'
 class IntType(MLIRType):
-    def build(self, prec: int = 32):
-        name = f'i{prec}'
+    """build(<prec>)
+    """
+    def build(self):
+        prec: int = 32
+        if len(self.args) >= 1:
+            prec = self.args[0]
+        self.name = f'i{prec}'
+
+class MemrefType(MLIRType):
+    """build(dims: list[Union[None, int]], ty: MLIRType)"""
+    name = 'memref'
+    def getElementType(self) -> MLIRType:
+        return self.ty
+    def build(self):
+        self.dims = self.kwargs['dims']
+        self.ty = self.kwargs['ty']
+    def show(self) -> str:
+        dims = 'x'.join(map(lambda n: '?' if n is None else str(n), self.dims))
+        return f'{self.name}<{dims}x{self.ty}>'
+
 class QubitType(MLIRType):
     name = 'qubit'
     dialect = 'qasm'
+
+
+# In[ ]:
+
 
 class MLIRAttribute(MLIRBase):
     """ Base class for Attributes
@@ -80,7 +160,10 @@ class IntAttr(MLIRAttribute):
     def show(self) -> str:
         return str(self.value)
 
-############################################################
+
+# In[ ]:
+
+
 """SSA Value
 Stores the identifier
 """
@@ -90,7 +173,7 @@ class SSAValue(MLIRBase):
         self.ty = ty
     def show(self, withType: bool=False) -> str:
         if withType:
-            return f'%{self.name}: {self.getType()}'
+            return f'%{self.name} : {self.getType()}'
         return f'%{self.name}'
     def serialize(self) -> list[str]:
         return [self.show()]
@@ -99,20 +182,56 @@ class SSAValue(MLIRBase):
 
 class SSAValueMap:
     def __init__(self):
-        self.vmap = dict()
+        self.vmap = dict() # values
+        self.amap = dict() # arrays
         self.index = 0
+
+    def newValue(self, ty: MLIRType, name: str = '') -> SSAValue:
+        """Create a new SSA Value of the given type, and optional name
+        """
+        val = SSAValue(str(self.index), ty)
+        if name:
+            self.vmap[name] = val
+        self.index += 1
+        return val
+    def newArray(self, name: str, size: int, ty: MLIRType):
+        """Create a new array of SSA values of the given type and name
+        """
+        self.amap[name] = []
+        for i in range(size):
+            val = self.newValue(ty, f'{name}_{i}')
+            self.amap[name].append(val)
+    def insert(self, name: str, value: SSAValue):
+        """Add an existing SSA Value to the map
+        """
+        self.vmap[name] = value
+    def insertArray(self, name: str, values: list[SSAValue]):
+        """Add a list of existing SSA Values to the map
+        """
+        size = len(values)
+        for i in range(size):
+            self.insert(f'{name}_{i}', values[i])
+        self.amap[name] = copy.copy(values)
 
     def lookup(self, name: str) -> SSAValue:
         return self.vmap[name]
-    def insert(self, name: str, ty: MLIRType) -> SSAValue:
-        self.vmap[name] = SSAValue(str(self.index), ty)
-        self.index += 1
-        return self.vmap[name]
-    def insertArray(self, name: str, size: int, ty: MLIRType):
-        for i in range(size):
-            self.insert(f'{name}:{i}', ty)
+    def lookupArray(self, name: str) -> list[SSAValue]:
+        return self.amap[name]
 
-############################################################
+    def resolve(self, name: str) -> list[SSAValue]:
+        """Resolve a variable name
+        Lookup through both the value and array maps
+        """
+        if name in self.vmap:
+            return [self.vmap[name]]
+        if name in self.amap:
+            return self.amap[name]
+        raise ConversionError("Invalid SSA Value")
+
+
+# In[ ]:
+
+
 class MLIROperation(MLIRBase):
     """Base class for all Operations
 
@@ -130,35 +249,111 @@ class MLIROperation(MLIRBase):
     """
     name = None
     dialect = 'std'
-    operands: list[SSAValue] = []
-    attributes: list[MLIRAttribute] = []
-    results: list[SSAValue] = []
     def __init__(self, valueMap: SSAValueMap, *args, **kwargs):
         self.valueMap = valueMap
-        self.build(*args, **kwargs)
-        pass
+        self.args = args
+        self.kwargs = kwargs
+        self.operands: list[SSAValue] = []
+        self.attributes: list[MLIRAttribute] = []
+        self.results: list[SSAValue] = []
+        self.build()
 
     def serialize(self) -> list[str]:
-        return [f'{self.dialect}.{self.name} {self.show()}']
-    def build(self, *args, **kwargs):
+        res = ', '.join(map(lambda v: v.show(), self.results))
+        op = f'{self.dialect}.{self.name} {self.show()}'
+        if len(res) == 0:
+            return [op]
+        return [res + ' = ' + op]
+    def build(self):
         pass
 
     def show(self) -> str:
         raise UnimplementedError("Abstract Method")
 
+    def addResult(self, ty: MLIRType) -> SSAValue:
+        res = self.valueMap.newValue(ty)
+        self.results.append(res)
+        return res
+    def addAttribute(self, attr: MLIRAttribute):
+        self.attributes.append(attr)
+    def addOperand(self, arg: SSAValue):
+        self.operands.append(arg)
+
+    def getResults(self) -> list[SSAValue]:
+        return self.results
+
 """ std Ops """
+class AllocOp(MLIROperation):
+    """Alloc Op
+    build(dims: list[Union[None, int]], ty: MLIRType)
+    """
+    name = 'alloc'
+    def getType(self) -> MemrefType:
+        return self.results[0].getType()
+    def getElementType(self) -> MLIRType:
+        return self.getType().getElementType()
+
+    def build(self):
+        dims = self.kwargs['dims']
+        elemty = self.kwargs['ty']
+        ty = MemrefType(dims=dims, ty=elemty)
+        self.addResult(ty)
+        
+        self.dyn_dims = 0
+        for d in dims:
+            if d is None:
+                self.dyn_dims += 1
+        if self.dyn_dims > 0:
+            raise UnimplementedError("No support for dynamic dims in alloc")
+
+    def show(self) -> str:
+        dyn_dims = ''
+        return f'({dyn_dims}) : {self.getType()}'
+
+
 class ReturnOp(MLIROperation):
     name = 'return'
     def show(self) -> str:
         return ''
 
+class CallOp(MLIROperation):
+    """build(func: str, operands: list[SSAValue], results: list[MLIRType])
+    Use only named arguments.
+    """
+    name = 'call'
+    def build(self):
+        if 'operands' in self.kwargs:
+            for arg in self.kwargs['operands']:
+                assert(isinstance(arg, SSAValue))
+                self.addOperand(arg)
+        if 'results' in self.kwargs:
+            for resTy in self.kwargs['results']:
+                assert(isinstance(resTy, MLIRType))
+                self.addResult(resTy)
+        self.func = self.kwargs['func']
+
+    def show(self) -> str:
+        args = ', '.join(map(lambda a: a.show(), self.operands))
+        argty = ', '.join(map(lambda a: a.getType().show(), self.operands))
+        resty = ', '.join(map(lambda r: r.show(), self.results))
+        if len(self.results) != 1:
+            resty = '(' + resty + ')'
+        return f'@{self.func}({args}) : ({argty}) -> {resty}'
+
 class ConstantOp(MLIROperation):
     name = 'constant'
-    def build(self, val: Union[float, int]):
+    def build(self):
+        val = self.args[0]
+        logger.debug(f">> ConstantOp: {val}, {type(val)}")
         if isinstance(val, float):
-            self.attributes.append(FloatAttr(val))
+            self.addAttribute(FloatAttr(val))
+            self.addResult(FloatType())
+            return
         if isinstance(val, int):
-            self.attributes.append(IntAttr(val))
+            self.addAttribute(IntAttr(val))
+            self.addResult(IntType())
+            return
+        raise ConversionError("Invalid constant for ConstantOp")
     def getValue(self) -> MLIRAttribute:
         return self.attributes[0]
     def getType(self) -> MLIRType:
@@ -167,8 +362,13 @@ class ConstantOp(MLIROperation):
         return f'{self.getValue()} : {self.getType()}'
 
 class UnaryOp(MLIROperation):
-    def build(self, arg: SSAValue):
-        pass
+    def operand(self) -> SSAValue:
+        return self.operands[0]
+    def build(self):
+        self.addOperand(self.args[0])
+        self.addResult(self.args[0].getType())
+    def show(self) -> str:
+        return self.operand().show(withType=True)
 
 class SinOp(UnaryOp):
     dialect = 'math'
@@ -189,15 +389,40 @@ class SqrtOp(UnaryOp):
     dialect = 'math'
     name = 'sqrt'
 
+class NegFOp(UnaryOp):
+    name = 'negf'
+
+class SIToFPOp(UnaryOp):
+    name = 'sitofp'
+    def build(self):
+        assert(isinstance(self.args[0].getType(), IntType))
+        self.addOperand(self.args[0])
+
+        if len(self.args) == 2:
+            assert(isinstance(self.args[1], FloatType))
+            self.addResult(self.args[1])
+        else:
+            self.addResult(FloatType())
+    def show(self) -> str:
+        return f'{self.operand().show(True)} to {self.results[0].getType()}'
+
 class BinaryOp(MLIROperation):
-    dialect = 'std'
-    name = ''
-    def __init__(self, lhs: SSAValue, rhs: SSAValue, res: SSAValue):
-        super().__init__(f'{self.dialect}.{self.name}'
-                f'{lhs.show()}, {rhs.show()} : {res.ty.show()}')
-        self.lhs = lhs
-        self.rhs = rhs
-        self.res = res
+    """build(lhs, rhs)
+    """
+    def build(self):
+        lhs, rhs = self.args
+        self.addOperand(lhs)
+        self.addOperand(rhs)
+        lhsty, rhsty = lhs.getType(), rhs.getType()
+        assert(type(lhsty) == type(rhsty))
+        self.addResult(lhsty)
+
+    def lhs(self) -> SSAValue:
+        return self.operands[0]
+    def rhs(self) -> SSAValue:
+        return self.operands[1]
+    def show(self) -> str:
+        return f'{self.lhs()}, {self.rhs()} : {self.lhs().getType()}'
 
 class AddFOp(BinaryOp):
     name = 'addf'
@@ -205,25 +430,98 @@ class SubFOp(BinaryOp):
     name = 'subf'
 class MulFOp(BinaryOp):
     name = 'mulf'
+class DivFOp(BinaryOp):
+    name = 'divf'
+
+class AddIOp(BinaryOp):
+    name = 'addi'
+class SubIOp(BinaryOp):
+    name = 'subi'
+class MulIOp(BinaryOp):
+    name = 'muli'
+class DivIOp(BinaryOp):
+    name = 'divi'
 
 """ qasm Ops """
-class UOp(MLIROperation):
-    def __init__(self, theta: SSAValue, phi: SSAValue,
-                       lambd: SSAValue, qubit: SSAValue):
-        super().__init__(f'qasm.U ({theta.show(True)}, {phi.show(True)},'
-                f'{lambd.show(True)}) {qubit}')
-        self.theta = theta
-        self.phi = phi
-        self.lambd = lambd
-        self.qubit = qubit
+class QASMAllocOp(MLIROperation):
+    name = 'allocate'
+    dialect = 'qasm'
+    def build(self):
+        self.addResult(QubitType())
+    def show(self) -> str:
+        return ''
 
-############################################################
-ExpressionType = Union[Node.Id, Node.BinaryOp]
-OperationType = Union[Node.UniversalUnitary, Node.CustomUnitary]
+class PIOp(MLIROperation):
+    name = 'pi'
+    dialect = 'qasm'
+    def getType(self):
+        return self.results[0].getType()
+    def build(self):
+        self.addResult(FloatType())
+    def show(self) -> str:
+        return f': {self.getType()}'
+
+class UOp(MLIROperation):
+    name = 'U'
+    dialect = 'qasm'
+    """build(theta, phi, lambd, qubit)
+    """
+    def build(self):
+        args = self.args
+
+        for i in range(3):
+            self.addOperand(args[i])
+            assert(isinstance(args[i].getType(), FloatType))
+        self.theta = args[0]
+        self.phi = args[1]
+        self.lambd = args[2]
+        
+        self.addOperand(args[3])
+        assert(isinstance(args[3].getType(), QubitType))
+        self.qubit = args[3]
+    def show(self) -> str:
+        return f'({self.theta.show(True)}, {self.phi.show(True)}, {self.lambd.show(True)})'                 f' {self.qubit.show()}'
+
+class CNOTOp(MLIROperation):
+    name = 'CX'
+    dialect = 'qasm'
+    """build(q0, q1)
+    """
+    def build(self):
+        args = self.args
+        for i in range(2):
+            assert(isinstance(args[i].getType(), QubitType))
+            self.addOperand(args[i])
+        self.control = args[0]
+        self.target = args[1]
+    def show(self) -> str:
+        return f'{self.control}, {self.target}'
+
+
+# In[ ]:
+
+
+ExpressionType = Union[Node.Id, Node.BinaryOp, Node.Real, Node.Int, Node.Prefix]
+def isaExpression(obj) -> bool:
+    if isinstance(obj, Node.Id): return True
+    if isinstance(obj, Node.BinaryOp): return True
+    if isinstance(obj, Node.Real): return True
+    if isinstance(obj, Node.Int): return True
+    if isinstance(obj, Node.Prefix): return True
+    return False
+
+OperationType = Union[Node.UniversalUnitary, Node.CustomUnitary, Node.Cnot, Node.Qreg, Node.Creg]
+def isaOperation(obj) -> bool:
+    if isinstance(obj, Node.UniversalUnitary): return True
+    if isinstance(obj, Node.CustomUnitary): return True
+    if isinstance(obj, Node.Cnot): return True
+    if isinstance(obj, Node.Qreg): return True
+    if isinstance(obj, Node.Creg): return True
+    return False
 
 class MLIRBlock(MLIRBase):
     def __init__(self, valueMap: SSAValueMap = SSAValueMap()):
-        self.valueMap: SSAValueMap = copy.deepcopy(valueMap)
+        self.valueMap: SSAValueMap = valueMap
         self.body: list[MLIROperation] = []
 
     def serialize(self) -> list[str]:
@@ -234,62 +532,154 @@ class MLIRBlock(MLIRBase):
 
     def addOp(self, op: MLIROperation):
         self.body.append(op)
-    def buildOp(self, opClass: type, *args) -> list[SSAValue]:
-        op = opClass(self.valueMap, *args)
+    def buildOp(self, opClass: type, *args, **kwargs) -> list[SSAValue]:
+        op = opClass(self.valueMap, *args, **kwargs)
         self.addOp(op)
         return op.getResults()
 
-    def parseExpression(self, op: ExpressionType) -> SSAValue:
-        if isinstance(op, Node.BinaryOp):
-            binop = op.children[0]
-            lhs = self.parseExpression(op.children[1])
-            rhs = self.parseExpression(op.children[2])
-            print(binop)
-            print(binop.name)
-            sys.exit(0)
-        if isinstance(op, Node.Id):
-            return self.valueMap.lookup(op.name)
-        if isinstance(op, Node.Real):
-            constOp = ConstantOp(op.value, FloatType())
-            self.addOp(constOp)
-            return 
-        raise UnimplementedError(f"Unknown expression kind {type(op)}: {op.qasm()}")
+    def castToFloat(self, val: SSAValue, ft: FloatType = FloatType()) -> SSAValue:
+        if isinstance(val.getType(), FloatType):
+            return val
+        if isinstance(val.getType(), IntType):
+            return self.buildOp(SIToFPOp, val, ft)[0]
+        raise ConversionError("Attempting to cast invalid value to float")
 
-    def parseOperation(self, op: OperationType):
+    def parseQubit(self, node: Union[Node.Id, Node.IndexedId]) -> list[SSAValue]:
+        if isinstance(node, Node.Id):
+            return self.valueMap.resolve(node.name)
+        elif isinstance(node, Node.IndexedId):
+            return [self.valueMap.resolve(node.name)[node.index]]
+        else:
+            raise UnimplementedError()
+
+    def parseExpression(self, node: ExpressionType) -> SSAValue:
+        logger.debug(f'>> EXPRESSION: {type(node)} {node.qasm()}')
+        if isinstance(node, Node.BinaryOp):
+            binop: Node.BinaryOperator = node.children[0]
+            lhs = self.parseExpression(node.children[1])
+            rhs = self.parseExpression(node.children[2])
+            op = None
+            if isinstance(lhs.getType(), FloatType) or isinstance(rhs.getType(), FloatType):
+                lhs = self.castToFloat(lhs)
+                rhs = self.castToFloat(rhs)
+                if binop.value == '+': op = AddFOp
+                if binop.value == '-': op = SubFOp
+                if binop.value == '*': op = MulFOp
+                if binop.value == '/': op = DivFOp
+            else:
+                if binop.value == '+': op = AddIOp
+                if binop.value == '-': op = SubIOp
+                if binop.value == '*': op = MulIOp
+                if binop.value == '/': op = DivIOp
+            res = self.buildOp(op, lhs, rhs)
+            return res[0]
+        if isinstance(node, Node.Id):
+            return self.valueMap.lookup(node.name)
+        if isinstance(node, Node.Real):
+            if node.qasm() == 'pi':
+                res = self.buildOp(PIOp, FloatType())
+            else:
+                res = self.buildOp(ConstantOp, float(node.value), FloatType())
+            return res[0]
+        if isinstance(node, Node.Int):
+            res = self.buildOp(ConstantOp, node.value, IntType())
+            return res[0]
+        if isinstance(node, Node.Prefix):
+            op, val = node.children
+            res = self.parseExpression(val)
+            if isinstance(op, Node.UnaryOperator):
+                if op.qasm() == '-':
+                    if isinstance(res.getType(), FloatType):
+                        nres = self.buildOp(NegFOp, res)[0]
+                    else:
+                        zero = self.buildOp(ConstantOp, 0, IntType())[0]
+                        nres = self.buildOp(SubIOp, zero, res)[0]
+                    return nres
+
+        showtree(node)
+        raise UnimplementedError(f"Unknown expression kind {type(node)}: {node.qasm()}")
+
+    def parseOperation(self, op: OperationType) -> Union[None, SSAValue]:
         if isinstance(op, Node.UniversalUnitary):
             args = op.children[0].children
+
             theta = self.parseExpression(args[0])
+            theta = self.castToFloat(theta)
             phi   = self.parseExpression(args[1])
+            phi   = self.castToFloat(phi)
             lambd = self.parseExpression(args[2])
-            qubit = self.valueMap.insert(op.children[1].name, QubitType())
-            self.body.append(UOp(theta, phi, lambd, qubit))
+            lambd = self.castToFloat(lambd)
+
+            # qubit = self.valueMap.newValue(QubitType(), op.children[1].name)
+            qubit = self.parseExpression(op.children[1])
+            self.buildOp(UOp, theta, phi, lambd, qubit)
             return qubit
+        if isinstance(op, Node.Cnot):
+            control, target = map(self.parseExpression, op.children)
+            self.buildOp(CNOTOp, control, target)
+            return
         if isinstance(op, Node.CustomUnitary):
-            pass
+            params: list[SSAValue] = []
+            if op.arguments is not None:
+                for arg in op.arguments.children:
+                    param = self.parseExpression(arg)
+                    param = self.castToFloat(param)
+                    params.append(param)
+
+            num = 1
+            qubitss: list[list[SSAValue]] = []
+            for q in op.bitlist.children:
+                qs = self.parseQubit(q)
+                if len(qs) != 1: num = len(qs)
+                qubitss.append(qs)
+
+            for i in range(num):
+                call_args: list[SSAValue] = copy.copy(params)
+                for qs in qubitss:
+                    call_args.append(qs[0 if len(qs) == 1 else i])
+                self.buildOp(CallOp, func=op.name, operands=call_args, results=[])
+            return
+        if isinstance(op, Node.Qreg):
+            name = op.name
+            size = op.index
+            qubits: list[SSAValue] = [self.buildOp(QASMAllocOp)[0] for _ in range(size)]
+            self.valueMap.insertArray(name, qubits)
+            return
+        if isinstance(op, Node.Creg):
+            name = op.name
+            size = op.index
+            self.buildOp(AllocOp, dims=[size], ty=IntType(1))
+            return
+
+        showtree(op)
         raise UnimplementedError(f"Unknown operation kind {type(op)}: {op.qasm()}")
 
 class MLIRFunction(MLIRBase):
-    def __init__(self,
-            name: str,
-            arguments: list[SSAValue],
-            results: list[MLIRType],
-            body: MLIRBlock):
-        self.name = name
-        self.arguments = arguments
-        self.results = results
-        self.body = body
+    def __init__(self, name: str):
+        self.valueMap: SSAValueMap = SSAValueMap()
+        self.name: str = name
+        self.arguments: list[SSAValue] = []
+        self.results: list[MLIRType] = []
+        self.body: MLIRBlock = MLIRBlock(self.valueMap)
+
+    def addArgument(self, name: str, ty: MLIRType):
+        arg = self.valueMap.newValue(ty, name)
+        self.arguments.append(arg)
+    def addResult(self, ty: MLIRType):
+        self.results.append(ty)
 
     def serialize(self) -> list[str]:
         args = ', '.join(map(lambda v: v.show(True), self.arguments))
-        results = ', '.join(map(lambda t: t.show(), self.arguments))
-        code = [f'func @{self.name}({args}) -> ({results}) {{']
-        code += self.body.serialize()
+        results = ', '.join(map(lambda t: t.show(), self.results))
+        code = [f'func @{self.name} ({args}) -> ({results}) {{']
+        code += self.indent(self.body.serialize())
         code.append('}')
         return code
 
 class MLIRModule(MLIRBase):
-    def __init__(self):
+    def __init__(self, strict=False):
         self.declarations: list[MLIRFunction] = []
+        self.strict = strict
 
     def serialize(self) -> list[str]:
         code = ['module {']
@@ -298,49 +688,58 @@ class MLIRModule(MLIRBase):
         code.append('}')
         return code
 
-    def addDecl(self, decl: MLIRFunction):
+    def addDecl(self, decl):
         self.declarations.append(decl)
 
-################################################################################
+    def addFunction(self, name: str) -> MLIRFunction:
+        func = MLIRFunction(name)
+        self.declarations.append(func)
+        return func
+
+    def parseGate(self, node: Node.Gate):
+        gate = self.addFunction(node.name)
+        if node.arguments is not None:
+            for arg in node.arguments.children:
+                gate.addArgument(arg.name, FloatType())
+        for arg in node.bitlist.children:
+            gate.addArgument(arg.name, QubitType())
+        for op in node.body.children:
+            gate.body.parseOperation(op)
+        gate.body.buildOp(ReturnOp)
+
+    def parseVersion(self, version: Node.Format):
+        if self.strict:
+            raise UnimplementedError("Version String")
 
 
-def QASMToMLIR(code: str, outputFile, strict=False):
+# In[ ]:
+
+
+def QASMToMLIR(code: str, strict=False) -> MLIRModule:
     try:
         src = Qasm(data=code).parse()
     except:
-        raise ConversionError("Could not load input file")
+        raise ConversionError("Could not parse QASM")
 
-    module: MLIRModule = MLIRModule()
-    mainBlock = MLIRBlock()
+    module: MLIRModule = MLIRModule(strict=strict)
+    mainFunc: MLIRFunction = MLIRFunction('qasm_main')
     for node in src.children:
+        logger.debug(f'>> PARSING:\n {node.qasm()}\n<<<<<<<<')
         if isinstance(node, Node.Format):
-            # version string
-            if strict:
-                raise UnimplementedError("Version String")
+            module.parseVersion(node)
         elif isinstance(node, Node.Gate):
-            # Gate definition
-            name: str = node.name
-            args: list[SSAValue] = []
-            results: list[MLIRType] = []
-            body: MLIRBlock = MLIRBlock()
-            localScope: SSAValueMap = body.valueMap
-
-            for arg in node.arguments.children:
-                val = localScope.insert(arg.name, FloatType())
-                args.append(val)
-            for arg in node.bitlist.children:
-                val = localScope.insert(arg.name, QubitType())
-                args.append(val)
-            for op in node.body.children:
-                body.parseOperation(op)
-            body.addOp(ReturnOp())
-
-            gate: MLIRFunction = MLIRFunction(name, args, results, body)
-            module.addDecl(gate)
-        elif isinstance(node, OperationType):
-            mainBlock.parseOperation(node)
+            module.parseGate(node)
+        elif isaOperation(node):
+            mainFunc.body.parseOperation(node)
         else:
             raise ConversionError(f"Unknown node object found at line {node.line}: {type(node)}")
+    mainFunc.body.buildOp(ReturnOp)
+    module.addDecl(mainFunc)
+
+    return module
+
+
+# In[ ]:
 
 
 def main():
@@ -359,7 +758,8 @@ def main():
     else: args.output = open(args.output, 'w+')
 
     code = args.input.read()
-    QASMToMLIR(code, args.output, strict=args.verbose)
+    module = QASMToMLIR(code, strict=args.verbose)
+    args.output.write(str(module))
 
-if __name__ == "__main__":
-    main()
+
+if __name__ == "__main__": main()
