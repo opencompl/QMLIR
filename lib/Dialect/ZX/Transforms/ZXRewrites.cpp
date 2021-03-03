@@ -308,7 +308,9 @@ void ZXRewritePass::runOnFunction() {
   OwningRewritePatternList patterns;
   collectZXRewritePatterns(patterns, &getContext());
 
-  applyPatternsAndFoldGreedily(func, std::move(patterns));
+  if (failed(applyPatternsAndFoldGreedily(func, std::move(patterns)))) {
+    signalPassFailure();
+  }
 }
 
 namespace mlir {

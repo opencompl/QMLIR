@@ -4,10 +4,6 @@ set(LIBS
     ${dialect_libs}
     ${conversion_libs}
     MLIROptLib
-    MLIRQuantum
-    MLIRQASM
-    MLIRZX
-    MLIRZXGraph
     )
 add_llvm_executable(quantum-opt quantum-opt.cpp)
 

@@ -12,3 +12,5 @@ add_mlir_dialect_library(MLIRQASM
     LINK_LIBS PUBLIC
     MLIRIR
     )
+
+add_subdirectory(Analysis)
