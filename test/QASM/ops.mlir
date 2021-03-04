@@ -1,7 +1,7 @@
 // RUN: quantum-opt %s | quantum-opt
 
 module {
-  func @allocate_op() {
+  func @qasm_main() {
     %q = qasm.allocate
     %a = qasm.allocate
     %b = qasm.allocate
