@@ -346,7 +346,7 @@ def HadamardGateOp : SimplePrimitiveGateOp<"H"> {
   }];
 }
 
-def CNOTGateOp : SimplePrimitiveGateOp<"CNOT"> {
+def CNOTGateOp : Quantum_Op<"CNOT", [NoSideEffect]> {
   let summary = "Quantum CNOT gate";
   let description = [{
       Takes a 2-qubit array, and applies the CNOT gate,
@@ -354,16 +354,40 @@ def CNOTGateOp : SimplePrimitiveGateOp<"CNOT"> {
 
       Example:
       ```mlir
-      %q1 = quantum.CNOT %q0 : !quantum.qubit<2>
+      %qa1, %qb1 = quantum.CNOT %qa0, %qb0
       ```
   }];
 
-  let verifier = [{
-    auto type = qinp().getType().cast<QubitType>();
-    if (!type.hasStaticSize() || type.getSize() != 2)
-      return emitOpError("expected a two qubit array (qubit<2>), got ") << type;
-    return ::verify(*this);
+  let arguments = (ins
+                    Quantum_SingleQubitType:$qinp_cont,
+                    Quantum_SingleQubitType:$qinp_targ);
+  let results = (outs
+                  Quantum_SingleQubitType:$qout_cont,
+                  Quantum_SingleQubitType:$qout_targ);
+  let assemblyFormat = [{ $qinp_cont `,` $qinput_targ }];
+  let verifier = [{ return success(); }];
+}
+
+def UniversalRotationGateOp : Quantum_Op<"U", [NoSideEffect]> {
+  let summary = "Quantum Universal Single Qubit Rotation Op";
+  let description = [{
+    Takes a single qubit and rotates it based on the parameters:
+    Example:
+    ```mlir
+    %q1 = qssa.U (%theta: f32, %phi: f32, %lambda: f32) %q0 : !qssa.qubit<1>
+    ```
   }];
+
+  let arguments = (ins AnyFloat:$theta,
+                       AnyFloat:$phi,
+                       AnyFloat:$lambda,
+                       Quantum_SingleQubitType:$qinp);
+  let results = (outs Quantum_SingleQubitType:$qout);
+  let assemblyFormat = [{
+    `(` $theta `:` type($theta) `,` $phi `:` type($phi) `,` $lambda `:` type($lambda) `)`
+    $qinp attr-dict
+  }];
+  let verifier = [{ return success(); }];
 }
 
 //===----------------------------------------------------------------------===//

@@ -17,5 +17,8 @@ include "mlir/IR/OpBase.td"
 def Quantum_QubitType :
     Type<CPred<"$_self.isa<QubitType>()">, "Quantum Qubit Type">;
 
+def Quantum_SingleQubitType :
+    Type<CPred<"$_self.isa<QubitType>() && $_self.cast<QubitType>().getSize() == 1">, "Quantum Single Qubit Type">
+    , BuildableType<"QubitType::get($_builder.getContext(), 1)">;
 
 #endif // QUANTUM_TYPES
