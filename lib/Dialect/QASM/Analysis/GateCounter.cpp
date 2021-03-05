@@ -64,9 +64,10 @@ void GateCountPass::runOnOperation() {
   auto analysis = getAnalysis<GateCountAnalysis>();
   llvm::errs() << "// -------- QASM Gate Count analysis --------\n";
   auto gateCounts = analysis.getGateCounts("qasm_main");
-  llvm::errs() << "qasm_main:\n";
-  llvm::errs() << "  CX: " << gateCounts.cnot << "\n";
-  llvm::errs() << "   U: " << gateCounts.u << "\n";
+  llvm::errs() << "\"qasm_main\": {\n";
+  llvm::errs() << "  \"CX\": \"" << gateCounts.cnot << "\",\n";
+  llvm::errs() << "  \"U\": \"" << gateCounts.u << "\"\n";
+  llvm::errs() << "}\n";
   llvm::errs() << "// ------------------------------------------\n";
 }
 
