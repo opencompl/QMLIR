@@ -359,5 +359,35 @@ static void print(SimplePrimitiveGateOp op, OpAsmPrinter &printer) {
   printer.printType(qubit.getType());
 }
 
+//==== Folders ==============================================================//
+OpFoldResult IDGateOp::fold(ArrayRef<Attribute> operands) { return qinp(); }
+
+OpFoldResult PauliXGateOp::fold(ArrayRef<Attribute> operands) {
+  if (auto parent = qinp().getDefiningOp<PauliXGateOp>()) {
+    return parent.qinp();
+  }
+  return *operands.begin();
+}
+
+OpFoldResult PauliYGateOp::fold(ArrayRef<Attribute> operands) {
+  if (auto parent = qinp().getDefiningOp<PauliYGateOp>()) {
+    return parent.qinp();
+  }
+  return *operands.begin();
+}
+
+OpFoldResult PauliZGateOp::fold(ArrayRef<Attribute> operands) {
+  if (auto parent = qinp().getDefiningOp<PauliZGateOp>()) {
+    return parent.qinp();
+  }
+  return *operands.begin();
+}
+OpFoldResult HadamardGateOp::fold(ArrayRef<Attribute> operands) {
+  if (auto parent = qinp().getDefiningOp<HadamardGateOp>()) {
+    return parent.qinp();
+  }
+  return *operands.begin();
+}
+
 #define GET_OP_CLASSES
 #include "Dialect/Quantum/QuantumOps.cpp.inc"

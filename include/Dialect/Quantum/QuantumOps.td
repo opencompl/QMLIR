@@ -18,8 +18,8 @@ include "mlir/Interfaces/SideEffectInterfaces.td"
 // include "mlir/Interfaces/VectorInterfaces.td"
 // include "mlir/Interfaces/ViewLikeInterface.td"
 
-include "QuantumDialect.td"
-include "QuantumTypes.td"
+include "Dialect/Quantum/QuantumDialect.td"
+include "Dialect/Quantum/QuantumTypes.td"
 
 //===----------------------------------------------------------------------===//
 // Allocate Op
@@ -235,14 +235,22 @@ def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
 // Primitive Gate Ops
 //===----------------------------------------------------------------------===//
 
+def IDGateOp : Quantum_Op<"id", [NoSideEffect, AllTypesMatch<["qinp", "qout"]>]> {
+  let arguments = (ins Quantum_QubitType:$qinp);
+  let results = (outs Quantum_QubitType:$qout);
+  let assemblyFormat = [{ $qinp attr-dict `:` type($qout) }];
+  let verifier = [{ return success(); }];
+  let hasFolder = 1;
+}
+
 // Base Class for primitive gate ops
 // If there are no floating point parameters, the `()` are dropped.
 //
 //   %1 = gate(%a0 : f32, ...) %0 : qubit<?>
 //
-//
+
 class PrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
-  : Quantum_Op<mnemonic, !listconcat([], traits)> {
+  : Quantum_Op<mnemonic, !listconcat([NoSideEffect], traits)> {
   let arguments = (ins
     Variadic<AnyFloat>:$params,
     Quantum_QubitType:$qinp);
@@ -258,7 +266,7 @@ class PrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
 //   %1, %c_out = gate(%a0 : f32, ...) [%c_in : qubit<?>] %0 : qubit<?>
 //
 class PrimitiveControlledGateOp<string mnemonic, list<OpTrait> traits = []>
-  : Quantum_Op<mnemonic, !listconcat([], traits)> {
+  : Quantum_Op<mnemonic, !listconcat([NoSideEffect], traits)> {
   let arguments = (ins
     Variadic<AnyFloat>:$params,
     Quantum_QubitType:$qcontrols_inp,
@@ -279,10 +287,14 @@ class PrimitiveControlledGateOp<string mnemonic, list<OpTrait> traits = []>
 //   %1 = quantum.gate %0 : !quantum.qubit<?>
 //
 class SimplePrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
-  : PrimitiveGateOp<mnemonic, !listconcat([], traits)> {
+  : Quantum_Op<mnemonic, !listconcat([NoSideEffect, AllTypesMatch<["qinp", "qout"]>], traits)> {
+  let arguments = (ins Quantum_QubitType:$qinp);
+  let results = (outs Quantum_QubitType:$qout);
+  let assemblyFormat = [{ $qinp attr-dict `:` type($qinp) }];
+  let verifier = [{ return success(); }];
 }
 
-def PauliXGateOp : SimplePrimitiveGateOp<"pauliX"> {
+def PauliXGateOp : SimplePrimitiveGateOp<"X"> {
   let summary = "Quantum Pauli X gate";
   let description = [{
       Takes a qubit array, and applies the Pauli X gate to each qubit.
@@ -296,9 +308,10 @@ def PauliXGateOp : SimplePrimitiveGateOp<"pauliX"> {
       %q1 = quantum.pauliX %q0 : !quantum.qubit<?>
       ```
   }];
+  let hasFolder = 1;
 }
 
-def PauliYGateOp : SimplePrimitiveGateOp<"pauliY"> {
+def PauliYGateOp : SimplePrimitiveGateOp<"Y"> {
   let summary = "Quantum Pauli X gate";
   let description = [{
       Takes a qubit array, and applies the Pauli Y gate to each qubit.
@@ -312,9 +325,10 @@ def PauliYGateOp : SimplePrimitiveGateOp<"pauliY"> {
       %q1 = quantum.pauliY %q0 : !quantum.qubit<?>
       ```
   }];
+  let hasFolder = 1;
 }
 
-def PauliZGateOp : SimplePrimitiveGateOp<"pauliZ"> {
+def PauliZGateOp : SimplePrimitiveGateOp<"Z"> {
   let summary = "Quantum Pauli X gate";
   let description = [{
       Takes a qubit array, and applies the Pauli Z gate to each qubit.
@@ -328,6 +342,7 @@ def PauliZGateOp : SimplePrimitiveGateOp<"pauliZ"> {
       %q1 = quantum.pauliZ %q0 : !quantum.qubit<?>
       ```
   }];
+  let hasFolder = 1;
 }
 
 def HadamardGateOp : SimplePrimitiveGateOp<"H"> {
@@ -344,6 +359,7 @@ def HadamardGateOp : SimplePrimitiveGateOp<"H"> {
       %q1 = quantum.H %q0 : !quantum.qubit<?>
       ```
   }];
+  let hasFolder = 1;
 }
 
 def CNOTGateOp : Quantum_Op<"CNOT", [NoSideEffect]> {

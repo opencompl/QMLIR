@@ -13,21 +13,22 @@ func @std_to_bell(%qs: !qssa.qubit<2>) -> !qssa.qubit<2> {
   %q2 = qssa.H %q0 : !qssa.qubit<1>
 
   // CNOT(qs[0], qs[1])
-  %q3 = qssa.concat %q2, %q1 : (!qssa.qubit<1>, !qssa.qubit<1>) -> !qssa.qubit<2>
-  %q4 = qssa.CNOT %q3 : !qssa.qubit<2>
+  %q3, %q4 = qssa.CNOT %q2, %q1
+  %q5 = qssa.concat %q3, %q4 : (!qssa.qubit<1>, !qssa.qubit<1>) -> !qssa.qubit<2>
 
-  return %q4 : !qssa.qubit<2>
+  return %q5 : !qssa.qubit<2>
 }
 
 func @bell_to_std(%qs : !qssa.qubit<2>) -> !qssa.qubit<2> {
+  %q1:2 = qssa.split %qs : !qssa.qubit<2> -> (!qssa.qubit<1>, !qssa.qubit<1>)
+
   // CNOT(qs[0], qs[1])
-  %q0 = qssa.CNOT %qs : !qssa.qubit<2>
+  %q2:2 = qssa.CNOT %q1#0, %q1#1
 
   // H(qs[0])
-  %q1, %q2 = qssa.split %q0 : !qssa.qubit<2> -> (!qssa.qubit<1>, !qssa.qubit<1>)
-  %q3 = qssa.H %q1 : !qssa.qubit<1>
+  %q3_0 = qssa.H %q2#0 : !qssa.qubit<1>
 
-  %q4 = qssa.concat %q3, %q2 : (!qssa.qubit<1>, !qssa.qubit<1>) -> !qssa.qubit<2>
+  %q4 = qssa.concat %q3_0, %q2#1 : (!qssa.qubit<1>, !qssa.qubit<1>) -> !qssa.qubit<2>
   return %q4 : !qssa.qubit<2>
 }
 
@@ -48,7 +49,7 @@ func @teleport(%psiA: !qssa.qubit<1>, %eb: !qssa.qubit<2>) -> (!qssa.qubit<1>) {
   %corrX = load %resA[%idx0] : memref<2xi1>
 
   %psiB1 = scf.if %corrX -> !qssa.qubit<1> {
-    %temp = qssa.pauliX %psiB0 : !qssa.qubit<1>
+    %temp = qssa.X %psiB0 : !qssa.qubit<1>
     scf.yield %temp : !qssa.qubit<1>
   } else {
     scf.yield %psiB0 : !qssa.qubit<1>
@@ -59,7 +60,7 @@ func @teleport(%psiA: !qssa.qubit<1>, %eb: !qssa.qubit<2>) -> (!qssa.qubit<1>) {
   %corrZ = load %resA[%idx1] : memref<2xi1>
 
   %psiB2 = scf.if %corrZ -> !qssa.qubit<1> {
-    %temp = qssa.pauliZ %psiB1 : !qssa.qubit<1>
+    %temp = qssa.Z %psiB1 : !qssa.qubit<1>
     scf.yield %temp : !qssa.qubit<1>
   } else {
     scf.yield %psiB1 : !qssa.qubit<1>

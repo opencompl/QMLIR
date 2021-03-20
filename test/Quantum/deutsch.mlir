@@ -21,7 +21,7 @@ func private @oracle(%x : !qssa.qubit<?>, %y : !qssa.qubit<1>)
 func @phase_flip_oracle(%x : !qssa.qubit<?>)
   -> !qssa.qubit<?> {
   %y0 = qssa.allocate() : !qssa.qubit<1>
-  %y1 = qssa.pauliX %y0 : !qssa.qubit<1>
+  %y1 = qssa.X %y0 : !qssa.qubit<1>
   %y2 = qssa.H %y1 : !qssa.qubit<1>
   %x1, %y3 = call @oracle(%x, %y2)
     : (!qssa.qubit<?>, !qssa.qubit<1>) -> (!qssa.qubit<?>, !qssa.qubit<1>)

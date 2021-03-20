@@ -11,11 +11,12 @@
 #include "mlir/InitAllPasses.h"
 #include "mlir/Support/MlirOptMain.h"
 
-#include "Conversion/QuantumToStandard/Passes.h"
 #include "Conversion/QASMToQuantum/Passes.h"
+#include "Conversion/QuantumToStandard/Passes.h"
 #include "Dialect/QASM/Analysis/Passes.h"
 #include "Dialect/QASM/QASMDialect.h"
 #include "Dialect/Quantum/QuantumDialect.h"
+#include "Dialect/Quantum/Transforms/Passes.h"
 #include "Dialect/ZX/Transforms/Passes.h"
 #include "Dialect/ZX/ZXDialect.h"
 #include "Dialect/ZXGraph/Transforms/Passes.h"
@@ -30,11 +31,14 @@ void registerQuantumDialects(DialectRegistry &registry) {
   registry.insert<ZXGraph::ZXGraphDialect>();
 }
 void registerQuantumPasses() {
+  registerQuantumTransformsPasses();
   registerQuantumConversionPasses();
+
   registerQASMToQuantumConversionPasses();
+  registerQASMAnalysisPasses();
+
   registerZXTransformsPasses();
   registerZXGraphTransformsPasses();
-  registerQASMAnalysisPasses();
 }
 
 int main(int argc, char **argv) {
