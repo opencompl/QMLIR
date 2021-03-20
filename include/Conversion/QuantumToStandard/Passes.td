@@ -11,7 +11,7 @@
 
 include "mlir/Pass/PassBase.td"
 
-def QuantumToStandardPass : Pass<"convert-quantum-to-std", "ModuleOp"> {
+def QuantumToStandardPass : Pass<"convert-qssa-to-std", "ModuleOp"> {
   let summary = "Convert quantum dialect to standard operations";
   let constructor = "mlir::createConvertQuantumToStandardPass()";
 }

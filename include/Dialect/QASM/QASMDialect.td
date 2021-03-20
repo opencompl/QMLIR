@@ -17,10 +17,11 @@ def QASM_Dialect : Dialect {
     }];
 
     let extraClassDeclaration = [{
-      Type parseType(DialectAsmParser &parser) const override;
-      void printType(Type type, DialectAsmPrinter &os) const override;
+      Type parseType(DialectAsmParser &) const override;
+      void printType(Type, DialectAsmPrinter &) const override;
 
       static StringRef getQubitTypeName() { return "qubit"; };
+      static StringRef getGateAttrName() { return "qasm.gate"; };
     }];
 
     let cppNamespace = "::mlir::QASM";

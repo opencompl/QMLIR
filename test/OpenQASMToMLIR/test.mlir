@@ -1,9 +1,9 @@
 module {
-  func @u3 (%0 : f32, %1 : f32, %2 : f32, %3 : !qasm.qubit) -> () {
+  func @u3 (%0 : f32, %1 : f32, %2 : f32, %3 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.u3} {
     qasm.U (%0 : f32, %1 : f32, %2 : f32) %3
     std.return 
   }
-  func @u2 (%0 : f32, %1 : f32, %2 : !qasm.qubit) -> () {
+  func @u2 (%0 : f32, %1 : f32, %2 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.u2} {
     %3 = qasm.pi : f32
     %4 = std.constant 2 : i32
     %5 = std.sitofp %4 : i32 to f32
@@ -11,7 +11,7 @@ module {
     qasm.U (%6 : f32, %0 : f32, %1 : f32) %2
     std.return 
   }
-  func @u1 (%0 : f32, %1 : !qasm.qubit) -> () {
+  func @u1 (%0 : f32, %1 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.u1} {
     %2 = std.constant 0 : i32
     %3 = std.sitofp %2 : i32 to f32
     %4 = std.constant 0 : i32
@@ -19,11 +19,11 @@ module {
     qasm.U (%3 : f32, %5 : f32, %0 : f32) %1
     std.return 
   }
-  func @cx (%0 : !qasm.qubit, %1 : !qasm.qubit) -> () {
+  func @cx (%0 : !qasm.qubit, %1 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.cx} {
     qasm.CX %0, %1
     std.return 
   }
-  func @id (%0 : !qasm.qubit) -> () {
+  func @id (%0 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.id} {
     %1 = std.constant 0 : i32
     %2 = std.sitofp %1 : i32 to f32
     %3 = std.constant 0 : i32
@@ -33,7 +33,7 @@ module {
     qasm.U (%2 : f32, %4 : f32, %6 : f32) %0
     std.return 
   }
-  func @u0 (%0 : f32, %1 : !qasm.qubit) -> () {
+  func @u0 (%0 : f32, %1 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.u0} {
     %2 = std.constant 0 : i32
     %3 = std.sitofp %2 : i32 to f32
     %4 = std.constant 0 : i32
@@ -43,11 +43,11 @@ module {
     qasm.U (%3 : f32, %5 : f32, %7 : f32) %1
     std.return 
   }
-  func @u (%0 : f32, %1 : f32, %2 : f32, %3 : !qasm.qubit) -> () {
+  func @u (%0 : f32, %1 : f32, %2 : f32, %3 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.u} {
     qasm.U (%0 : f32, %1 : f32, %2 : f32) %3
     std.return 
   }
-  func @p (%0 : f32, %1 : !qasm.qubit) -> () {
+  func @p (%0 : f32, %1 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.p} {
     %2 = std.constant 0 : i32
     %3 = std.sitofp %2 : i32 to f32
     %4 = std.constant 0 : i32
@@ -55,7 +55,7 @@ module {
     qasm.U (%3 : f32, %5 : f32, %0 : f32) %1
     std.return 
   }
-  func @x (%0 : !qasm.qubit) -> () {
+  func @x (%0 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.x} {
     %1 = qasm.pi : f32
     %2 = std.constant 0 : i32
     %3 = std.sitofp %2 : i32 to f32
@@ -63,7 +63,7 @@ module {
     std.call @u3(%1, %3, %4, %0) : (f32, f32, f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @y (%0 : !qasm.qubit) -> () {
+  func @y (%0 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.y} {
     %1 = qasm.pi : f32
     %2 = qasm.pi : f32
     %3 = std.constant 2 : i32
@@ -76,19 +76,19 @@ module {
     std.call @u3(%1, %5, %9, %0) : (f32, f32, f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @z (%0 : !qasm.qubit) -> () {
+  func @z (%0 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.z} {
     %1 = qasm.pi : f32
     std.call @u1(%1, %0) : (f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @h (%0 : !qasm.qubit) -> () {
+  func @h (%0 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.h} {
     %1 = std.constant 0 : i32
     %2 = std.sitofp %1 : i32 to f32
     %3 = qasm.pi : f32
     std.call @u2(%2, %3, %0) : (f32, f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @s (%0 : !qasm.qubit) -> () {
+  func @s (%0 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.s} {
     %1 = qasm.pi : f32
     %2 = std.constant 2 : i32
     %3 = std.sitofp %2 : i32 to f32
@@ -96,7 +96,7 @@ module {
     std.call @u1(%4, %0) : (f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @sdg (%0 : !qasm.qubit) -> () {
+  func @sdg (%0 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.sdg} {
     %1 = qasm.pi : f32
     %2 = std.negf %1 : f32
     %3 = std.constant 2 : i32
@@ -105,7 +105,7 @@ module {
     std.call @u1(%5, %0) : (f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @t (%0 : !qasm.qubit) -> () {
+  func @t (%0 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.t} {
     %1 = qasm.pi : f32
     %2 = std.constant 4 : i32
     %3 = std.sitofp %2 : i32 to f32
@@ -113,7 +113,7 @@ module {
     std.call @u1(%4, %0) : (f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @tdg (%0 : !qasm.qubit) -> () {
+  func @tdg (%0 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.tdg} {
     %1 = qasm.pi : f32
     %2 = std.negf %1 : f32
     %3 = std.constant 4 : i32
@@ -122,7 +122,7 @@ module {
     std.call @u1(%5, %0) : (f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @rx (%0 : f32, %1 : !qasm.qubit) -> () {
+  func @rx (%0 : f32, %1 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.rx} {
     %2 = qasm.pi : f32
     %3 = std.negf %2 : f32
     %4 = std.constant 2 : i32
@@ -135,7 +135,7 @@ module {
     std.call @u3(%0, %6, %10, %1) : (f32, f32, f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @ry (%0 : f32, %1 : !qasm.qubit) -> () {
+  func @ry (%0 : f32, %1 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.ry} {
     %2 = std.constant 0 : i32
     %3 = std.sitofp %2 : i32 to f32
     %4 = std.constant 0 : i32
@@ -143,41 +143,41 @@ module {
     std.call @u3(%0, %3, %5, %1) : (f32, f32, f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @rz (%0 : f32, %1 : !qasm.qubit) -> () {
+  func @rz (%0 : f32, %1 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.rz} {
     std.call @u1(%0, %1) : (f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @sx (%0 : !qasm.qubit) -> () {
+  func @sx (%0 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.sx} {
     std.call @sdg(%0) : (!qasm.qubit) -> ()
     std.call @h(%0) : (!qasm.qubit) -> ()
     std.call @sdg(%0) : (!qasm.qubit) -> ()
     std.return 
   }
-  func @sxdg (%0 : !qasm.qubit) -> () {
+  func @sxdg (%0 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.sxdg} {
     std.call @s(%0) : (!qasm.qubit) -> ()
     std.call @h(%0) : (!qasm.qubit) -> ()
     std.call @s(%0) : (!qasm.qubit) -> ()
     std.return 
   }
-  func @cz (%0 : !qasm.qubit, %1 : !qasm.qubit) -> () {
+  func @cz (%0 : !qasm.qubit, %1 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.cz} {
     std.call @h(%1) : (!qasm.qubit) -> ()
     std.call @cx(%0, %1) : (!qasm.qubit, !qasm.qubit) -> ()
     std.call @h(%1) : (!qasm.qubit) -> ()
     std.return 
   }
-  func @cy (%0 : !qasm.qubit, %1 : !qasm.qubit) -> () {
+  func @cy (%0 : !qasm.qubit, %1 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.cy} {
     std.call @sdg(%1) : (!qasm.qubit) -> ()
     std.call @cx(%0, %1) : (!qasm.qubit, !qasm.qubit) -> ()
     std.call @s(%1) : (!qasm.qubit) -> ()
     std.return 
   }
-  func @swap (%0 : !qasm.qubit, %1 : !qasm.qubit) -> () {
+  func @swap (%0 : !qasm.qubit, %1 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.swap} {
     std.call @cx(%0, %1) : (!qasm.qubit, !qasm.qubit) -> ()
     std.call @cx(%1, %0) : (!qasm.qubit, !qasm.qubit) -> ()
     std.call @cx(%0, %1) : (!qasm.qubit, !qasm.qubit) -> ()
     std.return 
   }
-  func @ch (%0 : !qasm.qubit, %1 : !qasm.qubit) -> () {
+  func @ch (%0 : !qasm.qubit, %1 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.ch} {
     std.call @h(%1) : (!qasm.qubit) -> ()
     std.call @sdg(%1) : (!qasm.qubit) -> ()
     std.call @cx(%0, %1) : (!qasm.qubit, !qasm.qubit) -> ()
@@ -191,7 +191,7 @@ module {
     std.call @s(%0) : (!qasm.qubit) -> ()
     std.return 
   }
-  func @ccx (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () {
+  func @ccx (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.ccx} {
     std.call @h(%2) : (!qasm.qubit) -> ()
     std.call @cx(%1, %2) : (!qasm.qubit, !qasm.qubit) -> ()
     std.call @tdg(%2) : (!qasm.qubit) -> ()
@@ -209,13 +209,13 @@ module {
     std.call @cx(%0, %1) : (!qasm.qubit, !qasm.qubit) -> ()
     std.return 
   }
-  func @cswap (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () {
+  func @cswap (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.cswap} {
     std.call @cx(%2, %1) : (!qasm.qubit, !qasm.qubit) -> ()
     std.call @ccx(%0, %1, %2) : (!qasm.qubit, !qasm.qubit, !qasm.qubit) -> ()
     std.call @cx(%2, %1) : (!qasm.qubit, !qasm.qubit) -> ()
     std.return 
   }
-  func @crx (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () {
+  func @crx (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.crx} {
     %3 = qasm.pi : f32
     %4 = std.constant 2 : i32
     %5 = std.sitofp %4 : i32 to f32
@@ -245,7 +245,7 @@ module {
     std.call @u3(%17, %22, %24, %2) : (f32, f32, f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @cry (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () {
+  func @cry (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.cry} {
     %3 = std.constant 2 : i32
     %4 = std.sitofp %3 : i32 to f32
     %5 = std.divf %0, %4 : f32
@@ -267,7 +267,7 @@ module {
     std.call @cx(%1, %2) : (!qasm.qubit, !qasm.qubit) -> ()
     std.return 
   }
-  func @crz (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () {
+  func @crz (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.crz} {
     %3 = std.constant 2 : i32
     %4 = std.sitofp %3 : i32 to f32
     %5 = std.divf %0, %4 : f32
@@ -281,7 +281,7 @@ module {
     std.call @cx(%1, %2) : (!qasm.qubit, !qasm.qubit) -> ()
     std.return 
   }
-  func @cu1 (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () {
+  func @cu1 (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.cu1} {
     %3 = std.constant 2 : i32
     %4 = std.sitofp %3 : i32 to f32
     %5 = std.divf %0, %4 : f32
@@ -299,7 +299,7 @@ module {
     std.call @u1(%12, %2) : (f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @cp (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () {
+  func @cp (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.cp} {
     %3 = std.constant 2 : i32
     %4 = std.sitofp %3 : i32 to f32
     %5 = std.divf %0, %4 : f32
@@ -317,7 +317,7 @@ module {
     std.call @p(%12, %2) : (f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @cu3 (%0 : f32, %1 : f32, %2 : f32, %3 : !qasm.qubit, %4 : !qasm.qubit) -> () {
+  func @cu3 (%0 : f32, %1 : f32, %2 : f32, %3 : !qasm.qubit, %4 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.cu3} {
     %5 = std.addf %2, %1 : f32
     %6 = std.constant 2 : i32
     %7 = std.sitofp %6 : i32 to f32
@@ -350,7 +350,7 @@ module {
     std.call @u3(%26, %1, %28, %4) : (f32, f32, f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @csx (%0 : !qasm.qubit, %1 : !qasm.qubit) -> () {
+  func @csx (%0 : !qasm.qubit, %1 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.csx} {
     std.call @h(%1) : (!qasm.qubit) -> ()
     %2 = qasm.pi : f32
     %3 = std.constant 2 : i32
@@ -360,7 +360,7 @@ module {
     std.call @h(%1) : (!qasm.qubit) -> ()
     std.return 
   }
-  func @cu (%0 : f32, %1 : f32, %2 : f32, %3 : f32, %4 : !qasm.qubit, %5 : !qasm.qubit) -> () {
+  func @cu (%0 : f32, %1 : f32, %2 : f32, %3 : f32, %4 : !qasm.qubit, %5 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.cu} {
     std.call @p(%3, %4) : (f32, !qasm.qubit) -> ()
     %6 = std.addf %2, %1 : f32
     %7 = std.constant 2 : i32
@@ -394,7 +394,7 @@ module {
     std.call @u(%27, %1, %29, %5) : (f32, f32, f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @rxx (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () {
+  func @rxx (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.rxx} {
     %3 = qasm.pi : f32
     %4 = std.constant 2 : i32
     %5 = std.sitofp %4 : i32 to f32
@@ -415,13 +415,13 @@ module {
     std.call @u2(%11, %13, %1) : (f32, f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @rzz (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () {
+  func @rzz (%0 : f32, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.rzz} {
     std.call @cx(%1, %2) : (!qasm.qubit, !qasm.qubit) -> ()
     std.call @u1(%0, %2) : (f32, !qasm.qubit) -> ()
     std.call @cx(%1, %2) : (!qasm.qubit, !qasm.qubit) -> ()
     std.return 
   }
-  func @rccx (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () {
+  func @rccx (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.rccx} {
     %3 = std.constant 0 : i32
     %4 = std.sitofp %3 : i32 to f32
     %5 = qasm.pi : f32
@@ -457,7 +457,7 @@ module {
     std.call @u2(%25, %26, %2) : (f32, f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @rc3x (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit, %3 : !qasm.qubit) -> () {
+  func @rc3x (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit, %3 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.rc3x} {
     %4 = std.constant 0 : i32
     %5 = std.sitofp %4 : i32 to f32
     %6 = qasm.pi : f32
@@ -526,7 +526,7 @@ module {
     std.call @u2(%50, %51, %3) : (f32, f32, !qasm.qubit) -> ()
     std.return 
   }
-  func @c3x (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit, %3 : !qasm.qubit) -> () {
+  func @c3x (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit, %3 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.c3x} {
     std.call @h(%3) : (!qasm.qubit) -> ()
     %4 = qasm.pi : f32
     %5 = std.constant 8 : i32
@@ -627,7 +627,7 @@ module {
     std.call @h(%3) : (!qasm.qubit) -> ()
     std.return 
   }
-  func @c3sqrtx (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit, %3 : !qasm.qubit) -> () {
+  func @c3sqrtx (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit, %3 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.c3sqrtx} {
     std.call @h(%3) : (!qasm.qubit) -> ()
     %4 = qasm.pi : f32
     %5 = std.negf %4 : f32
@@ -689,7 +689,7 @@ module {
     std.call @h(%3) : (!qasm.qubit) -> ()
     std.return 
   }
-  func @c4x (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit, %3 : !qasm.qubit, %4 : !qasm.qubit) -> () {
+  func @c4x (%0 : !qasm.qubit, %1 : !qasm.qubit, %2 : !qasm.qubit, %3 : !qasm.qubit, %4 : !qasm.qubit) -> () attributes {qasm.gate, qasm.stdgate.c4x} {
     std.call @h(%4) : (!qasm.qubit) -> ()
     %5 = qasm.pi : f32
     %6 = std.negf %5 : f32
@@ -710,7 +710,7 @@ module {
     std.call @c3sqrtx(%0, %1, %2, %4) : (!qasm.qubit, !qasm.qubit, !qasm.qubit, !qasm.qubit) -> ()
     std.return 
   }
-  func @qasm_main () -> () {
+  func @qasm_main () -> ()  {
     %0 = qasm.allocate 
     %1 = qasm.allocate 
     %2 = qasm.allocate 

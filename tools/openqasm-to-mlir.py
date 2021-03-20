@@ -35,7 +35,7 @@ def setupLogger(lev):
 
     # https://docs.python.org/3/howto/logging.html#configuring-logging
     ch = logging.StreamHandler()
-    ch.setLevel(lev)
+    ch.setLevel(logging.DEBUG)
     formatter = logging.Formatter('[%(levelname)s] %(message)s')
     ch.setFormatter(formatter)
     logger.addHandler(ch)
@@ -661,21 +661,28 @@ class MLIRFunction(MLIRBase):
         self.arguments: list[SSAValue] = []
         self.results: list[MLIRType] = []
         self.body: MLIRBlock = MLIRBlock(self.valueMap)
+        self.attributes: list[str] = []
 
     def addArgument(self, name: str, ty: MLIRType):
         arg = self.valueMap.newValue(ty, name)
         self.arguments.append(arg)
     def addResult(self, ty: MLIRType):
         self.results.append(ty)
+    def addAttribute(self, attr: str):
+        self.attributes.append(attr)
 
     def serialize(self) -> list[str]:
         args = ', '.join(map(lambda v: v.show(True), self.arguments))
         results = ', '.join(map(lambda t: t.show(), self.results))
-        code = [f'func @{self.name} ({args}) -> ({results}) {{']
+        attr_list = ''
+        if len(self.attributes) > 0:
+            attr_list = 'attributes {' + ', '.join(self.attributes) + '}'
+        code = [f'func @{self.name} ({args}) -> ({results}) {attr_list} {{']
         code += self.indent(self.body.serialize())
         code.append('}')
         return code
 
+qasm_stdgates: list[str] = 'u3 u2 u1 cx id u0 u p x y z h s sdg t tdg rx ry rz sx sxdg cz cy swap ch ccx cswap crx cry crz cu1 cp cu3 csx cu rxx rzz rccx rc3x c3x c3sqrtx c4x'.split() 
 class MLIRModule(MLIRBase):
     def __init__(self, strict=False):
         self.declarations: list[MLIRFunction] = []
@@ -698,6 +705,9 @@ class MLIRModule(MLIRBase):
 
     def parseGate(self, node: Node.Gate):
         gate = self.addFunction(node.name)
+        gate.addAttribute('qasm.gate')
+        if node.name in qasm_stdgates:
+            gate.addAttribute('qasm.stdgate.' + node.name)
         if node.arguments is not None:
             for arg in node.arguments.children:
                 gate.addArgument(arg.name, FloatType())

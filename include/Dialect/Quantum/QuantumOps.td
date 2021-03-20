@@ -364,7 +364,7 @@ def CNOTGateOp : Quantum_Op<"CNOT", [NoSideEffect]> {
   let results = (outs
                   Quantum_SingleQubitType:$qout_cont,
                   Quantum_SingleQubitType:$qout_targ);
-  let assemblyFormat = [{ $qinp_cont `,` $qinput_targ }];
+  let assemblyFormat = [{ $qinp_cont `,` $qinp_targ attr-dict }];
   let verifier = [{ return success(); }];
 }
 

@@ -12,6 +12,7 @@
 #include "mlir/Support/MlirOptMain.h"
 
 #include "Conversion/QuantumToStandard/Passes.h"
+#include "Conversion/QASMToQuantum/Passes.h"
 #include "Dialect/QASM/Analysis/Passes.h"
 #include "Dialect/QASM/QASMDialect.h"
 #include "Dialect/Quantum/QuantumDialect.h"
@@ -30,6 +31,7 @@ void registerQuantumDialects(DialectRegistry &registry) {
 }
 void registerQuantumPasses() {
   registerQuantumConversionPasses();
+  registerQASMToQuantumConversionPasses();
   registerZXTransformsPasses();
   registerZXGraphTransformsPasses();
   registerQASMAnalysisPasses();
