@@ -365,7 +365,7 @@ def HadamardGateOp : SimplePrimitiveGateOp<"H"> {
 def CNOTGateOp : Quantum_Op<"CNOT", [NoSideEffect]> {
   let summary = "Quantum CNOT gate";
   let description = [{
-      Takes a 2-qubit array, and applies the CNOT gate,
+      Takes two 1-qubit array, and applies the CNOT gate,
       with the first qubit as control, and second as target.
 
       Example:
@@ -380,6 +380,11 @@ def CNOTGateOp : Quantum_Op<"CNOT", [NoSideEffect]> {
   let results = (outs
                   Quantum_SingleQubitType:$qout_cont,
                   Quantum_SingleQubitType:$qout_targ);
+  let builders = [
+    OpBuilderDAG<(ins "::mlir::Value":$cont, "::mlir::Value":$targ), [{
+      build($_builder, $_state, cont.getType(), targ.getType(), cont, targ);
+    }]>
+  ];
   let assemblyFormat = [{ $qinp_cont `,` $qinp_targ attr-dict }];
   let verifier = [{ return success(); }];
 }

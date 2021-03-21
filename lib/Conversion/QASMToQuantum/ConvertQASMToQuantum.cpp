@@ -13,10 +13,20 @@ using namespace mlir;
 namespace {
 
 class QubitMap {
-  MLIRContext *ctx;
+  [[maybe_unused]] MLIRContext *ctx;
+  llvm::StringMap<DenseMap<Value, Value>> mapping;
 
 public:
-  QubitMap(MLIRContext *ctx) : ctx(ctx) {}
+  QubitMap(MLIRContext *ctx) : ctx(ctx), mapping() {}
+  void allocateQubit(FuncOp func, Value qubit) {
+    mapping[func.getName()][qubit] = qubit;
+  }
+  Value resolveQubit(FuncOp func, Value qubit) {
+    return mapping[func.getName()][qubit];
+  }
+  void updateQubit(FuncOp func, Value base, Value current) {
+    mapping[func.getName()][base] = current;
+  }
 };
 
 class QASMTypeConverter : public TypeConverter {
@@ -25,7 +35,6 @@ public:
 
   QASMTypeConverter(MLIRContext *context) : context(context) {
     addConversion([&](Type type) -> Optional<Type> {
-      assert(false && "reached type conversion callback");
       if (type.isa<QASM::QubitType>())
         return quantum::QubitType::get(this->context, 1);
       return Optional<Type>(type);
@@ -54,7 +63,7 @@ protected:
 
 public:
   using OpConversionPattern<SourceOp>::OpConversionPattern;
-  QASMOpToQuantumConversionPattern(QASMTypeConverter typeConverter,
+  QASMOpToQuantumConversionPattern(QASMTypeConverter &typeConverter,
                                    QubitMap *qubitMap,
                                    PatternBenefit benefit = 1)
       : OpConversionPattern<SourceOp>(typeConverter, typeConverter.getContext(),
@@ -63,6 +72,9 @@ public:
 };
 
 //====== PATTERNS ======
+// qasm.pi : f*
+// [[to]]
+// constant [M_PI] : f*
 class PIOpConversion : public QASMOpToQuantumConversionPattern<QASM::PIOp> {
   APFloat getPIValue(Type type) const {
     if (type.isa<Float32Type>())
@@ -85,6 +97,9 @@ public:
   }
 };
 
+// %q = qasm.allocate
+// [[to]]
+// %q = qssa.allocate() : !qssa.qubit<1>
 class AllocateOpConversion
     : public QASMOpToQuantumConversionPattern<QASM::AllocateOp> {
 
@@ -97,6 +112,47 @@ public:
     auto allocOp = rewriter.create<quantum::AllocateOp>(
         rewriter.getUnknownLoc(), qubitType, ValueRange{});
     rewriter.replaceOp(op, allocOp.getResult());
+    qubitMap->allocateQubit(op->getParentOfType<FuncOp>(), allocOp.getResult());
+    return success();
+  }
+};
+
+// qasm.U(%theta : f*, %phi : f*, %lambda : f*) %q
+// [[to]]
+// %q_{i} =
+//    qssa.U(%theta : f*, %phi : f*, %lambda : f*) %q_{i - 1} : !qssa.qubit<1>
+class SingleQubitRotationOpConversion
+    : public QASMOpToQuantumConversionPattern<QASM::SingleQubitRotationOp> {
+
+public:
+  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
+  LogicalResult
+  matchAndRewrite(QASM::SingleQubitRotationOp op, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    return failure();
+  }
+};
+
+// qasm.CX %a, %b
+// [[to]]
+// %a_{i}, %b_{j} = qssa.CNOT %a_{i - 1} %b_{j - 1}
+class ControlledNotOpConversion
+    : public QASMOpToQuantumConversionPattern<QASM::ControlledNotOp> {
+
+public:
+  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
+  LogicalResult
+  matchAndRewrite(QASM::ControlledNotOp op, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    QASM::ControlledNotOpAdaptor args(operands);
+    auto func = op->getParentOfType<FuncOp>();
+    auto cont = qubitMap->resolveQubit(func, args.qinp0());
+    auto targ = qubitMap->resolveQubit(func, args.qinp1());
+    auto convertedOp = rewriter.create<quantum::CNOTGateOp>(
+        rewriter.getUnknownLoc(), cont, targ);
+    rewriter.eraseOp(op);
+    qubitMap->updateQubit(func, args.qinp0(), convertedOp.qout_cont());
+    qubitMap->updateQubit(func, args.qinp1(), convertedOp.qout_targ());
     return success();
   }
 };
@@ -107,7 +163,8 @@ void populateQASMToQuantumConversionPatterns(
   // clang-format off
   patterns.insert<
     PIOpConversion,
-    AllocateOpConversion
+    AllocateOpConversion,
+    ControlledNotOpConversion
   >(typeConverter, &qubitMap);
   // clang-format on
 }
