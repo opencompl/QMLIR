@@ -12,19 +12,26 @@ using namespace mlir;
 
 namespace {
 
-struct QASMTypeConverter : public TypeConverter {
-  using TypeConverter::TypeConverter;
+class QubitMap {
+  MLIRContext *ctx;
+
+public:
+  QubitMap(MLIRContext *ctx) : ctx(ctx) {}
+};
+
+class QASMTypeConverter : public TypeConverter {
+public:
+  using TypeConverter::convertType;
+
   QASMTypeConverter(MLIRContext *context) : context(context) {
-    addConversion([&](QASM::QubitType qubitType) -> Type {
-      return quantum::QubitType::get(qubitType.getContext(), 1);
-    });
     addConversion([&](Type type) -> Optional<Type> {
+      assert(false && "reached type conversion callback");
       if (type.isa<QASM::QubitType>())
-        return llvm::None;
-      return type;
+        return quantum::QubitType::get(this->context, 1);
+      return Optional<Type>(type);
     });
   }
-  MLIRContext *getContext() { return context; }
+  MLIRContext *getContext() const { return context; }
 
 private:
   MLIRContext *context;
@@ -33,16 +40,30 @@ private:
 // Base Pattern
 template <typename SourceOp>
 class QASMOpToQuantumConversionPattern : public OpConversionPattern<SourceOp> {
+protected:
+  QubitMap *qubitMap;
+  MLIRContext *ctx;
+  quantum::QubitType getSingleQubitType() const {
+    return quantum::QubitType::get(ctx, 1);
+  }
+  Type convertType(Type type) const {
+    if (type.isa<QASM::QubitType>())
+      return getSingleQubitType();
+    return type;
+  }
+
 public:
   using OpConversionPattern<SourceOp>::OpConversionPattern;
   QASMOpToQuantumConversionPattern(QASMTypeConverter typeConverter,
+                                   QubitMap *qubitMap,
                                    PatternBenefit benefit = 1)
       : OpConversionPattern<SourceOp>(typeConverter, typeConverter.getContext(),
-                                      benefit) {}
+                                      benefit),
+        qubitMap(qubitMap), ctx(typeConverter.getContext()) {}
 };
 
 //====== PATTERNS ======
-class PIOpLowering : public QASMOpToQuantumConversionPattern<QASM::PIOp> {
+class PIOpConversion : public QASMOpToQuantumConversionPattern<QASM::PIOp> {
   APFloat getPIValue(Type type) const {
     if (type.isa<Float32Type>())
       return APFloat(float(M_PI));
@@ -64,14 +85,32 @@ public:
   }
 };
 
-void populateQASMToQuantumConversionPatterns(
-    QASMTypeConverter &typeConverter, OwningRewritePatternList &patterns) {
-  patterns.insert<PIOpLowering>(typeConverter);
-}
+class AllocateOpConversion
+    : public QASMOpToQuantumConversionPattern<QASM::AllocateOp> {
 
-struct QASMToQuantumPass : public QASMToQuantumPassBase<QASMToQuantumPass> {
-  void runOnOperation() override;
+public:
+  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
+  LogicalResult
+  matchAndRewrite(QASM::AllocateOp op, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    auto qubitType = getSingleQubitType();
+    auto allocOp = rewriter.create<quantum::AllocateOp>(
+        rewriter.getUnknownLoc(), qubitType, ValueRange{});
+    rewriter.replaceOp(op, allocOp.getResult());
+    return success();
+  }
 };
+
+void populateQASMToQuantumConversionPatterns(
+    QASMTypeConverter &typeConverter, QubitMap &qubitMap,
+    OwningRewritePatternList &patterns) {
+  // clang-format off
+  patterns.insert<
+    PIOpConversion,
+    AllocateOpConversion
+  >(typeConverter, &qubitMap);
+  // clang-format on
+}
 
 struct QASMToQuantumTarget : public ConversionTarget {
   QASMToQuantumTarget(MLIRContext &ctx) : ConversionTarget(ctx) {
@@ -84,10 +123,15 @@ struct QASMToQuantumTarget : public ConversionTarget {
   // bool isDynamicallyLegal(Operation *op) const override { return true; }
 };
 
+struct QASMToQuantumPass : public QASMToQuantumPassBase<QASMToQuantumPass> {
+  void runOnOperation() override;
+};
+
 void QASMToQuantumPass::runOnOperation() {
   OwningRewritePatternList patterns;
   QASMTypeConverter typeConverter(&getContext());
-  populateQASMToQuantumConversionPatterns(typeConverter, patterns);
+  QubitMap qubitMap(&getContext());
+  populateQASMToQuantumConversionPatterns(typeConverter, qubitMap, patterns);
 
   QASMToQuantumTarget target(getContext());
   if (failed(applyPartialConversion(getOperation(), target,
