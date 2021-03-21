@@ -30,15 +30,43 @@ private:
   MLIRContext *context;
 };
 
-//====== PATTERNS ======
-class PIOpLowering : public OpConversionPattern<QASM::PIOp> {
+// Base Pattern
+template <typename SourceOp>
+class QASMOpToQuantumConversionPattern : public OpConversionPattern<SourceOp> {
 public:
-  using OpConversionPattern::OpConversionPattern;
+  using OpConversionPattern<SourceOp>::OpConversionPattern;
+  QASMOpToQuantumConversionPattern(QASMTypeConverter typeConverter,
+                                   PatternBenefit benefit = 1)
+      : OpConversionPattern<SourceOp>(typeConverter, typeConverter.getContext(),
+                                      benefit) {}
+};
+
+//====== PATTERNS ======
+class PIOpLowering : public QASMOpToQuantumConversionPattern<QASM::PIOp> {
+  APFloat getPIValue(Type type) const {
+    if (type.isa<Float32Type>())
+      return APFloat(float(M_PI));
+    if (type.isa<Float64Type>())
+      return APFloat(double(M_PI));
+    assert(false && "invalid float type for pi");
+  }
+
+public:
+  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
+  LogicalResult
+  matchAndRewrite(QASM::PIOp op, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    APFloat pi = getPIValue(op.getType());
+    auto res = rewriter.create<ConstantFloatOp>(rewriter.getUnknownLoc(), pi,
+                                                op.getType().cast<FloatType>());
+    rewriter.replaceOp(op, res.getResult());
+    return success();
+  }
 };
 
 void populateQASMToQuantumConversionPatterns(
     QASMTypeConverter &typeConverter, OwningRewritePatternList &patterns) {
-  patterns.insert<PIOpLowering>(typeConverter, typeConverter.getContext());
+  patterns.insert<PIOpLowering>(typeConverter);
 }
 
 struct QASMToQuantumPass : public QASMToQuantumPassBase<QASMToQuantumPass> {
