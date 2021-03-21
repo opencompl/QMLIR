@@ -34,10 +34,9 @@ public:
   using TypeConverter::convertType;
 
   QASMTypeConverter(MLIRContext *context) : context(context) {
-    addConversion([&](Type type) -> Optional<Type> {
-      if (type.isa<QASM::QubitType>())
-        return quantum::QubitType::get(this->context, 1);
-      return Optional<Type>(type);
+    addConversion([](Type type) { return type; });
+    addConversion([&](QASM::QubitType type) {
+      return quantum::QubitType::get(this->context, 1);
     });
   }
   MLIRContext *getContext() const { return context; }
@@ -121,7 +120,16 @@ public:
   LogicalResult
   matchAndRewrite(QASM::SingleQubitRotationOp op, ArrayRef<Value> operands,
                   ConversionPatternRewriter &rewriter) const override {
-    return failure();
+    QASM::SingleQubitRotationOpAdaptor args(operands);
+    auto func = op->getParentOfType<FuncOp>();
+    auto qubit = qubitMap->resolveQubit(func, args.qinp());
+    auto convertedOp = rewriter.create<quantum::UniversalRotationGateOp>(
+        rewriter.getUnknownLoc(),
+        typeConverter->convertType(op.qinp().getType()), args.theta(),
+        args.phi(), args.lambda(), qubit);
+    qubitMap->updateQubit(func, args.qinp(), convertedOp.getResult());
+    rewriter.eraseOp(op);
+    return success();
   }
 };
 
@@ -156,7 +164,8 @@ void populateQASMToQuantumConversionPatterns(
   patterns.insert<
     PIOpConversion,
     AllocateOpConversion,
-    ControlledNotOpConversion
+    ControlledNotOpConversion,
+    SingleQubitRotationOpConversion
   >(typeConverter, &qubitMap);
   // clang-format on
 }
