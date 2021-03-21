@@ -52,14 +52,6 @@ class QASMOpToQuantumConversionPattern : public OpConversionPattern<SourceOp> {
 protected:
   QubitMap *qubitMap;
   MLIRContext *ctx;
-  quantum::QubitType getSingleQubitType() const {
-    return quantum::QubitType::get(ctx, 1);
-  }
-  Type convertType(Type type) const {
-    if (type.isa<QASM::QubitType>())
-      return getSingleQubitType();
-    return type;
-  }
 
 public:
   using OpConversionPattern<SourceOp>::OpConversionPattern;
@@ -108,7 +100,7 @@ public:
   LogicalResult
   matchAndRewrite(QASM::AllocateOp op, ArrayRef<Value> operands,
                   ConversionPatternRewriter &rewriter) const override {
-    auto qubitType = getSingleQubitType();
+    auto qubitType = typeConverter->convertType(op.getType());
     auto allocOp = rewriter.create<quantum::AllocateOp>(
         rewriter.getUnknownLoc(), qubitType, ValueRange{});
     rewriter.replaceOp(op, allocOp.getResult());
