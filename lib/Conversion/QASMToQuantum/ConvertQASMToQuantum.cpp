@@ -12,6 +12,8 @@ using namespace mlir;
 
 namespace {
 
+/// Qubit Mapping: Stores the current qubit state in the circuit.
+/// Access using the Value of the converted allocated qubit by `qssa.allocate`
 class QubitMap {
   [[maybe_unused]] MLIRContext *ctx;
   llvm::StringMap<DenseMap<Value, Value>> mapping;
@@ -244,6 +246,46 @@ public:
   }
 };
 
+class CallOpConversion : public QASMOpToQuantumConversionPattern<CallOp> {
+
+public:
+  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
+  LogicalResult
+  matchAndRewrite(CallOp callOp, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    CallOpAdaptor resolvedOperands(operands);
+    auto parentFuncOp = callOp->getParentOfType<FuncOp>();
+
+    // qubits to return
+    SmallVector<Type> resultTypes;
+    SmallVector<Value> arguments, baseQubits;
+    for (auto arg : resolvedOperands.getOperands()) {
+      if (arg.getType().isa<quantum::QubitType>()) {
+        resultTypes.push_back(arg.getType());
+        auto qubit = qubitMap->resolveQubit(parentFuncOp, arg);
+        arguments.push_back(qubit);
+        baseQubits.push_back(arg);
+      } else {
+        arguments.push_back(arg);
+      }
+    }
+
+    // generate new call
+    auto newCallOp = rewriter.create<CallOp>(
+        callOp->getLoc(), callOp.getCallee(), resultTypes, arguments);
+    rewriter.eraseOp(callOp);
+
+    // update qubit map
+    for (auto qubitPair : llvm::zip(baseQubits, newCallOp.getResults())) {
+      Value baseQubit, finalQubit;
+      std::tie(baseQubit, finalQubit) = qubitPair;
+      qubitMap->updateQubit(parentFuncOp, baseQubit, finalQubit);
+    }
+
+    return success();
+  }
+};
+
 void populateQASMToQuantumConversionPatterns(
     QASMTypeConverter &typeConverter, QubitMap &qubitMap,
     OwningRewritePatternList &patterns) {
@@ -251,6 +293,7 @@ void populateQASMToQuantumConversionPatterns(
   patterns.insert<
       FuncOpConversion,
       ReturnOpConversion,
+      CallOpConversion,
       PIOpConversion,
       AllocateOpConversion,
       SingleQubitRotationOpConversion,
@@ -267,13 +310,8 @@ struct QASMToQuantumTarget : public ConversionTarget {
     addIllegalDialect<QASM::QASMDialect>();
     addDynamicallyLegalOp<FuncOp>(
         [&](FuncOp funcOp) -> bool { return !funcOp->hasAttr("qasm.gate"); });
-    addDynamicallyLegalOp<CallOp>([&](CallOp callOp) -> bool {
-      for (auto arg : callOp.getArgOperands()) {
-        if (arg.getType().isa<QASM::QubitType>())
-          return false;
-      }
-      return true;
-    });
+    addDynamicallyLegalOp<CallOp>(
+        [&](CallOp callOp) -> bool { return !callOp->hasAttr("qasm.gate"); });
     addDynamicallyLegalOp<ReturnOp>(
         [&](ReturnOp returnOp) { return !returnOp->hasAttr("qasm.gate_end"); });
   }
