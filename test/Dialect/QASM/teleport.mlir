@@ -65,11 +65,11 @@ module {
     %q2 = qasm.allocate
 
     // creg c0[1];
-    %c0 = alloc() : memref<1xi1>
+    %c0 = memref.alloc() : memref<1xi1>
     // creg c1[1];
-    %c1 = alloc() : memref<1xi1>
+    %c1 = memref.alloc() : memref<1xi1>
     // creg c2[1];
-    %c2 = alloc() : memref<1xi1>
+    %c2 = memref.alloc() : memref<1xi1>
 
     // u3(0.3,0.2,0.1) q[0];
     %cst0 = constant 0.3 : f32
@@ -96,20 +96,20 @@ module {
 
     // measure q[0] -> c0[0];
     %tmp0 = qasm.measure %q0
-    store %tmp0, %c0[%0] : memref<1xi1>
+    memref.store %tmp0, %c0[%0] : memref<1xi1>
 
     // measure q[1] -> c1[0];
     %tmp1 = qasm.measure %q1
-    store %tmp1, %c1[%0] : memref<1xi1>
+    memref.store %tmp1, %c1[%0] : memref<1xi1>
 
     // if(c0==1) z q[2];
-    %cond0 = load %c0[%0] : memref<1xi1>
+    %cond0 = memref.load %c0[%0] : memref<1xi1>
     scf.if %cond0 {
       call @z(%q2) : (!qasm.qubit) -> ()
     }
 
     // if(c1==1) x q[2];
-    %cond1 = load %c1[%0] : memref<1xi1>
+    %cond1 = memref.load %c1[%0] : memref<1xi1>
     scf.if %cond1 {
       call @x(%q2) : (!qasm.qubit) -> ()
     }
@@ -119,7 +119,7 @@ module {
 
     // measure q[2] -> c2[0];
     %tmp2 = qasm.measure %q2
-    store %tmp2, %c2[%0] : memref<1xi1>
+    memref.store %tmp2, %c2[%0] : memref<1xi1>
 
     return
   }

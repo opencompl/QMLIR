@@ -15,7 +15,7 @@ func @main() {
   %res = qssa.measure %q2 : !qssa.qubit<1> -> memref<1xi1>
 
   %idx0 = constant 0 : index
-  %r0 = load %res[%idx0] : memref<1xi1>
+  %r0 = memref.load %res[%idx0] : memref<1xi1>
 
   %q4 = scf.if %r0 -> !qssa.qubit<2> {
     %q5, %q6 = qssa.split %q3 : !qssa.qubit<2> -> (!qssa.qubit<1>, !qssa.qubit<1>)

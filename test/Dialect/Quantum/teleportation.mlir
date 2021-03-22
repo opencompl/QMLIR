@@ -46,7 +46,7 @@ func @teleport(%psiA: !qssa.qubit<1>, %eb: !qssa.qubit<2>) -> (!qssa.qubit<1>) {
 
   // 1. Apply X correction, if resA[0] == 1
   %idx0 = constant 0 : index
-  %corrX = load %resA[%idx0] : memref<2xi1>
+  %corrX = memref.load %resA[%idx0] : memref<2xi1>
 
   %psiB1 = scf.if %corrX -> !qssa.qubit<1> {
     %temp = qssa.X %psiB0 : !qssa.qubit<1>
@@ -57,7 +57,7 @@ func @teleport(%psiA: !qssa.qubit<1>, %eb: !qssa.qubit<2>) -> (!qssa.qubit<1>) {
 
   // 2. Apply Z correction, if resA[1] == 1
   %idx1 = constant 1 : index
-  %corrZ = load %resA[%idx1] : memref<2xi1>
+  %corrZ = memref.load %resA[%idx1] : memref<2xi1>
 
   %psiB2 = scf.if %corrZ -> !qssa.qubit<1> {
     %temp = qssa.Z %psiB1 : !qssa.qubit<1>

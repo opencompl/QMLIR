@@ -47,7 +47,7 @@ func @deutsch_josza(%n : index) -> i1 { // %n : number of input bits
 
   %ans = scf.for %i = %0 to %lst step %1
     iter_args(%out = %false) -> i1 {
-    %v = load %res[%i] : memref<?xi1>
+    %v = memref.load %res[%i] : memref<?xi1>
     %cur = or %out, %v : i1
     scf.yield %cur : i1
   }
