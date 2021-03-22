@@ -305,7 +305,7 @@ void collectZXRewritePatterns(OwningRewritePatternList &patterns,
 void ZXRewritePass::runOnFunction() {
   FuncOp func = getFunction();
 
-  OwningRewritePatternList patterns;
+  OwningRewritePatternList patterns(&getContext());
   collectZXRewritePatterns(patterns, &getContext());
 
   if (failed(applyPatternsAndFoldGreedily(func, std::move(patterns)))) {

@@ -284,7 +284,7 @@ struct QASMToQuantumPass : public QASMToQuantumPassBase<QASMToQuantumPass> {
 };
 
 void QASMToQuantumPass::runOnOperation() {
-  OwningRewritePatternList patterns;
+  OwningRewritePatternList patterns(&getContext());
   QASMTypeConverter typeConverter(&getContext());
   QubitMap qubitMap(&getContext());
   populateQASMToQuantumConversionPatterns(typeConverter, qubitMap, patterns);

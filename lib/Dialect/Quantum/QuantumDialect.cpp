@@ -14,6 +14,7 @@
 #include "Dialect/Quantum/QuantumDialect.h"
 #include "Dialect/Quantum/QuantumOps.h"
 #include "Dialect/Quantum/QuantumTypes.h"
+#include "TypeDetail.h"
 
 using namespace mlir;
 using namespace mlir::quantum;

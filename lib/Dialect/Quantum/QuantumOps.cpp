@@ -6,8 +6,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Dialect/Quantum/QuantumOps.h"
-#include "Dialect/Quantum/QuantumDialect.h"
 #include "mlir/IR/Attributes.h"
 #include "mlir/IR/Block.h"
 #include "mlir/IR/BlockAndValueMapping.h"
@@ -23,6 +21,10 @@
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/Support/Casting.h"
+
+#include "Dialect/Quantum/QuantumDialect.h"
+#include "Dialect/Quantum/QuantumOps.h"
+#include "TypeDetail.h"
 
 using namespace mlir;
 using namespace mlir::quantum;
@@ -83,7 +85,7 @@ static void print(AllocateOp allocateOp, OpAsmPrinter &printer) {
   printer << ")";
 
   // print optional attributes
-  printer.printOptionalAttrDictWithKeyword(allocateOp.getAttrs());
+  printer.printOptionalAttrDictWithKeyword(allocateOp->getAttrs());
 
   // print the qubit type
   printer << " : ";
@@ -118,7 +120,7 @@ static void print(ConcatOp concatOp, OpAsmPrinter &printer) {
   printer.printOperands(concatOp.getOperands());
 
   // print optional attributes
-  printer.printOptionalAttrDictWithKeyword(concatOp.getAttrs());
+  printer.printOptionalAttrDictWithKeyword(concatOp->getAttrs());
 
   // print the op type
   printer << " : ";
@@ -192,7 +194,7 @@ static void print(SplitOp splitOp, OpAsmPrinter &printer) {
   }
 
   // print optional attributes
-  printer.printOptionalAttrDictWithKeyword(splitOp.getAttrs());
+  printer.printOptionalAttrDictWithKeyword(splitOp->getAttrs());
 
   // print the op type
   printer << " : ";
@@ -262,8 +264,8 @@ static ParseResult parseQubitOperandAndType(OpAsmParser &parser,
   return success();
 }
 
-static ParseResult parsePrimitiveGateOp(OpAsmParser &parser,
-                                        OperationState &state) {
+[[maybe_unused]] static ParseResult
+parsePrimitiveGateOp(OpAsmParser &parser, OperationState &state) {
   SmallVector<Value, 10> operands;
 
   // parse the floating point gate parameters

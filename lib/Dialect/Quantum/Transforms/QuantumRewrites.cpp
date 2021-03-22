@@ -21,8 +21,8 @@ namespace {
 }
 
 void QuantumRewritePass::runOnFunction() {
-  OwningRewritePatternList patterns;
-  populateWithGenerated(&getContext(), patterns);
+  OwningRewritePatternList patterns(&getContext());
+  populateWithGenerated(patterns);
   if (failed(
           applyPatternsAndFoldGreedily(getFunction(), std::move(patterns)))) {
     signalPassFailure();

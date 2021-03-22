@@ -15,6 +15,7 @@
 #include "PassDetail.h"
 #include "mlir/Dialect/Affine/IR/AffineOps.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
+#include "mlir/Dialect/MemRef/IR/MemRef.h"
 #include "mlir/Dialect/SCF/SCF.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
 #include "mlir/IR/AffineMap.h"
@@ -116,7 +117,7 @@ public:
       auto qubitSize = sizeOp.getResult();
       auto acquireCallOp = rewriter.create<CallOp>(
           rewriter.getUnknownLoc(), acquireFunc, ValueRange{qubitSize});
-      auto castOp = rewriter.create<MemRefCastOp>(
+      auto castOp = rewriter.create<memref::CastOp>(
           rewriter.getUnknownLoc(), acquireCallOp.getResults()[0],
           typeConverter.convertType(qubitType));
       rewriter.replaceOp(operation, castOp.getResult());
@@ -146,7 +147,7 @@ public:
     //    auto dimensionOp = cast<DimensionOp>(operation);
     DimensionOp::Adaptor transformed(operands);
 
-    auto convertedDimOp = rewriter.create<::mlir::DimOp>(
+    auto convertedDimOp = rewriter.create<memref::DimOp>(
         rewriter.getUnknownLoc(), transformed.getODSOperands(0).front(), 0);
 
     rewriter.replaceOp(operation,
@@ -172,7 +173,7 @@ public:
 
     auto dstType = castOp.getType();
 
-    auto convertedCastOp = rewriter.create<MemRefCastOp>(
+    auto convertedCastOp = rewriter.create<memref::CastOp>(
         rewriter.getUnknownLoc(), transformed.getODSOperands(0)[0],
         typeConverter.convertType(dstType));
 
@@ -220,8 +221,8 @@ public:
     for (auto en : transformed.getODSOperands(0)) {
       auto argType = en.getType().cast<MemRefType>();
       if (argType.hasStaticShape()) {
-        auto castOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
-                                                    en, qLibMemRefType);
+        auto castOp = rewriter.create<memref::CastOp>(rewriter.getUnknownLoc(),
+                                                      en, qLibMemRefType);
         convertedOperands.push_back(castOp.getResult());
       } else {
         convertedOperands.push_back(en);
@@ -234,7 +235,7 @@ public:
 
     auto resultQubitType = concatOp.getType().cast<QubitType>();
     if (resultQubitType.hasStaticSize()) {
-      auto resultCastOp = rewriter.create<MemRefCastOp>(
+      auto resultCastOp = rewriter.create<memref::CastOp>(
           rewriter.getUnknownLoc(), concatLibCall.getResult(0),
           typeConverter.convertType(resultQubitType));
       rewriter.replaceOp(operation, resultCastOp.getResult());
@@ -287,7 +288,7 @@ public:
     // Convert operand to dynamic size (for library call compatibility)
     Value convertedOperand = transformed.getODSOperands(0).front();
     if (convertedOperand.getType().cast<MemRefType>().hasStaticShape()) {
-      auto castOp = rewriter.create<MemRefCastOp>(
+      auto castOp = rewriter.create<memref::CastOp>(
           rewriter.getUnknownLoc(), convertedOperand, qLibMemRefType);
       convertedOperand = castOp.getResult();
     }
@@ -322,7 +323,7 @@ public:
     SmallVector<Value, 2> results;
     for (auto en : llvm::enumerate(splitOp.getResults())) {
       if (en.value().getType().cast<QubitType>().hasStaticSize()) {
-        auto resultCastOp = rewriter.create<MemRefCastOp>(
+        auto resultCastOp = rewriter.create<memref::CastOp>(
             rewriter.getUnknownLoc(), splitLibCall.getResult(en.index()),
             typeConverter.convertType(en.value().getType()));
         results.push_back(resultCastOp.getResult());
@@ -377,7 +378,7 @@ public:
       auto currentOperand = transformed.getODSOperands(i).front();
       auto argType = currentOperand.getType().cast<MemRefType>();
       if (argType.hasStaticShape()) {
-        auto castOp = rewriter.create<MemRefCastOp>(
+        auto castOp = rewriter.create<memref::CastOp>(
             rewriter.getUnknownLoc(), currentOperand, qLibMemRefType);
         convertedOperands.push_back(castOp.getResult());
       } else {
@@ -391,7 +392,7 @@ public:
 
     auto resultType = measureOp.getType().cast<MemRefType>();
     if (resultType.hasStaticShape()) {
-      auto resultCastOp = rewriter.create<MemRefCastOp>(
+      auto resultCastOp = rewriter.create<memref::CastOp>(
           rewriter.getUnknownLoc(), measureLibCall.getResult(0), resultType);
       rewriter.replaceOp(operation, resultCastOp.getResult());
     } else {
@@ -408,10 +409,9 @@ public:
 
 template <typename PrimitiveGateOp>
 class PrimitiveGateOpLowering : public QuantumOpToStdPattern<PrimitiveGateOp> {
-  static_assert(
-      llvm::is_one_of<PrimitiveGateOp, PauliXGateOp, PauliYGateOp, PauliZGateOp,
-                      HadamardGateOp>::value,
-      "invalid gate OP");
+  static_assert(llvm::is_one_of<PrimitiveGateOp, PauliXGateOp, PauliYGateOp,
+                                PauliZGateOp, HadamardGateOp>::value,
+                "invalid gate OP");
 
 public:
   using QuantumOpToStdPattern<PrimitiveGateOp>::QuantumOpToStdPattern;
@@ -450,8 +450,8 @@ public:
     auto inputQubit = transformed.getODSOperands(1).front();
     auto argType = inputQubit.getType().template cast<MemRefType>();
     if (argType.hasStaticShape()) {
-      auto castOp = rewriter.create<MemRefCastOp>(rewriter.getUnknownLoc(),
-                                                  inputQubit, qLibMemRefType);
+      auto castOp = rewriter.create<memref::CastOp>(rewriter.getUnknownLoc(),
+                                                    inputQubit, qLibMemRefType);
       convertedOperands.push_back(castOp.getResult());
     } else {
       convertedOperands.push_back(inputQubit);
@@ -463,7 +463,7 @@ public:
 
     auto resultType = primitiveGateOp.getType().template cast<QubitType>();
     if (resultType.hasStaticSize()) {
-      auto resultCastOp = rewriter.create<MemRefCastOp>(
+      auto resultCastOp = rewriter.create<memref::CastOp>(
           rewriter.getUnknownLoc(), gateLibCall.getResult(0),
           this->typeConverter.convertType(resultType));
       rewriter.replaceOp(operation, resultCastOp.getResult());
@@ -495,7 +495,7 @@ struct QuantumToStandardPass
 };
 
 void QuantumToStandardPass::runOnOperation() {
-  OwningRewritePatternList patterns;
+  OwningRewritePatternList patterns(&getContext());
   auto module = getOperation();
 
   QuantumTypeConverter typeConverter(module.getContext());

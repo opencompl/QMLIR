@@ -381,7 +381,7 @@ def CNOTGateOp : Quantum_Op<"CNOT", [NoSideEffect]> {
                   Quantum_SingleQubitType:$qout_cont,
                   Quantum_SingleQubitType:$qout_targ);
   let builders = [
-    OpBuilderDAG<(ins "::mlir::Value":$cont, "::mlir::Value":$targ), [{
+    OpBuilder<(ins "::mlir::Value":$cont, "::mlir::Value":$targ), [{
       build($_builder, $_state, cont.getType(), targ.getType(), cont, targ);
     }]>
   ];

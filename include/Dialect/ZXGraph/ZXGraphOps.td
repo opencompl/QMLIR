@@ -31,7 +31,7 @@ class ZXGraph_ParametrizedNodeOp<string mnemonic, list<OpTrait> traits = [NoSide
   let arguments = (ins AnyFloat:$param);
   let results = (outs ZXGraph_NodeType:$output);
   let builders = [
-    OpBuilderDAG<(ins "::mlir::Value":$val), [{
+    OpBuilder<(ins "::mlir::Value":$val), [{
       build($_builder, $_state, NodeType::get($_builder.getContext()), val);
     }]>
   ];
@@ -52,7 +52,7 @@ def ZXGraph_HNodeOp : ZXGraph_Op<"H", [NoSideEffect]> {
   let assemblyFormat = [{ attr-dict }];
   let verifier = [{ return success(); }];
   let builders = [
-    OpBuilderDAG<(ins), [{
+    OpBuilder<(ins), [{
       build($_builder, $_state, NodeType::get($_builder.getContext()));
     }]>
   ];

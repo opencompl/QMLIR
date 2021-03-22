@@ -453,7 +453,7 @@ class ZXGraphRewritePass : public ZXGraphRewritePassBase<ZXGraphRewritePass> {
 void ZXGraphRewritePass::runOnFunction() {
   FuncOp func = getFunction();
 
-  OwningRewritePatternList patterns;
+  OwningRewritePatternList patterns(&getContext());
   collectZXGraphRewritePatterns(patterns, &getContext());
 
   if (failed(applyPatternsAndFoldGreedily(func, std::move(patterns)))) {
@@ -513,7 +513,7 @@ class ZXGraphCanonicalizePass
 void ZXGraphCanonicalizePass::runOnFunction() {
   FuncOp func = getFunction();
 
-  OwningRewritePatternList patterns;
+  OwningRewritePatternList patterns(&getContext());
   collectZXGraphCanonicalizerPatterns(patterns, &getContext());
   if (failed(applyPatternsAndFoldGreedily(func, std::move(patterns))))
     ;
