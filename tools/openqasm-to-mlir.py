@@ -313,8 +313,10 @@ class AllocOp(MLIROperation):
 
 class ReturnOp(MLIROperation):
     name = 'return'
+    def build(self):
+        self.isGate = ('isGate' in self.kwargs)
     def show(self) -> str:
-        return ''
+        return ('{qasm.gate_end}' if self.isGate else '')
 
 class CallOp(MLIROperation):
     """build(func: str, operands: list[SSAValue], results: list[MLIRType])
@@ -331,6 +333,7 @@ class CallOp(MLIROperation):
                 assert(isinstance(resTy, MLIRType))
                 self.addResult(resTy)
         self.func = self.kwargs['func']
+        self.isGate = 'isGate' in self.kwargs
 
     def show(self) -> str:
         args = ', '.join(map(lambda a: a.show(), self.operands))
@@ -338,7 +341,8 @@ class CallOp(MLIROperation):
         resty = ', '.join(map(lambda r: r.show(), self.results))
         if len(self.results) != 1:
             resty = '(' + resty + ')'
-        return f'@{self.func}({args}) : ({argty}) -> {resty}'
+        attrs = '{qasm.gate} ' if self.isGate else ''
+        return f'@{self.func}({args}) {attrs}: ({argty}) -> {resty}'
 
 class ConstantOp(MLIROperation):
     name = 'constant'
@@ -637,7 +641,7 @@ class MLIRBlock(MLIRBase):
                 call_args: list[SSAValue] = copy.copy(params)
                 for qs in qubitss:
                     call_args.append(qs[0 if len(qs) == 1 else i])
-                self.buildOp(CallOp, func=op.name, operands=call_args, results=[])
+                self.buildOp(CallOp, func=op.name, operands=call_args, results=[], isGate=True)
             return
         if isinstance(op, Node.Qreg):
             name = op.name
@@ -715,7 +719,7 @@ class MLIRModule(MLIRBase):
             gate.addArgument(arg.name, QubitType())
         for op in node.body.children:
             gate.body.parseOperation(op)
-        gate.body.buildOp(ReturnOp)
+        gate.body.buildOp(ReturnOp, isGate=True)
 
     def parseVersion(self, version: Node.Format):
         if self.strict:

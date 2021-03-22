@@ -25,7 +25,7 @@ include "Dialect/Quantum/QuantumTypes.td"
 // Allocate Op
 //===----------------------------------------------------------------------===//
 
-def Quantum_AllocateOp : Quantum_Op<"allocate", [NoSideEffect]> {
+def Quantum_AllocateOp : Quantum_Op<"allocate", []> {
     let summary = "Allocate an array of qubits.";
     let description = [{
         This operation takes no arguments,
@@ -45,6 +45,12 @@ def Quantum_AllocateOp : Quantum_Op<"allocate", [NoSideEffect]> {
 
     let arguments = (ins Variadic<Index>:$dynamicsize);
     let results = (outs Quantum_QubitType:$qout);
+
+    let builders = [
+      OpBuilder<(ins "int":$size), [{
+        return build($_builder, $_state, ::mlir::quantum::QubitType::get($_builder.getContext(), size), {});
+      }]>
+    ];
 
     let verifier = [{
         return success();
@@ -195,7 +201,37 @@ def Quantum_SplitOp : Quantum_Op<"split", [NoSideEffect]> {
 
 def Quantum_MeasurementType : MemRefRankOf<[I1], [1]>;
 
-def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
+def Quantum_MeasureQubitOp : Quantum_Op<"measure_one", [NoSideEffect]> {
+    let summary = "Measure a single qubit.";
+    let description = [{
+        This operation takes a single qubit of type `qubit<1>`
+        and returns the measurement outcome in the standard basis
+        as a bit (`i1`)
+
+        Note: The qubit is consumed and can no longer be used.
+
+        Example:
+
+        ```mlir
+        %q = qssa.allocate() : !qssa.qubit<1>
+        %mem = memref.alloc() : memref<10xi1>
+        %res = qssa.measure_one %q
+        ```
+    }];
+
+    let arguments = (ins Quantum_SingleQubitType:$qinp);
+    let results = (outs I1:$res);
+
+    let assemblyFormat = [{ $qinp attr-dict }];
+    let builders = [
+      OpBuilder<(ins "::mlir::Value":$inp), [{
+        return build($_builder, $_state, ::mlir::IntegerType::get($_builder.getContext(), 1), inp);
+      }]>
+    ];
+    let verifier = [{ return success(); }];
+}
+
+def Quantum_MeasureOp : Quantum_Op<"measure", []> {
     let summary = "Measure an array of qubits.";
     let description = [{
         This operation takes an array of qubits of type `qubit<N>`
@@ -207,16 +243,16 @@ def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
         Example:
 
         ```mlir
-        %qs = quantum.allocate : !quantum.qubit<10>
-        %res = quantum.measure %qs : !quantum.qubit<10> -> : memref<10xi1>
+        %qs = qssa.allocate : !qssa.qubit<10>
+        %mem = memref.alloc() : memref<10xi1>
+        qssa.measure %qs -> %mem : !qssa.qubit<10> -> memref<10xi1>
         ```
     }];
 
-    let arguments = (ins Quantum_QubitType:$qinp);
-    let results = (outs Quantum_MeasurementType:$res);
+    let arguments = (ins Quantum_QubitType:$qinp, Quantum_MeasurementType:$res);
 
     let assemblyFormat = [{
-        $qinp attr-dict `:` type($qinp) `->` type($res)
+        $qinp `->` $res attr-dict `:` type($qinp) `->` type($res)
     }];
 
     let verifier = [{
@@ -284,7 +320,7 @@ class PrimitiveControlledGateOp<string mnemonic, list<OpTrait> traits = []>
 
 // Base Class for parameterless gate ops
 //
-//   %1 = quantum.gate %0 : !quantum.qubit<?>
+//   %1 = qssa.gate %0 : !qssa.qubit<?>
 //
 class SimplePrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
   : Quantum_Op<mnemonic, !listconcat([NoSideEffect, AllTypesMatch<["qinp", "qout"]>], traits)> {

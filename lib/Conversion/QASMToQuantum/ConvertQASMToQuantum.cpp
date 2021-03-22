@@ -129,6 +129,55 @@ public:
   }
 };
 
+/// %res = qasm.measure %q
+/// [[to]]
+/// %res = qssa.measure_one %q_{i}
+/// %q_{i + 1} = qssa.allocate() : !qssa.qubit<1>
+class MeasureOpConversion
+    : public QASMOpToQuantumConversionPattern<QASM::MeasureOp> {
+
+public:
+  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
+  LogicalResult
+  matchAndRewrite(QASM::MeasureOp op, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    QASM::MeasureOpAdaptor args(operands);
+    auto parentFuncOp = op->getParentOfType<FuncOp>();
+    auto currentQubit = qubitMap->resolveQubit(parentFuncOp, args.qinp());
+    auto newOp =
+        rewriter.create<quantum::MeasureQubitOp>(op->getLoc(), currentQubit);
+    rewriter.replaceOp(op, newOp.getResult());
+    auto newQubit =
+        rewriter.create<quantum::AllocateOp>(rewriter.getUnknownLoc(), 1);
+    qubitMap->updateQubit(parentFuncOp, args.qinp(), newQubit.getResult());
+    return success();
+  }
+};
+
+/// qasm.reset %q
+/// [[to]]
+/// %ign = qssa.measure_one %q_{i}
+/// %q_{i + 1} = qssa.allocate() : !qssa.qubit<1>
+class ResetOpConversion
+    : public QASMOpToQuantumConversionPattern<QASM::ResetOp> {
+
+public:
+  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
+  LogicalResult
+  matchAndRewrite(QASM::ResetOp op, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    QASM::MeasureOpAdaptor args(operands);
+    auto parentFuncOp = op->getParentOfType<FuncOp>();
+    auto currentQubit = qubitMap->resolveQubit(parentFuncOp, args.qinp());
+    rewriter.create<quantum::MeasureQubitOp>(op->getLoc(), currentQubit);
+    auto newQubit =
+        rewriter.create<quantum::AllocateOp>(rewriter.getUnknownLoc(), 1);
+    qubitMap->updateQubit(parentFuncOp, args.qinp(), newQubit.getResult());
+    rewriter.eraseOp(op);
+    return success();
+  }
+};
+
 /// qasm.U(%theta : f*, %phi : f*, %lambda : f*) %q
 /// [[to]]
 /// %q_{i} =
@@ -296,6 +345,8 @@ void populateQASMToQuantumConversionPatterns(
       CallOpConversion,
       PIOpConversion,
       AllocateOpConversion,
+      MeasureOpConversion,
+      ResetOpConversion,
       SingleQubitRotationOpConversion,
       ControlledNotOpConversion
   >(typeConverter, &qubitMap);

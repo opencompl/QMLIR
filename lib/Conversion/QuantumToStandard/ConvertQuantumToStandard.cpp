@@ -390,7 +390,7 @@ public:
     auto measureLibCall = rewriter.create<CallOp>(
         rewriter.getUnknownLoc(), measureFunc, ValueRange(convertedOperands));
 
-    auto resultType = measureOp.getType().cast<MemRefType>();
+    auto resultType = measureOp.res().getType().cast<MemRefType>();
     if (resultType.hasStaticShape()) {
       auto resultCastOp = rewriter.create<memref::CastOp>(
           rewriter.getUnknownLoc(), measureLibCall.getResult(0), resultType);
