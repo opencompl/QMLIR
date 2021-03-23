@@ -22,12 +22,8 @@ def QASM_AllocateOp : QASM_Op<"allocate", []> {
   }];
 
   let results = (outs QASM_QubitType:$qout);
-
   let assemblyFormat = [{ attr-dict }];
-
-  let verifier = [{
-    return success();
-  }];
+  let verifier = ?;
 }
 
 def QASM_ResetOp : QASM_Op<"reset", []> {
@@ -37,12 +33,8 @@ def QASM_ResetOp : QASM_Op<"reset", []> {
   }];
 
   let arguments = (ins QASM_QubitType:$qinp);
-
   let assemblyFormat = [{ $qinp attr-dict }];
-
-  let verifier = [{
-    return success();
-  }];
+  let verifier = ?;
 }
 
 def QASM_MeasureOp : QASM_Op<"measure", []> {
@@ -53,12 +45,8 @@ def QASM_MeasureOp : QASM_Op<"measure", []> {
 
   let arguments = (ins QASM_QubitType:$qinp);
   let results = (outs I1:$res);
-
   let assemblyFormat = [{ $qinp attr-dict }];
-
-  let verifier = [{
-    return success();
-  }];
+  let verifier = ?;
 }
 
 def QASM_BarrierOp : QASM_Op<"barrier", []> {
@@ -69,12 +57,8 @@ def QASM_BarrierOp : QASM_Op<"barrier", []> {
   }];
 
   let arguments = (ins QASM_QubitType:$qinp);
-
   let assemblyFormat = [{ $qinp attr-dict }];
-
-  let verifier = [{
-    return success();
-  }];
+  let verifier = ?;
 }
 
 def QASM_PIOp : QASM_Op<"pi", []> {
@@ -86,12 +70,8 @@ def QASM_PIOp : QASM_Op<"pi", []> {
   }];
 
   let results = (outs AnyFloat:$qout);
-
   let assemblyFormat = [{ attr-dict `:` type($qout) }];
-
-  let verifier = [{
-    return success();
-  }];
+  let verifier = ?;
 }
 
 //======================
@@ -105,15 +85,9 @@ def QASM_ControlledNotOp : QASM_Op<"CX", []> {
     ```
   }];
 
-  let arguments = (ins
-    QASM_QubitType:$qinp0,
-    QASM_QubitType:$qinp1);
-
+  let arguments = (ins QASM_QubitType:$qinp0, QASM_QubitType:$qinp1);
   let assemblyFormat = [{ $qinp0 `,` $qinp1 attr-dict }];
-
-  let verifier = [{
-    return success();
-  }];
+  let verifier = ?;
 }
 
 def QASM_SingleQubitRotationOp : QASM_Op<"U", []> {
@@ -139,9 +113,7 @@ def QASM_SingleQubitRotationOp : QASM_Op<"U", []> {
     `)` $qinp attr-dict
   }];
 
-  let verifier = [{
-    return success();
-  }];
+  let verifier = ?;
 }
 
 def QASM_GlobalPhaseGateOp : QASM_Op<"gphase", []> {
@@ -154,12 +126,8 @@ def QASM_GlobalPhaseGateOp : QASM_Op<"gphase", []> {
   }];
 
   let arguments = (ins AnyFloat:$gamma);
-
   let assemblyFormat = [{ `(` $gamma `:` type($gamma) `)` attr-dict }];
-
-  let verifier = [{
-    return success();
-  }];
+  let verifier = ?;
 }
 
 #endif // QASM_OPS

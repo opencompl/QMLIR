@@ -42,9 +42,7 @@ class ZX_GenericNodeOp<string mnemonic, list<OpTrait> traits = [NoSideEffect]>
   let assemblyFormat = [{
     `(` $input  `)` attr-dict `:` functional-type($input, results)
   }];
-  let verifier = [{
-    return success();
-  }];
+  let verifier = ?;
 
   let extraClassDeclaration = [{
     bool hasParam() {
@@ -77,20 +75,20 @@ def ZX_HOp : ZX_Op<"H", [NoSideEffect]> {
   let arguments = (ins ZX_WireType:$input);
   let results = (outs ZX_WireType:$output);
   let assemblyFormat = [{ $input attr-dict }];
-  let verifier = [{ return success(); }];
+  let verifier = ?;
 }
 def ZX_SourceNodeOp : ZX_Op<"source", []> {
   let summary = "ZX Input/Source wire Op";
   let results = (outs ZX_WireType:$output);
   let assemblyFormat = [{ attr-dict }];
-  let verifier = [{ return success(); }];
+  let verifier = ?;
 }
 
 def ZX_SinkNodeOp : ZX_Op<"sink", []> {
   let summary = "ZX Output/Sink wire Op";
   let arguments = (ins ZX_WireType:$input);
   let assemblyFormat = [{ $input attr-dict }];
-  let verifier = [{ return success(); }];
+  let verifier = ?;
 }
 
 #endif // ZX_OPS

@@ -7,9 +7,9 @@
 
 // RUN: quantum-opt %s | quantum-opt 
 
-func @std_to_bell(%qs: !qssa.qubit<2>) -> !qssa.qubit<2> {
+func private @std_to_bell(%qs: !qssa.qubit<2>) -> !qssa.qubit<2> {
   // H(qs[0])
-  %q0, %q1 = qssa.split %qs : !qssa.qubit<2> -> (!qssa.qubit<1>, !qssa.qubit<1>)
+  %q0, %q1 = qssa.split %qs : (!qssa.qubit<2>) -> (!qssa.qubit<1>, !qssa.qubit<1>)
   %q2 = qssa.H %q0 : !qssa.qubit<1>
 
   // CNOT(qs[0], qs[1])
@@ -19,8 +19,8 @@ func @std_to_bell(%qs: !qssa.qubit<2>) -> !qssa.qubit<2> {
   return %q5 : !qssa.qubit<2>
 }
 
-func @bell_to_std(%qs : !qssa.qubit<2>) -> !qssa.qubit<2> {
-  %q1:2 = qssa.split %qs : !qssa.qubit<2> -> (!qssa.qubit<1>, !qssa.qubit<1>)
+func private @bell_to_std(%qs : !qssa.qubit<2>) -> !qssa.qubit<2> {
+  %q1:2 = qssa.split %qs : (!qssa.qubit<2>) -> (!qssa.qubit<1>, !qssa.qubit<1>)
 
   // CNOT(qs[0], qs[1])
   %q2:2 = qssa.CNOT %q1#0, %q1#1
@@ -32,8 +32,8 @@ func @bell_to_std(%qs : !qssa.qubit<2>) -> !qssa.qubit<2> {
   return %q4 : !qssa.qubit<2>
 }
 
-func @teleport(%psiA: !qssa.qubit<1>, %eb: !qssa.qubit<2>) -> (!qssa.qubit<1>) {
-  %ebA, %psiB0 = qssa.split %eb : !qssa.qubit<2> -> (!qssa.qubit<1>, !qssa.qubit<1>)
+func private @teleport(%psiA: !qssa.qubit<1>, %eb: !qssa.qubit<2>) -> (!qssa.qubit<1>) {
+  %ebA, %psiB0 = qssa.split %eb : (!qssa.qubit<2>) -> (!qssa.qubit<1>, !qssa.qubit<1>)
 
   // Alice's qubits
   %qsA0 = qssa.concat %psiA, %ebA : (!qssa.qubit<1>, !qssa.qubit<1>) -> !qssa.qubit<2>
@@ -70,7 +70,7 @@ func @teleport(%psiA: !qssa.qubit<1>, %eb: !qssa.qubit<2>) -> (!qssa.qubit<1>) {
   return %psiB2 : !qssa.qubit<1>
 }
 
-func @prepare_bell(%qa : !qssa.qubit<1>, %qb : !qssa.qubit<1>) -> !qssa.qubit<2> {
+func private @prepare_bell(%qa : !qssa.qubit<1>, %qb : !qssa.qubit<1>) -> !qssa.qubit<2> {
   %q0 = qssa.concat %qa, %qb : (!qssa.qubit<1>, !qssa.qubit<1>) -> !qssa.qubit<2>
   %q1 = call @std_to_bell(%q0) : (!qssa.qubit<2>) -> !qssa.qubit<2>
   return %q1 : !qssa.qubit<2>

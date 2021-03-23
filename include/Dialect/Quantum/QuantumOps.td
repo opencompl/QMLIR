@@ -29,11 +29,11 @@ def Quantum_AllocateOp : Quantum_Op<"allocate", [MemoryEffects<[MemRead]>]> {
 
         ```mlir
         // allocate a fixed number of qubits
-        %q0 = quantum.allocate() : !quantum.qubit<10>
+        %q0 = qssa.allocate() : !qssa.qubit<10>
 
         // allocate a variable number of qubits
         %n = constant 10 : index
-        %q1 = quantum.allocate(%n) : !quantum.qubit<?>
+        %q1 = qssa.allocate(%n) : !qssa.qubit<?>
         ```
     }];
 
@@ -46,9 +46,8 @@ def Quantum_AllocateOp : Quantum_Op<"allocate", [MemoryEffects<[MemRead]>]> {
       }]>
     ];
 
-    let verifier = [{
-        return success();
-    }];
+    let verifier = ?;
+    let assemblyFormat = [{ `(` $dynamicsize `)` attr-dict `:` type($qout) }];
 }
 
 //===----------------------------------------------------------------------===//
@@ -64,24 +63,18 @@ def Quantum_DimensionOp : Quantum_Op<"dim", [NoSideEffect, AllTypesMatch<["qinp"
         Example:
 
         ```mlir
-        func @use_dim(%qs: !quantum.qubit<?>) : !quantum.qubit<?> {
-            %qs1, %n = quantum.dim %qs : !quantum.qubit<?>
+        func @use_dim(%qs: !qssa.qubit<?>) : !qssa.qubit<?> {
+            %qs1, %n = qssa.dim %qs : !qssa.qubit<?>
             // use %n
-            return %qs1 : !quantum.qubit<?> 
+            return %qs1 : !qssa.qubit<?>
         }
         ```
     }];
 
     let arguments = (ins Quantum_QubitType:$qinp);
     let results = (outs Quantum_QubitType:$qout, Index:$size);
-
-    let assemblyFormat = [{
-        $qinp attr-dict `:` type($qinp)
-    }];
-
-    let verifier = [{
-        return success();
-    }];
+    let assemblyFormat = [{ $qinp attr-dict `:` type($qinp) }];
+    let verifier = ?;
 }
 
 //===----------------------------------------------------------------------===//
@@ -107,10 +100,7 @@ def Quantum_CastOp : Quantum_Op<"cast", [NoSideEffect]> {
     let arguments = (ins Quantum_QubitType:$qinp);
     let results = (outs Quantum_QubitType:$qout);
 
-    let assemblyFormat = [{
-        $qinp attr-dict `:` type($qinp) `to` type($qout)
-    }];
-
+    let assemblyFormat = [{ $qinp attr-dict `:` type($qinp) `to` type($qout) }];
     let extraClassDeclaration = [{
         /// Return true if `a` and `b` are valid operand and result pairs for
         /// the operation.
@@ -128,7 +118,6 @@ def Quantum_CastOp : Quantum_Op<"cast", [NoSideEffect]> {
     let verifier = [{
         if (!areCastCompatible(qinp().getType(), qout().getType()))
             return emitOpError("Incompatible types for cast.");
-
         return success();
     }];
 }
@@ -156,6 +145,8 @@ def Quantum_ConcatOp : Quantum_Op<"concat", [NoSideEffect]> {
 
     let arguments = (ins Variadic<Quantum_QubitType>:$qinp);
     let results = (outs Quantum_QubitType:$qout);
+    let assemblyFormat = [{ $qinp attr-dict `:` functional-type($qinp, $qout) }];
+    let verifier = ?;
 }
 
 //===----------------------------------------------------------------------===//
@@ -185,8 +176,11 @@ def Quantum_SplitOp : Quantum_Op<"split", [NoSideEffect]> {
         Quantum_QubitType:$qinp,
         Variadic<Index>:$sizes);
 
-    let results = (outs 
+    let results = (outs
         Variadic<Quantum_QubitType>:$qouts);
+
+    let assemblyFormat = [{ $qinp (`[` $sizes^ `]`)? attr-dict `:` functional-type($qinp, $qouts) }];
+    let verifier = ?;
 }
 
 //===----------------------------------------------------------------------===//
@@ -222,10 +216,10 @@ def Quantum_MeasureQubitOp : Quantum_Op<"measure_one", [NoSideEffect]> {
         return build($_builder, $_state, ::mlir::IntegerType::get($_builder.getContext(), 1), inp);
       }]>
     ];
-    let verifier = [{ return success(); }];
+    let verifier = ?;
 }
 
-def Quantum_MeasureOp : Quantum_Op<"measure", []> {
+def Quantum_MeasureOp : Quantum_Op<"measure", [MemoryEffects<[MemWrite]>]> {
     let summary = "Measure an array of qubits.";
     let description = [{
         This operation takes an array of qubits of type `qubit<N>`
@@ -269,48 +263,9 @@ def IDGateOp : Quantum_Op<"id", [NoSideEffect, AllTypesMatch<["qinp", "qout"]>]>
   let arguments = (ins Quantum_QubitType:$qinp);
   let results = (outs Quantum_QubitType:$qout);
   let assemblyFormat = [{ $qinp attr-dict `:` type($qout) }];
-  let verifier = [{ return success(); }];
+  let verifier = ?;
   let hasFolder = 1;
 }
-
-// Base Class for primitive gate ops
-// If there are no floating point parameters, the `()` are dropped.
-//
-//   %1 = gate(%a0 : f32, ...) %0 : qubit<?>
-//
-
-class PrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
-  : Quantum_Op<mnemonic, !listconcat([NoSideEffect], traits)> {
-  let arguments = (ins
-    Variadic<AnyFloat>:$params,
-    Quantum_QubitType:$qinp);
-  let results = (outs
-    Quantum_QubitType:$qout);
-
-  let parser = [{ return ::parsePrimitiveGateOp(parser, result); }];
-}
-
-// Base Class for primitive controlled ops
-// If there are no floating point parameters, the `()` are dropped.
-//
-//   %1, %c_out = gate(%a0 : f32, ...) [%c_in : qubit<?>] %0 : qubit<?>
-//
-class PrimitiveControlledGateOp<string mnemonic, list<OpTrait> traits = []>
-  : Quantum_Op<mnemonic, !listconcat([NoSideEffect], traits)> {
-  let arguments = (ins
-    Variadic<AnyFloat>:$params,
-    Quantum_QubitType:$qcontrols_inp,
-    Quantum_QubitType:$qinp);
-  let results = (outs
-    Quantum_QubitType:$qcontrols_out,
-    Quantum_QubitType:$qout);
-
-  let parser = [{ return ::parsePrimitiveControlledGateOp(parser, result); }];
-}
-
-//===----------------------------------------------------------------------===//
-// Standard Quantum Gates
-//===----------------------------------------------------------------------===//
 
 // Base Class for parameterless gate ops
 //
@@ -323,6 +278,10 @@ class SimplePrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
   let assemblyFormat = [{ $qinp attr-dict `:` type($qinp) }];
   let verifier = [{ return success(); }];
 }
+
+//===----------------------------------------------------------------------===//
+// Standard Quantum Gates
+//===----------------------------------------------------------------------===//
 
 def PauliXGateOp : SimplePrimitiveGateOp<"X"> {
   let summary = "Quantum Pauli X gate";
