@@ -249,6 +249,27 @@ def Quantum_MeasureOp : Quantum_Op<"measure", [MemoryEffects<[MemWrite]>]> {
     }];
 }
 
+def Quantum_SinkOp : Quantum_Op<"sink", [MemoryEffects<[MemWrite]>]> {
+    let summary = "Sink an array of qubits.";
+    let description = [{
+      Use this operation to sink qubits without storing measurement results.
+      This helps prevent over-optimization which removes all the transforms
+
+        Note: The qubits are consumed and can no longer be used.
+
+        Example:
+
+        ```mlir
+        %qs = qssa.allocate : !qssa.qubit<10>
+        qssa.sink %qs : !qssa.qubit<10>
+        ```
+    }];
+
+    let arguments = (ins Quantum_QubitType:$qinp);
+    let assemblyFormat = [{ $qinp attr-dict `:` type($qinp) }];
+    let verifier = ?;
+}
+
 //===----------------------------------------------------------------------===//
 // Primitive Gate Ops
 //===----------------------------------------------------------------------===//

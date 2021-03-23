@@ -89,6 +89,7 @@ func @main() {
 
   // Teleport |psi> from Alice to Bob
   %psiB = call @teleport(%psiA, %eb) : (!qssa.qubit<1>, !qssa.qubit<2>) -> !qssa.qubit<1>
+  qssa.sink %psiB : !qssa.qubit<1>
 
   return
 }
