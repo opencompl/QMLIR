@@ -40,7 +40,8 @@ func @teleport(%psiA: !qssa.qubit<1>, %eb: !qssa.qubit<2>) -> (!qssa.qubit<1>) {
 
   // Measure in Bell basis
   %qsA1 = call @bell_to_std(%qsA0) : (!qssa.qubit<2>) -> !qssa.qubit<2>
-  %resA = qssa.measure %qsA1 : !qssa.qubit<2> -> memref<2xi1>
+  %resA = memref.alloc() : memref<2xi1>
+  qssa.measure %qsA1 -> %resA : !qssa.qubit<2> -> memref<2xi1>
 
   // Apply corrections
 

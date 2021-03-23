@@ -12,7 +12,8 @@ func @main() {
   %q0 = qssa.allocate() : !qssa.qubit<3>
   %q1 = call @toffoli(%q0) : (!qssa.qubit<3>) -> !qssa.qubit<3>
   %q2, %q3 = qssa.split %q1 : !qssa.qubit<3> -> (!qssa.qubit<1>, !qssa.qubit<2>)
-  %res = qssa.measure %q2 : !qssa.qubit<1> -> memref<1xi1>
+  %res = memref.alloc() : memref<1xi1>
+  qssa.measure %q2 -> %res : !qssa.qubit<1> -> memref<1xi1>
 
   %idx0 = constant 0 : index
   %r0 = memref.load %res[%idx0] : memref<1xi1>
@@ -25,7 +26,8 @@ func @main() {
     scf.yield %q3 : !qssa.qubit<2>
   }
 
-  %res1 = qssa.measure %q4 : !qssa.qubit<2> -> memref<2xi1>
+  %res1 = memref.alloc() : memref<2xi1>
+  qssa.measure %q4 -> %res1 : !qssa.qubit<2> -> memref<2xi1>
 
   return
 }

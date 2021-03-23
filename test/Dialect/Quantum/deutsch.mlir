@@ -26,7 +26,7 @@ func @phase_flip_oracle(%x : !qssa.qubit<?>)
   %x1, %y3 = call @oracle(%x, %y2)
     : (!qssa.qubit<?>, !qssa.qubit<1>) -> (!qssa.qubit<?>, !qssa.qubit<1>)
 
-  %0 = qssa.measure %y3 : !qssa.qubit<1> -> memref<1xi1>
+  // qssa.measure %y3 -> %res : !qssa.qubit<1> -> memref<1xi1>
 
   return %x1: !qssa.qubit<?>
 }
@@ -37,7 +37,8 @@ func @deutsch_josza(%n : index) -> i1 { // %n : number of input bits
   %x1 = qssa.H %x0 : !qssa.qubit<?>
   %x2 = call @phase_flip_oracle(%x1) : (!qssa.qubit<?>) -> !qssa.qubit<?>
   %x3 = qssa.H %x2 : !qssa.qubit<?>
-  %res = qssa.measure %x3 : !qssa.qubit<?> -> memref<?xi1>
+  %res = memref.alloc(%n) : memref<?xi1>
+  qssa.measure %x3 -> %res : !qssa.qubit<?> -> memref<?xi1>
 
   // compute bitwise-OR of all the bits in %res
   %false = constant 0 : i1
