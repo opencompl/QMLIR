@@ -120,11 +120,16 @@ class IntType(MLIRType):
             prec = self.args[0]
         self.name = f'i{prec}'
 
+class IndexType(MLIRType):
+    name = 'index'
+
 class MemrefType(MLIRType):
     """build(dims: list[Union[None, int]], ty: MLIRType)"""
     name = 'memref'
     def getElementType(self) -> MLIRType:
         return self.ty
+    def getSize(self, dim: int) -> int:
+        return self.dims[dim]
     def build(self):
         self.dims = self.kwargs['dims']
         self.ty = self.kwargs['ty']
@@ -159,6 +164,16 @@ class IntAttr(MLIRAttribute):
         self.value = val
     def show(self) -> str:
         return str(self.value)
+class UnitAttr(MLIRAttribute):
+    def build(self):
+        pass
+    def show(self) -> str:
+        return ''
+class StringAttr(MLIRAttribute):
+    def build(self, val: str):
+        self.value = val
+    def show(self) -> str:
+        return f'"{self.value}"'
 
 
 # In[ ]:
@@ -287,6 +302,7 @@ class AllocOp(MLIROperation):
     """Alloc Op
     build(dims: list[Union[None, int]], ty: MLIRType)
     """
+    dialect = 'memref'
     name = 'alloc'
     def getType(self) -> MemrefType:
         return self.results[0].getType()
@@ -310,6 +326,57 @@ class AllocOp(MLIROperation):
         dyn_dims = ''
         return f'({dyn_dims}) : {self.getType()}'
 
+class StoreOp(MLIROperation):
+    """Store Op
+    # use kwargs only
+    build(mem: SSAValue, idx: SSAValue, val: SSAValue)
+    // %mem : memref<?xi1>
+    // %idx : index 
+    memref.store %val, %mem[%idx] : memref<?xi1>
+    """
+    name = 'store'
+    dialect = 'memref'
+    def build(self):
+        args = self.kwargs
+        self.addOperand(args['mem'])
+        self.addOperand(args['idx'])
+        self.addOperand(args['val'])
+        elemTy = args['mem'].getType().getElementType()
+        valTy = args['val'].getType()
+        assert(type(elemTy) == type(valTy))
+    def getMemref(self):
+        return self.operands[0]
+    def getIndex(self):
+        return self.operands[1]
+    def getValue(self):
+        return self.operands[2]
+    def show(self) -> str:
+        return f'{self.getValue()}, {self.getMemref()}[{self.getIndex()}] : {self.getMemref().getType()}'
+    
+class LoadOp(MLIROperation):
+    """Load Op
+    # use kwargs only
+    build(mem: SSAValue, idx: SSAValue)
+    
+    // %mem : memref<?xi1>
+    // %idx : index
+    %res = memref.load %mem[%idx] : memref<?xi1>
+    """
+    name = 'load'
+    dialect = 'memref'
+    def build(self):
+        args = self.kwargs
+        self.addOperand(args['mem'])
+        self.addOperand(args['idx'])
+        self.addResult(args['mem'].getType().getElementType())
+    def getMemref(self):
+        return self.operands[0]
+    def getIndex(self):
+        return self.operands[1]
+    def getValue(self):
+        return self.results[0]
+    def show(self) -> str:
+        return f'{self.getMemref()}[{self.getIndex()}] : {self.getMemref().getType()}'
 
 class ReturnOp(MLIROperation):
     name = 'return'
@@ -348,7 +415,21 @@ class ConstantOp(MLIROperation):
     name = 'constant'
     def build(self):
         val = self.args[0]
-        logger.debug(f">> ConstantOp: {val}, {type(val)}")
+        if 'ty' in self.kwargs:
+            constTy = self.kwargs['ty']
+            if isinstance(constTy, FloatType):
+                self.addAttribute(FloatAttr(val))
+                self.addResult(constTy)
+                return
+            if isinstance(constTy, IntType):
+                self.addAttribute(IntAttr(val))
+                self.addResult(constTy)
+                return
+            if isinstance(constTy, IndexType):
+                self.addAttribute(IntAttr(val))
+                self.addResult(constTy)
+                return
+            
         if isinstance(val, float):
             self.addAttribute(FloatAttr(val))
             self.addResult(FloatType())
@@ -357,6 +438,7 @@ class ConstantOp(MLIROperation):
             self.addAttribute(IntAttr(val))
             self.addResult(IntType())
             return
+        logger.debug(f">> ConstantOp: {val}, {type(val)}")
         raise ConversionError("Invalid constant for ConstantOp")
     def getValue(self) -> MLIRAttribute:
         return self.attributes[0]
@@ -500,6 +582,38 @@ class CNOTOp(MLIROperation):
         self.target = args[1]
     def show(self) -> str:
         return f'{self.control}, {self.target}'
+    
+class QASMMeasureOp(MLIROperation):
+    name = 'measure'
+    dialect = 'qasm'
+    """build(q)
+    """
+    def build(self):
+        assert(len(self.args) == 1)
+        qubit = self.args[0]
+        assert(isinstance(qubit.getType(), QubitType))
+        self.addOperand(qubit)
+        self.addResult(IntType(1))
+    def getQubit(self) -> SSAValue:
+        return self.operands[0]
+    def show(self) -> str:
+        return f'{self.getQubit()}'
+
+class QASMResetOp(MLIROperation):
+    name = 'reset'
+    dialect = 'qasm'
+    """build(q)
+    """
+    def build(self):
+        assert(len(self.args) == 1)
+        qubit = self.args[0]
+        assert(isinstance(qubit.getType(), QubitType))
+        self.addOperand(qubit)
+    def getQubit(self) -> SSAValue:
+        return self.operands[0]
+    def show(self) -> str:
+        return f'{self.getQubit()}'
+    
 
 
 # In[ ]:
@@ -514,13 +628,15 @@ def isaExpression(obj) -> bool:
     if isinstance(obj, Node.Prefix): return True
     return False
 
-OperationType = Union[Node.UniversalUnitary, Node.CustomUnitary, Node.Cnot, Node.Qreg, Node.Creg]
+OperationType = Union[Node.UniversalUnitary, Node.CustomUnitary, Node.Cnot, Node.Qreg, Node.Creg, Node.Measure, Node.Reset]
 def isaOperation(obj) -> bool:
     if isinstance(obj, Node.UniversalUnitary): return True
     if isinstance(obj, Node.CustomUnitary): return True
     if isinstance(obj, Node.Cnot): return True
     if isinstance(obj, Node.Qreg): return True
     if isinstance(obj, Node.Creg): return True
+    if isinstance(obj, Node.Measure): return True
+    if isinstance(obj, Node.Reset): return True
     return False
 
 class MLIRBlock(MLIRBase):
@@ -555,6 +671,20 @@ class MLIRBlock(MLIRBase):
             return [self.valueMap.resolve(node.name)[node.index]]
         else:
             raise UnimplementedError()
+    def parseMemref(self, node: Union[Node.Id, Node.IndexedId]) -> list[(SSAValue, int)]:
+        if isinstance(node, Node.Id): # full register
+            mem = self.valueMap.lookup(node.name)
+            sz = mem.getType().getSize(0)
+            bits = []
+            for i in range(sz):
+                bits.append((mem, i))
+            return bits
+        elif isinstance(node, Node.IndexedId): # single bit
+            mem = self.valueMap.lookup(node.name)
+            return [(mem, node.index)]
+        else:
+            raise UnimplementedError()
+            
 
     def parseExpression(self, node: ExpressionType) -> SSAValue:
         logger.debug(f'>> EXPRESSION: {type(node)} {node.qasm()}')
@@ -652,7 +782,22 @@ class MLIRBlock(MLIRBase):
         if isinstance(op, Node.Creg):
             name = op.name
             size = op.index
-            self.buildOp(AllocOp, dims=[size], ty=IntType(1))
+            bits: SSAValue = self.buildOp(AllocOp, dims=[size], ty=IntType(1))[0]
+            self.valueMap.insert(name, bits)
+            return
+        if isinstance(op, Node.Measure):
+            qubits = self.parseQubit(op.children[0])
+            bits = self.parseMemref(op.children[1])
+            for (qubit, memLoc) in zip(qubits, bits):
+                mem, idx = memLoc
+                result = self.buildOp(QASMMeasureOp, qubit)[0]
+                idxOp = self.buildOp(ConstantOp, int(idx), ty=IndexType())[0]
+                self.buildOp(StoreOp, mem=mem, idx=idxOp, val=result)
+            return
+        if isinstance(op, Node.Reset):
+            qubits = self.parseQubit(op.children[0])
+            for qubit in qubits:
+                self.buildOp(QASMResetOp, qubit)
             return
 
         showtree(op)
@@ -666,6 +811,7 @@ class MLIRFunction(MLIRBase):
         self.results: list[MLIRType] = []
         self.body: MLIRBlock = MLIRBlock(self.valueMap)
         self.attributes: list[str] = []
+        self.private = False
 
     def addArgument(self, name: str, ty: MLIRType):
         arg = self.valueMap.newValue(ty, name)
@@ -674,6 +820,9 @@ class MLIRFunction(MLIRBase):
         self.results.append(ty)
     def addAttribute(self, attr: str):
         self.attributes.append(attr)
+    
+    def setPrivate(self):
+        self.private = True
 
     def serialize(self) -> list[str]:
         args = ', '.join(map(lambda v: v.show(True), self.arguments))
@@ -681,7 +830,8 @@ class MLIRFunction(MLIRBase):
         attr_list = ''
         if len(self.attributes) > 0:
             attr_list = 'attributes {' + ', '.join(self.attributes) + '}'
-        code = [f'func @{self.name} ({args}) -> ({results}) {attr_list} {{']
+        privateStr = ('private' if self.private else '')
+        code = [f'func {privateStr} @{self.name} ({args}) -> ({results}) {attr_list} {{']
         code += self.indent(self.body.serialize())
         code.append('}')
         return code
@@ -710,8 +860,9 @@ class MLIRModule(MLIRBase):
     def parseGate(self, node: Node.Gate):
         gate = self.addFunction(node.name)
         gate.addAttribute('qasm.gate')
+        gate.setPrivate()
         if node.name in qasm_stdgates:
-            gate.addAttribute('qasm.stdgate.' + node.name)
+            gate.addAttribute(f'qasm.stdgate="{node.name}"')
         if node.arguments is not None:
             for arg in node.arguments.children:
                 gate.addArgument(arg.name, FloatType())
@@ -764,7 +915,23 @@ def main():
             help='Output file (uses stdout if not specified)', required=False)
     parser.add_argument('-v', action='store_true', dest='verbose',
             help='verbose', required=False)
+    parser.add_argument('--config', metavar='config_file', dest='config', type=str,
+            help='Configuration file to use (overrides other cmdline options). Each line in the config file should be of the form <input-file>,<output-file>', required=False)
     args = parser.parse_args()
+    
+    if args.config is not None:
+        # parse config file and use that instead
+        # each line should be of the form:
+        # <input-file>,<output-file>
+        with open(args.config) as configFile:
+            for line in configFile.readlines():
+                ipname, opname = line.strip().split(',')
+                with open(ipname, 'r') as ipf:
+                    code = ipf.read()
+                    module = QASMToMLIR(code, strict=False)
+                    with open(opname, 'w+') as opf:
+                        opf.write(str(module))
+        return
 
     if args.input is None: args.input = sys.stdin
     else: args.input = open(args.input, 'r')
