@@ -136,17 +136,15 @@ def Quantum_ConcatOp : Quantum_Op<"concat", [NoSideEffect]> {
         ```mlir
         %q1 = quantum.allocate() : !quantum.qubit<4>
         %q2 = quantum.allocate() : !quantum.qubit<5>
-        %n = constant 3 : index
-        %q3 = quantum.allocate(%n) : !quantum.qubit<?>
-
-        %qall = quantum.concat %q1, %q2, %q3 : (!quantum.qubit<4>, !quantum.qubit<5>, !quantum.qubit<?>) -> !quantum.qubit<9>
+        %qall = quantum.concat %q1, %q2 : (!quantum.qubit<4>, !quantum.qubit<5>) -> !quantum.qubit<9>
         ```
     }];
 
-    let arguments = (ins Variadic<Quantum_QubitType>:$qinp);
+    let arguments = (ins Variadic<Quantum_QubitType>:$qinps);
     let results = (outs Quantum_QubitType:$qout);
-    let assemblyFormat = [{ $qinp attr-dict `:` functional-type($qinp, $qout) }];
+    let assemblyFormat = [{ $qinps attr-dict `:` functional-type($qinps, $qout) }];
     let verifier = ?;
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -172,15 +170,11 @@ def Quantum_SplitOp : Quantum_Op<"split", [NoSideEffect]> {
         ```
     }];
 
-    let arguments = (ins
-        Quantum_QubitType:$qinp,
-        Variadic<Index>:$sizes);
-
-    let results = (outs
-        Variadic<Quantum_QubitType>:$qouts);
-
+    let arguments = (ins Quantum_QubitType:$qinp, Variadic<Index>:$sizes);
+    let results = (outs Variadic<Quantum_QubitType>:$qouts);
     let assemblyFormat = [{ $qinp (`[` $sizes^ `]`)? attr-dict `:` functional-type($qinp, $qouts) }];
     let verifier = ?;
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//

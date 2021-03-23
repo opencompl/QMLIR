@@ -20,33 +20,53 @@ using namespace mlir;
 using namespace mlir::quantum;
 
 //==== Folders ==============================================================//
+LogicalResult SplitOp::fold(ArrayRef<Attribute> operands,
+                            SmallVectorImpl<OpFoldResult> &results) {
+  if (auto parentConcatOp = qinp().getDefiningOp<ConcatOp>()) {
+    if (parentConcatOp.qout() == qinp()) {
+      results.assign(parentConcatOp.qinps().begin(),
+                     parentConcatOp.qinps().end());
+      return success();
+    }
+  }
+  return failure();
+}
+
+OpFoldResult ConcatOp::fold(ArrayRef<Attribute> operands) {
+  if (auto parentSplitOp = qinps()[0].getDefiningOp<SplitOp>()) {
+    if (parentSplitOp.qouts() == qinps())
+      return parentSplitOp.qinp();
+  }
+  return nullptr;
+}
+
 OpFoldResult IDGateOp::fold(ArrayRef<Attribute> operands) { return qinp(); }
 
 OpFoldResult PauliXGateOp::fold(ArrayRef<Attribute> operands) {
   if (auto parent = qinp().getDefiningOp<PauliXGateOp>()) {
     return parent.qinp();
   }
-  return *operands.begin();
+  return nullptr;
 }
 
 OpFoldResult PauliYGateOp::fold(ArrayRef<Attribute> operands) {
   if (auto parent = qinp().getDefiningOp<PauliYGateOp>()) {
     return parent.qinp();
   }
-  return *operands.begin();
+  return nullptr;
 }
 
 OpFoldResult PauliZGateOp::fold(ArrayRef<Attribute> operands) {
   if (auto parent = qinp().getDefiningOp<PauliZGateOp>()) {
     return parent.qinp();
   }
-  return *operands.begin();
+  return nullptr;
 }
 OpFoldResult HadamardGateOp::fold(ArrayRef<Attribute> operands) {
   if (auto parent = qinp().getDefiningOp<HadamardGateOp>()) {
     return parent.qinp();
   }
-  return *operands.begin();
+  return nullptr;
 }
 
 #define GET_OP_CLASSES
