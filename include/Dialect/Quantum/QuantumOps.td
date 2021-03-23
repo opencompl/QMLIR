@@ -10,13 +10,7 @@
 #define QUANTUM_OPS
 
 include "mlir/IR/OpBase.td"
-// include "mlir/Dialect/StandardOps/IR/StandardOpsBase.td"
-// include "mlir/IR/OpAsmInterface.td"
-// include "mlir/Interfaces/CallInterfaces.td"
-// include "mlir/Interfaces/ControlFlowInterfaces.td"
 include "mlir/Interfaces/SideEffectInterfaces.td"
-// include "mlir/Interfaces/VectorInterfaces.td"
-// include "mlir/Interfaces/ViewLikeInterface.td"
 
 include "Dialect/Quantum/QuantumDialect.td"
 include "Dialect/Quantum/QuantumTypes.td"
@@ -25,7 +19,7 @@ include "Dialect/Quantum/QuantumTypes.td"
 // Allocate Op
 //===----------------------------------------------------------------------===//
 
-def Quantum_AllocateOp : Quantum_Op<"allocate", []> {
+def Quantum_AllocateOp : Quantum_Op<"allocate", [MemoryEffects<[MemRead]>]> {
     let summary = "Allocate an array of qubits.";
     let description = [{
         This operation takes no arguments,
