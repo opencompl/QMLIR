@@ -261,6 +261,11 @@ public:
     // Generate the new FuncOp, and inline the body region
     auto newFuncOp =
         rewriter.create<FuncOp>(funcOp->getLoc(), funcOp.getName(), funcType);
+    newFuncOp.setPrivate();
+    if (funcOp->hasAttrOfType<StringAttr>("qasm.stdgate"))
+      newFuncOp->setAttr("qasm.stdgate",
+                         funcOp->getAttrOfType<StringAttr>("qasm.stdgate"));
+
     rewriter.inlineRegionBefore(funcOp.getBody(), newFuncOp.getBody(),
                                 newFuncOp.end());
 

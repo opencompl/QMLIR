@@ -1,8 +1,9 @@
 // RUN: quantum-opt %s
 // RUN: quantum-opt --convert-qasm-to-qssa %s | quantum-opt | FileCheck %s
 
-// CHECK: func @somegate(%[[cst:.*]]: f32, %[[q0:.*]]: !qssa.qubit<1>) -> !qssa.qubit<1> {
-func @somegate(%cst : f32, %0 : !qasm.qubit) attributes {qasm.gate} {
+// CHECK: func private @somegate(%[[cst:.*]]: f32, %[[q0:.*]]: !qssa.qubit<1>) 
+// CHECK: -> !qssa.qubit<1> attributes {qasm.stdgate = "cx"} {
+func private @somegate(%cst : f32, %0 : !qasm.qubit) attributes {qasm.gate, qasm.stdgate="cx"} {
   // CHECK-NEXT: %[[q1:.*]] = qssa.U(%[[cst]] : f32, %[[cst]] : f32, %[[cst]] : f32) %[[q0]]
   qasm.U(%cst : f32, %cst : f32, %cst : f32) %0
   // CHECK-NEXT: %[[q2:.*]] = qssa.U(%[[cst]] : f32, %[[cst]] : f32, %[[cst]] : f32) %[[q1]]

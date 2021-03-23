@@ -10,6 +10,7 @@
 #include "mlir/IR/Types.h"
 #include "mlir/Support/LLVM.h"
 #include "mlir/Support/LogicalResult.h"
+#include "mlir/Transforms/InliningUtils.h"
 
 #include "Dialect/Quantum/QuantumDialect.h"
 #include "Dialect/Quantum/QuantumOps.h"
@@ -23,13 +24,27 @@ using namespace mlir::quantum;
 // Quantum dialect.
 //===----------------------------------------------------------------------===//
 
+namespace {
+/// This class defines the interface for handling inlining with qssa
+/// operations.
+struct QuantumInlinerInterface : public DialectInlinerInterface {
+  using DialectInlinerInterface::DialectInlinerInterface;
+
+  /// All operations within math ops can be inlined.
+  bool isLegalToInline(Operation *, Region *, bool,
+                       BlockAndValueMapping &) const final {
+    return true;
+  }
+};
+} // end anonymous namespace
+
 void QuantumDialect::initialize() {
   addOperations<
 #define GET_OP_LIST
 #include "Dialect/Quantum/QuantumOps.cpp.inc"
       >();
-
   addTypes<QubitType>();
+  addInterfaces<QuantumInlinerInterface>();
 }
 
 Type QuantumDialect::parseType(DialectAsmParser &parser) const {
