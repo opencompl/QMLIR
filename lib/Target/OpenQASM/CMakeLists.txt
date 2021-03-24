@@ -1,4 +1,4 @@
-add_mlir_dialect_library(QuantumToOpenQASM
+add_mlir_translation_library(QASMToOpenQASM
     ConvertToOpenQASM.cpp
 
     ADDITIONAL_HEADER_DIRS
@@ -6,6 +6,7 @@ add_mlir_dialect_library(QuantumToOpenQASM
 
     LINK_LIBS PUBLIC
     MLIRIR
+    MLIRQASM
     )
 
-target_link_libraries(QuantumToOpenQASM PUBLIC MLIRIR)
+target_link_libraries(QASMToOpenQASM PUBLIC MLIRIR)

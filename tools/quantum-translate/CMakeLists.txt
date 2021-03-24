@@ -1,16 +1,24 @@
+set(LLVM_LINK_COMPONENTS
+    Support
+    )
+
 get_property(dialect_libs GLOBAL PROPERTY MLIR_DIALECT_LIBS)
-set(LIBS
+get_property(translation_libs GLOBAL PROPERTY MLIR_TRANSLATION_LIBS)
+
+add_llvm_executable(quantum-translate
+    quantum-translate.cpp
+    )
+llvm_update_compile_flags(quantum-translate)
+target_link_libraries(quantum-translate
+    PRIVATE
     ${dialect_libs}
-    MLIRQuantum
-    MLIRAnalysis
-    MLIREDSC
+    ${translation_libs}
     MLIRIR
-    MLIRLLVMIR
     MLIRParser
+    MLIRPass
+    MLIRSPIRV
+    MLIRTranslation
     MLIRSupport
     )
-add_llvm_executable(quantum-translate quantum-translate.cpp)
 
-llvm_update_compile_flags(quantum-translate)
-target_link_libraries(quantum-translate PRIVATE ${LIBS})
-
+mlir_check_link_libraries(quantum-translate)
