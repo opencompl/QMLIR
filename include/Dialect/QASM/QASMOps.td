@@ -135,6 +135,7 @@ def QASM_GlobalPhaseGateOp : QASM_Op<"gphase", []> {
 
 def QASM_CregType : MemRefRankOf<[I1], [1]>;
 def QASM_IfOp : QASM_Op<"if", [SingleBlockImplicitTerminator<"EndIfOp">,
+                               RecursiveSideEffects,
                                NoRegionArguments]> {
   let summary = "QASM If Operation";
   let description = [{
@@ -154,7 +155,8 @@ def QASM_IfOp : QASM_Op<"if", [SingleBlockImplicitTerminator<"EndIfOp">,
   let assemblyFormat = [{ $creg `=` $value attr-dict `:` type($creg) $ifBlock }];
 }
 
-def QASM_EndIfOp : QASM_Op<"end_if", [Terminator, ReturnLike, ParentOneOf<["IfOp"]>]> {
+def QASM_EndIfOp : QASM_Op<"end_if", [Terminator, ReturnLike,
+                                      ParentOneOf<["IfOp"]>, NoSideEffect]> {
   let summary = "QASM if block terminator";
   let description = [{
     ```mlir

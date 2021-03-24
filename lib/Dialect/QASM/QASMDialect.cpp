@@ -22,6 +22,10 @@ struct QASMInlinerInterface : public DialectInlinerInterface {
                        BlockAndValueMapping &) const final {
     return true;
   }
+  bool isLegalToInline(Region *dest, Region *src, bool,
+                       BlockAndValueMapping &) const final {
+    return true;
+  }
 };
 } // end anonymous namespace
 
