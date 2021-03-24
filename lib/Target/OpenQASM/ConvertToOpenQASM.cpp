@@ -318,7 +318,7 @@ LogicalResult QASMTranslation::translateMain(FuncOp mainFunc) {
 LogicalResult QASMTranslation::translate() {
   // target headers
   output << "OPENQASM 2.0;\n";
-  output << "include \"qelib1.inc\"\n";
+  output << "include \"qelib1.inc\";\n";
   output << "\n";
 
   for (auto func : module.getOps<FuncOp>()) {
