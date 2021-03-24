@@ -186,15 +186,10 @@ class SSAValue(MLIRBase):
     def __init__(self, name: str, ty: MLIRType):
         self.name = name
         self.ty = ty
-        self.definingOp = None
     def show(self, withType: bool=False) -> str:
         if withType:
             return f'%{self.name} : {self.getType()}'
         return f'%{self.name}'
-    def hasDefiningOp(self) -> bool:
-        return self.definingOp is not None
-    def getDefiningOp(self) -> MLIROperation:
-        return self.definingOp
     def serialize(self) -> list[str]:
         return [self.show()]
     def getType(self) -> MLIRType:
@@ -276,7 +271,7 @@ class MLIROperation(MLIRBase):
         self.operands: list[SSAValue] = []
         self.attributes: list[MLIRAttribute] = []
         self.results: list[SSAValue] = []
-        self.blocks: list[MLIRBlock] = []
+        self.blocks = []
         self.build()
 
     def serialize(self) -> list[str]:
@@ -299,7 +294,7 @@ class MLIROperation(MLIRBase):
         self.attributes.append(attr)
     def addOperand(self, arg: SSAValue):
         self.operands.append(arg)
-    def addBlock(self, block: MLIRBlock):
+    def addBlock(self, block):
         self.blocks.append(block)
 
     def getResults(self) -> list[SSAValue]:
@@ -593,13 +588,13 @@ class QASMIfOp(MLIROperation):
         assert(isinstance(creg.getType(), MemrefType))
         self.addOperand(creg)
         self.addAttribute(val)
-        self.addBlock(MLIRBlock(copy.deepcopy(scope)))
+        self.addBlock(MLIRBlock(scope))
 
     def getCreg(self) -> SSAValue:
         return self.operands[0]
     def getValue(self) -> MLIRAttribute:
         return self.attributes[0]
-    def getIfBlock(self) -> MLIRBlock:
+    def getIfBlock(self):
         return self.blocks[0]
 
     def serialize(self) -> list[str]:
@@ -643,7 +638,7 @@ class AllocOp(MLIROperation):
 class StoreOp(MLIROperation):
     """Store Op
     # use kwargs only
-    build(mem: SSAValue, idx: SSAValue, val: SSAValue)
+    build(mem: SSAValue, idx: IntAttr, val: SSAValue)
     // %mem : memref<?xi1>
     // %idx : index 
     memref.store %val, %mem[%idx] : memref<?xi1>
@@ -653,7 +648,7 @@ class StoreOp(MLIROperation):
     def build(self):
         args = self.kwargs
         self.addOperand(args['mem'])
-        self.addOperand(args['idx'])
+        self.addAttribute(args['idx'])
         self.addOperand(args['val'])
         elemTy = args['mem'].getType().getElementType()
         valTy = args['val'].getType()
@@ -661,9 +656,9 @@ class StoreOp(MLIROperation):
     def getMemref(self):
         return self.operands[0]
     def getIndex(self):
-        return self.operands[1]
+        return self.attributes[0]
     def getValue(self):
-        return self.operands[2]
+        return self.operands[1]
     def show(self) -> str:
         return f'{self.getValue()}, {self.getMemref()}[{self.getIndex()}] : {self.getMemref().getType()}'
     
@@ -824,13 +819,20 @@ class MLIRBlock(MLIRBase):
             lambd = self.parseExpression(args[2])
             lambd = self.castToFloat(lambd)
 
-            # qubit = self.valueMap.newValue(QubitType(), op.children[1].name)
-            qubit = self.parseExpression(op.children[1])
-            self.buildOp(UOp, theta, phi, lambd, qubit)
-            return qubit
+            qubits = self.parseQubit(op.children[1])
+            for qubit in qubits:
+                self.buildOp(UOp, theta, phi, lambd, qubit)
+            return
         if isinstance(op, Node.Cnot):
-            control, target = map(self.parseExpression, op.children)
-            self.buildOp(CNOTOp, control, target)
+            conts = self.parseQubit(op.children[0])
+            targs = self.parseQubit(op.children[1])
+            if len(conts) > 1 and len(targs) > 1:
+                for (cont, targ) in zip(conts, targs):
+                    self.buildOp(CNOTOp, cont, targ)
+            else:
+                for cont in conts:
+                    for targ in targs:
+                        self.buildOp(CNOTOp, cont, targ)
             return
         if isinstance(op, Node.CustomUnitary):
             params: list[SSAValue] = []
@@ -871,8 +873,7 @@ class MLIRBlock(MLIRBase):
             for (qubit, memLoc) in zip(qubits, bits):
                 mem, idx = memLoc
                 result = self.buildOp(QASMMeasureOp, qubit)[0]
-                idxOp = self.buildOp(ConstantOp, int(idx), ty=IndexType())[0]
-                self.buildOp(StoreOp, mem=mem, idx=idxOp, val=result)
+                self.buildOp(StoreOp, mem=mem, idx=int(idx), val=result)
             return
         if isinstance(op, Node.Reset):
             qubits = self.parseQubit(op.children[0])

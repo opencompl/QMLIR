@@ -10,16 +10,17 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "mlir/Dialect/Affine/IR/AffineOps.h"
 #include "mlir/Dialect/MemRef/IR/MemRef.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
-#include "mlir/Target/LLVMIR/ModuleTranslation.h"
-#include "mlir/Transforms/GreedyPatternRewriteDriver.h"
+#include "mlir/IR/BuiltinOps.h"
 #include "mlir/Translation.h"
 
 #include "llvm/Support/ToolOutputFile.h"
 #include <string>
 #include <vector>
 
+#include "Dialect/QASM/QASMDialect.h"
 #include "Dialect/QASM/QASMOps.h"
 #include "Target/OpenQASM/ConvertToOpenQASM.h"
 
@@ -44,6 +45,24 @@ class QASMTranslation {
   std::string flattenExpr(Value val);
   std::string flattenExprBraced(Value val);
 
+  template <typename T>
+  WalkResult runPrinters(Operation *op) {
+    if (auto opp = dyn_cast<T>(op)) {
+      if (failed(print(opp)))
+        return WalkResult::interrupt();
+    }
+    return WalkResult::advance();
+  }
+  template <typename T, typename V, typename... Ts>
+  WalkResult runPrinters(Operation *op) {
+    if (auto opp = dyn_cast<T>(op)) {
+      if (failed(print(opp)))
+        return WalkResult::interrupt();
+      return WalkResult::advance();
+    }
+    return runPrinters<V, Ts...>(op);
+  }
+
   // Op printers
   LogicalResult print(AllocateOp op);
   LogicalResult print(memref::AllocOp op);
@@ -57,6 +76,7 @@ class QASMTranslation {
 
   // Function translations
   LogicalResult translateGate(FuncOp gateFunc);
+  LogicalResult translateOpaque(FuncOp gateFunc);
   LogicalResult translateMain(FuncOp mainFunc);
 
 public:
@@ -70,9 +90,9 @@ void QASMTranslation::addQubit(Value qubit) {
   int idx = scope.size();
   scope[qubit] = "q" + std::to_string(idx);
 }
-void QASMTranslation::addCreg(Value qubit) {
+void QASMTranslation::addCreg(Value creg) {
   int idx = scope.size();
-  scope[qubit] = "c" + std::to_string(idx);
+  scope[creg] = "c" + std::to_string(idx);
 }
 
 void QASMTranslation::splitArguments(ArrayRef<Value> args,
@@ -186,6 +206,20 @@ LogicalResult QASMTranslation::print(MeasureOp op) {
       return success();
     }
   }
+  if (auto storeOp = dyn_cast<AffineStoreOp>(firstUse)) {
+    auto creg = lookupScope(storeOp.memref());
+    std::string index;
+    if (!storeOp.indices().empty())
+      index = flattenExpr(storeOp.indices()[0]);
+    else
+      index = std::to_string(
+          storeOp.getAffineMapAttr().getValue().getSingleConstantResult());
+    if (!creg.empty()) {
+      output << "measure " << lookupScope(op.qinp()) << " -> " << creg << "["
+             << index << "];\n";
+      return success();
+    }
+  }
 
   emitError(op->getLoc()) << "Unable to validate measure op: invalid first use "
                              "(not storing into a creg)";
@@ -214,7 +248,7 @@ LogicalResult QASMTranslation::print(CallOp op) {
   splitArguments(args, params, qargs);
   output << op.getCallee() << " (";
   llvm::interleaveComma(params, output,
-                        [&](Value arg) { output << lookupScope(arg); });
+                        [&](Value arg) { output << flattenExpr(arg); });
   output << ") ";
   llvm::interleaveComma(qargs, output,
                         [&](Value arg) { output << lookupScope(arg); });
@@ -257,57 +291,42 @@ LogicalResult QASMTranslation::translateGate(FuncOp gateFunc) {
   output << " {\n";
 
   WalkResult result = gateFunc.walk([&](Operation *op) {
-    if (auto opp = dyn_cast<BarrierOp>(op))
-      if (failed(print(opp)))
-        return WalkResult::interrupt();
-    if (auto opp = dyn_cast<ControlledNotOp>(op))
-      if (failed(print(opp)))
-        return WalkResult::interrupt();
-    if (auto opp = dyn_cast<SingleQubitRotationOp>(op))
-      if (failed(print(opp)))
-        return WalkResult::interrupt();
-    if (auto opp = dyn_cast<CallOp>(op))
-      if (failed(print(opp)))
-        return WalkResult::interrupt();
-    return WalkResult::advance();
+    return runPrinters<ControlledNotOp, SingleQubitRotationOp, CallOp,
+                       BarrierOp>(op);
   });
+  if (result.wasInterrupted())
+    return failure();
 
   // restore scope
   swap(names, scope);
   output << "}\n";
 
-  if (result.wasInterrupted())
-    return failure();
   return success();
 }
+
+LogicalResult QASMTranslation::translateOpaque(FuncOp gateFunc) {
+  SmallVector<std::string> params, qubits;
+  for (auto arg : llvm::enumerate(gateFunc.getType().getInputs())) {
+    if (arg.value().isa<QubitType>())
+      qubits.push_back("q" + std::to_string(arg.index()));
+    else
+      params.push_back("p" + std::to_string(arg.index()));
+  }
+
+  output << "opaque " << gateFunc.getName() << "(";
+  llvm::interleaveComma(params, output);
+  output << ") ";
+  llvm::interleaveComma(qubits, output);
+  output << ";\n";
+
+  return success();
+}
+
 LogicalResult QASMTranslation::translateMain(FuncOp mainFunc) {
   WalkResult result = mainFunc.walk([&](Operation *op) {
-    if (auto opp = dyn_cast<AllocateOp>(op))
-      if (failed(print(opp)))
-        return WalkResult::interrupt();
-    if (auto opp = dyn_cast<memref::AllocOp>(op))
-      if (failed(print(opp)))
-        return WalkResult::interrupt();
-    if (auto opp = dyn_cast<MeasureOp>(op))
-      if (failed(print(opp)))
-        return WalkResult::interrupt();
-    if (auto opp = dyn_cast<BarrierOp>(op))
-      if (failed(print(opp)))
-        return WalkResult::interrupt();
-    if (auto opp = dyn_cast<ControlledNotOp>(op))
-      if (failed(print(opp)))
-        return WalkResult::interrupt();
-    if (auto opp = dyn_cast<SingleQubitRotationOp>(op))
-      if (failed(print(opp)))
-        return WalkResult::interrupt();
-    if (auto opp = dyn_cast<CallOp>(op))
-      if (failed(print(opp)))
-        return WalkResult::interrupt();
-    if (auto opp = dyn_cast<GlobalPhaseGateOp>(op))
-      if (failed(print(opp)))
-        return WalkResult::interrupt();
-
-    return WalkResult::advance();
+    return runPrinters<AllocateOp, memref::AllocOp, ResetOp, MeasureOp,
+                       BarrierOp, ControlledNotOp, SingleQubitRotationOp,
+                       CallOp, GlobalPhaseGateOp>(op);
   });
 
   if (result.wasInterrupted())
@@ -327,9 +346,15 @@ LogicalResult QASMTranslation::translate() {
       continue;
 
     // print gate definition
-    if (func->hasAttr("qasm.gate"))
-      if (failed(translateGate(func)))
-        return failure();
+    if (func->hasAttr("qasm.gate")) {
+      if (func.isDeclaration()) {
+        if (failed(translateOpaque(func)))
+          return failure();
+      } else {
+        if (failed(translateGate(func)))
+          return failure();
+      }
+    }
 
     // print main function
     if (func->hasAttr("qasm.main"))
@@ -350,7 +375,7 @@ void registerToOpenQASMTranslation() {
       },
       [](DialectRegistry &registry) {
         registry.insert<QASM::QASMDialect, StandardOpsDialect,
-                        memref::MemRefDialect>();
+                        memref::MemRefDialect, AffineDialect>();
       });
 }
 } // namespace mlir

@@ -152,11 +152,6 @@ def QASM_IfOp : QASM_Op<"if", [SingleBlockImplicitTerminator<"EndIfOp">,
   let arguments = (ins QASM_CregType:$creg, I64Attr:$value);
   let regions = (region SizedRegion<1>:$ifBlock);
   let assemblyFormat = [{ $creg `=` $value attr-dict `:` type($creg) $ifBlock }];
-  let verifier = [{
-    if (creg().getType().cast<MemRefType>().getShape()[0] > 64)
-      return emitOpError("unsupported: size of register too large (> 64)");
-    return success();
-  }];
 }
 
 def QASM_EndIfOp : QASM_Op<"end_if", [Terminator, ReturnLike, ParentOneOf<["IfOp"]>]> {
