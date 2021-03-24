@@ -21,3 +21,11 @@ Output/
 *autosave*
 *~
 .lit*
+
+### custom
+## converted from .qasm to MLIR (with tools/openqasm-to-mlir.py)
+*.qasm.mlir
+## intermediate MLIR files (quantum-opt pipeline)
+*.opt.mlir
+## converted from MLIR to qasm (with tools/quantum-translate)
+*.final.qasm

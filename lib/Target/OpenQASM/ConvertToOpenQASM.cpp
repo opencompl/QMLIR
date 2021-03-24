@@ -46,21 +46,23 @@ class QASMTranslation {
   std::string flattenExprBraced(Value val);
 
   template <typename T>
-  WalkResult runPrinters(Operation *op) {
+  WalkResult runPrinters(Operation *op, StringRef prefix = "") {
     if (auto opp = dyn_cast<T>(op)) {
+      output << prefix;
       if (failed(print(opp)))
         return WalkResult::interrupt();
     }
     return WalkResult::advance();
   }
   template <typename T, typename V, typename... Ts>
-  WalkResult runPrinters(Operation *op) {
+  WalkResult runPrinters(Operation *op, StringRef prefix = "") {
     if (auto opp = dyn_cast<T>(op)) {
+      output << prefix;
       if (failed(print(opp)))
         return WalkResult::interrupt();
       return WalkResult::advance();
     }
-    return runPrinters<V, Ts...>(op);
+    return runPrinters<V, Ts...>(op, prefix);
   }
 
   // Op printers
@@ -73,6 +75,7 @@ class QASMTranslation {
   LogicalResult print(SingleQubitRotationOp op);
   LogicalResult print(CallOp op);
   LogicalResult print(GlobalPhaseGateOp op);
+  LogicalResult print(IfOp op);
 
   // Function translations
   LogicalResult translateGate(FuncOp gateFunc);
@@ -259,9 +262,21 @@ LogicalResult QASMTranslation::print(GlobalPhaseGateOp op) {
   output << "gphase(" << flattenExpr(op.gamma()) << ");\n";
   return success();
 }
+LogicalResult QASMTranslation::print(IfOp op) {
+  std::string ifCond = ("if(" + lookupScope(op.creg()) +
+                        " == " + std::to_string(op.value()) + ") ")
+                           .str();
+  for (auto &sub : op.ifBlock().getOps()) {
+    auto res = runPrinters<SingleQubitRotationOp, ControlledNotOp, MeasureOp,
+                           ResetOp, CallOp>(&sub, ifCond);
+    if (res.wasInterrupted())
+      return failure();
+  }
+  return success();
+}
 
 LogicalResult QASMTranslation::translateGate(FuncOp gateFunc) {
-  output << "gate " << gateFunc.getName();
+  output << "gate " << gateFunc.getName() << " ";
   SmallVector<Value> params, qargs;
   auto funcArgs = gateFunc.getBody().getArguments();
   splitArguments({funcArgs.begin(), funcArgs.end()}, params, qargs);
@@ -323,7 +338,12 @@ LogicalResult QASMTranslation::translateOpaque(FuncOp gateFunc) {
 }
 
 LogicalResult QASMTranslation::translateMain(FuncOp mainFunc) {
-  WalkResult result = mainFunc.walk([&](Operation *op) {
+  WalkResult result = mainFunc.walk<WalkOrder::PreOrder>([&](Operation *op) {
+    if (auto opp = dyn_cast<IfOp>(op)) {
+      if (failed(print(opp)))
+        return WalkResult::interrupt();
+      return WalkResult::skip();
+    }
     return runPrinters<AllocateOp, memref::AllocOp, ResetOp, MeasureOp,
                        BarrierOp, ControlledNotOp, SingleQubitRotationOp,
                        CallOp, GlobalPhaseGateOp>(op);

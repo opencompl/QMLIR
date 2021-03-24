@@ -11,14 +11,14 @@ MLIRS := $(patsubst %.qasm, %.qasm.mlir, $(SRCS))
 OPT_MLIRS := $(patsubst %.qasm, %.qasm.opt.mlir, $(SRCS))
 FINAL := $(patsubst %.qasm, %.final.qasm, $(SRCS))
 
-all: $(FINAL)
+all: $(MLIRS) $(OPT_MLIRS) $(FINAL)
 
 # Pipeline: %.qasm -> %.qasm.mlir -> %.qasm.opt.mlir -> %.final.qasm
 %.qasm.mlir: %.qasm
 	python ../../../tools/openqasm-to-mlir.py -i $< -o $@
 
 %.qasm.opt.mlir: %.qasm.mlir
-	quantum-opt $^ | quantum-opt --cse --canonicalize --cse --symbol-dce >$@
+	quantum-opt $^ | quantum-opt --cse --canonicalize --cse --inline --cse --symbol-dce >$@
 
 %.final.qasm: %.qasm.opt.mlir
 	quantum-translate --mlir-to-openqasm $^ >$@
