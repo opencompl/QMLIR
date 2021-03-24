@@ -186,10 +186,15 @@ class SSAValue(MLIRBase):
     def __init__(self, name: str, ty: MLIRType):
         self.name = name
         self.ty = ty
+        self.definingOp = None
     def show(self, withType: bool=False) -> str:
         if withType:
             return f'%{self.name} : {self.getType()}'
         return f'%{self.name}'
+    def hasDefiningOp(self) -> bool:
+        return self.definingOp is not None
+    def getDefiningOp(self) -> MLIROperation:
+        return self.definingOp
     def serialize(self) -> list[str]:
         return [self.show()]
     def getType(self) -> MLIRType:
@@ -271,6 +276,7 @@ class MLIROperation(MLIRBase):
         self.operands: list[SSAValue] = []
         self.attributes: list[MLIRAttribute] = []
         self.results: list[SSAValue] = []
+        self.blocks: list[MLIRBlock] = []
         self.build()
 
     def serialize(self) -> list[str]:
@@ -293,91 +299,13 @@ class MLIROperation(MLIRBase):
         self.attributes.append(attr)
     def addOperand(self, arg: SSAValue):
         self.operands.append(arg)
+    def addBlock(self, block: MLIRBlock):
+        self.blocks.append(block)
 
     def getResults(self) -> list[SSAValue]:
         return self.results
 
 """ std Ops """
-class AllocOp(MLIROperation):
-    """Alloc Op
-    build(dims: list[Union[None, int]], ty: MLIRType)
-    """
-    dialect = 'memref'
-    name = 'alloc'
-    def getType(self) -> MemrefType:
-        return self.results[0].getType()
-    def getElementType(self) -> MLIRType:
-        return self.getType().getElementType()
-
-    def build(self):
-        dims = self.kwargs['dims']
-        elemty = self.kwargs['ty']
-        ty = MemrefType(dims=dims, ty=elemty)
-        self.addResult(ty)
-        
-        self.dyn_dims = 0
-        for d in dims:
-            if d is None:
-                self.dyn_dims += 1
-        if self.dyn_dims > 0:
-            raise UnimplementedError("No support for dynamic dims in alloc")
-
-    def show(self) -> str:
-        dyn_dims = ''
-        return f'({dyn_dims}) : {self.getType()}'
-
-class StoreOp(MLIROperation):
-    """Store Op
-    # use kwargs only
-    build(mem: SSAValue, idx: SSAValue, val: SSAValue)
-    // %mem : memref<?xi1>
-    // %idx : index 
-    memref.store %val, %mem[%idx] : memref<?xi1>
-    """
-    name = 'store'
-    dialect = 'memref'
-    def build(self):
-        args = self.kwargs
-        self.addOperand(args['mem'])
-        self.addOperand(args['idx'])
-        self.addOperand(args['val'])
-        elemTy = args['mem'].getType().getElementType()
-        valTy = args['val'].getType()
-        assert(type(elemTy) == type(valTy))
-    def getMemref(self):
-        return self.operands[0]
-    def getIndex(self):
-        return self.operands[1]
-    def getValue(self):
-        return self.operands[2]
-    def show(self) -> str:
-        return f'{self.getValue()}, {self.getMemref()}[{self.getIndex()}] : {self.getMemref().getType()}'
-    
-class LoadOp(MLIROperation):
-    """Load Op
-    # use kwargs only
-    build(mem: SSAValue, idx: SSAValue)
-    
-    // %mem : memref<?xi1>
-    // %idx : index
-    %res = memref.load %mem[%idx] : memref<?xi1>
-    """
-    name = 'load'
-    dialect = 'memref'
-    def build(self):
-        args = self.kwargs
-        self.addOperand(args['mem'])
-        self.addOperand(args['idx'])
-        self.addResult(args['mem'].getType().getElementType())
-    def getMemref(self):
-        return self.operands[0]
-    def getIndex(self):
-        return self.operands[1]
-    def getValue(self):
-        return self.results[0]
-    def show(self) -> str:
-        return f'{self.getMemref()}[{self.getIndex()}] : {self.getMemref().getType()}'
-
 class ReturnOp(MLIROperation):
     name = 'return'
     def build(self):
@@ -496,7 +424,8 @@ class BinaryOp(MLIROperation):
     """build(lhs, rhs)
     """
     def build(self):
-        lhs, rhs = self.args
+        lhs = self.args[0]
+        rhs = self.args[1]
         self.addOperand(lhs)
         self.addOperand(rhs)
         lhsty, rhsty = lhs.getType(), rhs.getType()
@@ -507,6 +436,8 @@ class BinaryOp(MLIROperation):
         return self.operands[0]
     def rhs(self) -> SSAValue:
         return self.operands[1]
+    def getType(self) -> MLIRType:
+        return self.results[0].getType()
     def show(self) -> str:
         return f'{self.lhs()}, {self.rhs()} : {self.lhs().getType()}'
 
@@ -528,6 +459,33 @@ class MulIOp(BinaryOp):
 class DivIOp(BinaryOp):
     name = 'divi'
 
+class CmpIOp(MLIROperation):
+    """build(lhs, rhs[, cmpMnemonic])
+    """
+    def build(self):
+        lhs = self.args[0]
+        rhs = self.args[1]
+        self.addOperand(lhs)
+        self.addOperand(rhs)
+        lhsty, rhsty = lhs.getType(), rhs.getType()
+        assert(type(lhsty) == type(rhsty))
+        self.addResult(IntType(1))
+        if len(self.args) >= 3:
+            self.addAttribute(StringAttr(self.args[2]))
+        else:
+            self.addAttribute(StringAttr("eq"))
+
+    def lhs(self) -> SSAValue:
+        return self.operands[0]
+    def rhs(self) -> SSAValue:
+        return self.operands[1]
+    def getType(self) -> MLIRType:
+        return self.results[0].getType()
+    def getCmpMnemonic(self) -> MLIRAttribute:
+        return self.attributes[0]
+    def show(self) -> str:
+        return f'{self.getCmpMnemonic()}, {self.lhs()}, {self.rhs()} : {self.lhs().getType()}'
+    
 """ qasm Ops """
 class QASMAllocOp(MLIROperation):
     name = 'allocate'
@@ -582,7 +540,7 @@ class CNOTOp(MLIROperation):
         self.target = args[1]
     def show(self) -> str:
         return f'{self.control}, {self.target}'
-    
+
 class QASMMeasureOp(MLIROperation):
     name = 'measure'
     dialect = 'qasm'
@@ -599,11 +557,8 @@ class QASMMeasureOp(MLIROperation):
     def show(self) -> str:
         return f'{self.getQubit()}'
 
-class QASMResetOp(MLIROperation):
-    name = 'reset'
+class SingleQubitConsumeOp(MLIROperation):
     dialect = 'qasm'
-    """build(q)
-    """
     def build(self):
         assert(len(self.args) == 1)
         qubit = self.args[0]
@@ -613,7 +568,129 @@ class QASMResetOp(MLIROperation):
         return self.operands[0]
     def show(self) -> str:
         return f'{self.getQubit()}'
+
+class QASMResetOp(SingleQubitConsumeOp):
+    name = 'reset'
+
+class QASMBarrierOp(SingleQubitConsumeOp):
+    name = 'barrier'
+
+class QASMIfOp(MLIROperation):
+    name = 'if'
+    dialect = 'quantum'
+    """SCF If Op
+    # use args only
+    build(creg: SSAValue, val: IntAttr, scope: SSAValueMap)
+    // %cond : i1
+    qasm.if %cond $val : type(%cond) {
+        [[ifBlock]]
+    }
     
+    Then add ops using the if-block: `<ifOp>.getIfBlock()`
+    """
+    def build(self):
+        creg, val, scope = self.args
+        assert(isinstance(creg.getType(), MemrefType))
+        self.addOperand(creg)
+        self.addAttribute(val)
+        self.addBlock(MLIRBlock(copy.deepcopy(scope)))
+
+    def getCreg(self) -> SSAValue:
+        return self.operands[0]
+    def getValue(self) -> MLIRAttribute:
+        return self.attributes[0]
+    def getIfBlock(self) -> MLIRBlock:
+        return self.blocks[0]
+
+    def serialize(self) -> list[str]:
+        lines = [f'qasm.if {self.getCreg()} = {self.getValue()} : {self.getCreg().getType()} {{']
+        lines += self.indent(self.getIfBlock().serialize())
+        lines.append('}')
+        return lines
+    def show(self) -> str:
+        return '\n'.join(self.serialize())
+
+### Memref Ops
+class AllocOp(MLIROperation):
+    """Alloc Op
+    build(dims: list[Union[None, int]], ty: MLIRType)
+    """
+    dialect = 'memref'
+    name = 'alloc'
+    def getType(self) -> MemrefType:
+        return self.results[0].getType()
+    def getElementType(self) -> MLIRType:
+        return self.getType().getElementType()
+
+    def build(self):
+        dims = self.kwargs['dims']
+        elemty = self.kwargs['ty']
+        ty = MemrefType(dims=dims, ty=elemty)
+        self.addResult(ty)
+        
+        self.dyn_dims = 0
+        for d in dims:
+            if d is None:
+                self.dyn_dims += 1
+        if self.dyn_dims > 0:
+            raise UnimplementedError("No support for dynamic dims in alloc")
+
+    def show(self) -> str:
+        dyn_dims = ''
+        return f'({dyn_dims}) : {self.getType()}'
+
+### Affine Ops
+class StoreOp(MLIROperation):
+    """Store Op
+    # use kwargs only
+    build(mem: SSAValue, idx: SSAValue, val: SSAValue)
+    // %mem : memref<?xi1>
+    // %idx : index 
+    memref.store %val, %mem[%idx] : memref<?xi1>
+    """
+    name = 'store'
+    dialect = 'affine'
+    def build(self):
+        args = self.kwargs
+        self.addOperand(args['mem'])
+        self.addOperand(args['idx'])
+        self.addOperand(args['val'])
+        elemTy = args['mem'].getType().getElementType()
+        valTy = args['val'].getType()
+        assert(type(elemTy) == type(valTy))
+    def getMemref(self):
+        return self.operands[0]
+    def getIndex(self):
+        return self.operands[1]
+    def getValue(self):
+        return self.operands[2]
+    def show(self) -> str:
+        return f'{self.getValue()}, {self.getMemref()}[{self.getIndex()}] : {self.getMemref().getType()}'
+    
+class LoadOp(MLIROperation):
+    """Load Op
+    # use kwargs only
+    build(mem: SSAValue, idx: SSAValue)
+    
+    // %mem : memref<?xi1>
+    // %idx : index
+    %res = memref.load %mem[%idx] : memref<?xi1>
+    """
+    name = 'load'
+    dialect = 'affine'
+    def build(self):
+        args = self.kwargs
+        self.addOperand(args['mem'])
+        self.addOperand(args['idx'])
+        self.addResult(args['mem'].getType().getElementType())
+    def getMemref(self):
+        return self.operands[0]
+    def getIndex(self):
+        return self.operands[1]
+    def getValue(self):
+        return self.results[0]
+    def show(self) -> str:
+        return f'{self.getMemref()}[{self.getIndex()}] : {self.getMemref().getType()}'
 
 
 # In[ ]:
@@ -628,7 +705,8 @@ def isaExpression(obj) -> bool:
     if isinstance(obj, Node.Prefix): return True
     return False
 
-OperationType = Union[Node.UniversalUnitary, Node.CustomUnitary, Node.Cnot, Node.Qreg, Node.Creg, Node.Measure, Node.Reset]
+OperationType = Union[Node.UniversalUnitary, Node.CustomUnitary, Node.Cnot, Node.Qreg, Node.Creg, 
+                      Node.Measure, Node.Reset, Node.Barrier, Node.If]
 def isaOperation(obj) -> bool:
     if isinstance(obj, Node.UniversalUnitary): return True
     if isinstance(obj, Node.CustomUnitary): return True
@@ -637,6 +715,8 @@ def isaOperation(obj) -> bool:
     if isinstance(obj, Node.Creg): return True
     if isinstance(obj, Node.Measure): return True
     if isinstance(obj, Node.Reset): return True
+    if isinstance(obj, Node.Barrier): return True
+    if isinstance(obj, Node.If): return True
     return False
 
 class MLIRBlock(MLIRBase):
@@ -799,6 +879,18 @@ class MLIRBlock(MLIRBase):
             for qubit in qubits:
                 self.buildOp(QASMResetOp, qubit)
             return
+        if isinstance(op, Node.Barrier):
+            for arg in op.children[0].children:
+                qubits = self.parseQubit(arg)
+                for qubit in qubits:
+                    self.buildOp(QASMBarrierOp, qubit)
+            return
+        if isinstance(op, Node.If):
+            creg, val, childOp = op.children
+            mem = self.valueMap.lookup(creg.name)
+            self.buildOp(QASMIfOp, mem, IntAttr(val.value), self.valueMap)
+            self.body[-1].getIfBlock().parseOperation(childOp)
+            return
 
         showtree(op)
         raise UnimplementedError(f"Unknown operation kind {type(op)}: {op.qasm()}")
@@ -812,6 +904,7 @@ class MLIRFunction(MLIRBase):
         self.body: MLIRBlock = MLIRBlock(self.valueMap)
         self.attributes: list[str] = []
         self.private = False
+        self.hasBody = True
 
     def addArgument(self, name: str, ty: MLIRType):
         arg = self.valueMap.newValue(ty, name)
@@ -831,9 +924,11 @@ class MLIRFunction(MLIRBase):
         if len(self.attributes) > 0:
             attr_list = 'attributes {' + ', '.join(self.attributes) + '}'
         privateStr = ('private' if self.private else '')
-        code = [f'func {privateStr} @{self.name} ({args}) -> ({results}) {attr_list} {{']
-        code += self.indent(self.body.serialize())
-        code.append('}')
+        code = [f'func {privateStr} @{self.name} ({args}) -> ({results}) {attr_list}']
+        if self.hasBody:
+            code.append('{')
+            code += self.indent(self.body.serialize())
+            code.append('}')
         return code
 
 qasm_stdgates: list[str] = 'u3 u2 u1 cx id u0 u p x y z h s sdg t tdg rx ry rz sx sxdg cz cy swap ch ccx cswap crx cry crz cu1 cp cu3 csx cu rxx rzz rccx rc3x c3x c3sqrtx c4x'.split() 
@@ -857,7 +952,7 @@ class MLIRModule(MLIRBase):
         self.declarations.append(func)
         return func
 
-    def parseGate(self, node: Node.Gate):
+    def parseGate(self, node: Union[Node.Gate, Node.Opaque]):
         gate = self.addFunction(node.name)
         gate.addAttribute('qasm.gate')
         gate.setPrivate()
@@ -868,8 +963,11 @@ class MLIRModule(MLIRBase):
                 gate.addArgument(arg.name, FloatType())
         for arg in node.bitlist.children:
             gate.addArgument(arg.name, QubitType())
-        for op in node.body.children:
-            gate.body.parseOperation(op)
+        if isinstance(node, Node.Opaque):
+            gate.hasBody = False
+        else:
+            for op in node.body.children:
+                gate.body.parseOperation(op)
         gate.body.buildOp(ReturnOp, isGate=True)
 
     def parseVersion(self, version: Node.Format):
@@ -888,16 +986,19 @@ def QASMToMLIR(code: str, strict=False) -> MLIRModule:
 
     module: MLIRModule = MLIRModule(strict=strict)
     mainFunc: MLIRFunction = MLIRFunction('qasm_main')
+    mainFunc.addAttribute('qasm.main')
     for node in src.children:
         logger.debug(f'>> PARSING:\n {node.qasm()}\n<<<<<<<<')
         if isinstance(node, Node.Format):
             module.parseVersion(node)
         elif isinstance(node, Node.Gate):
             module.parseGate(node)
+        elif isinstance(node, Node.Opaque):
+            module.parseGate(node)
         elif isaOperation(node):
             mainFunc.body.parseOperation(node)
         else:
-            raise ConversionError(f"Unknown node object found at line {node.line}: {type(node)}")
+            raise ConversionError(f"Unknown node object of type {type(node)} found: {node.qasm()}")
     mainFunc.body.buildOp(ReturnOp)
     module.addDecl(mainFunc)
 
@@ -926,6 +1027,7 @@ def main():
         with open(args.config) as configFile:
             for line in configFile.readlines():
                 ipname, opname = line.strip().split(',')
+                print(f'Converting {ipname} -> {opname}')
                 with open(ipname, 'r') as ipf:
                     code = ipf.read()
                     module = QASMToMLIR(code, strict=False)

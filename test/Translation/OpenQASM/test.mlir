@@ -727,7 +727,7 @@ module {
     %13 = qasm.allocate 
     %14 = qasm.allocate 
     %15 = qasm.allocate 
-    %16 = std.alloc () : memref<16xi1>
+    %16 = memref.alloc () : memref<16xi1>
     std.call @cx(%1, %2) {qasm.gate} : (!qasm.qubit, !qasm.qubit) -> ()
     std.call @cx(%3, %1) {qasm.gate} : (!qasm.qubit, !qasm.qubit) -> ()
     std.return 

@@ -11,6 +11,7 @@
 
 include "mlir/IR/OpBase.td"
 include "mlir/Interfaces/SideEffectInterfaces.td"
+include "mlir/Interfaces/ControlFlowInterfaces.td"
 
 include "QASMDialect.td"
 include "QASMTypes.td"
@@ -128,6 +129,50 @@ def QASM_GlobalPhaseGateOp : QASM_Op<"gphase", []> {
   let arguments = (ins AnyFloat:$gamma);
   let assemblyFormat = [{ `(` $gamma `:` type($gamma) `)` attr-dict }];
   let verifier = ?;
+}
+
+// Basic Control Flow
+
+def QASM_CregType : MemRefRankOf<[I1], [1]>;
+def QASM_IfOp : QASM_Op<"if", [SingleBlockImplicitTerminator<"EndIfOp">,
+                               NoRegionArguments]> {
+  let summary = "QASM If Operation";
+  let description = [{
+    ```mlir
+    // N :: Integer constant (<= 64)
+    // %creg : memref<Nxi1>
+    // V :: I64Attr
+    qasm.if %creg V {
+      qasm.CX %a0, %b0
+      qasm.CX %a1, %b1
+      qasm.CX %a2, %b2
+      qasm.CX %a3, %b3
+    }
+  }];
+  let arguments = (ins QASM_CregType:$creg, I64Attr:$value);
+  let regions = (region SizedRegion<1>:$ifBlock);
+  let assemblyFormat = [{ $creg `=` $value attr-dict `:` type($creg) $ifBlock }];
+  let verifier = [{
+    if (creg().getType().cast<MemRefType>().getShape()[0] > 64)
+      return emitOpError("unsupported: size of register too large (> 64)");
+    return success();
+  }];
+}
+
+def QASM_EndIfOp : QASM_Op<"end_if", [Terminator, ReturnLike, ParentOneOf<["IfOp"]>]> {
+  let summary = "QASM if block terminator";
+  let description = [{
+    ```mlir
+    qasm.if %creg == 0 {
+      qasm.CX %0, %1
+      qasm.CX %2, %3
+      qasm.end_if
+    }
+    ```
+    Will be implicitly added if not specified.
+  }];
+  let verifier = ?;
+  let assemblyFormat = [{ attr-dict }];
 }
 
 #endif // QASM_OPS
