@@ -7,14 +7,31 @@ SRCS :=\
 	E6-randomized-bench.qasm\
 	E7-quantum-process-tomography.qasm\
 	E8-error-correction.qasm
-MLIRS := $(patsubst %.qasm, %.qasm.mlir, $(SRCS))
-OPT_MLIRS := $(patsubst %.qasm, %.qasm.opt.mlir, $(SRCS))
-FINAL := $(patsubst %.qasm, %.final.qasm, $(SRCS))
+MLIRS_1 := $(patsubst %.qasm, %.1.qasm.mlir, $(SRCS))
+OPT_MLIRS_1 := $(patsubst %.qasm, %.1.qasm.opt.mlir, $(SRCS))
+FINAL_QASM_1 := $(patsubst %.qasm, %.1.final.qasm, $(SRCS))
+MLIRS_2 := $(patsubst %.qasm, %.2.qasm.mlir, $(SRCS))
+OPT_MLIRS_2 := $(patsubst %.qasm, %.2.qasm.opt.mlir, $(SRCS))
+FINAL_QASM_2 := $(patsubst %.qasm, %.2.final.qasm, $(SRCS))
 
-all: $(MLIRS) $(OPT_MLIRS) $(FINAL)
+all: roundtrip
 
-# Pipeline: %.qasm -> %.qasm.mlir -> %.qasm.opt.mlir -> %.final.qasm
-%.qasm.mlir: %.qasm
+
+# Pipeline:
+# %.qasm
+# -> %.1.qasm.mlir
+# -> %.1.qasm.opt.mlir
+# -> %.1.final.qasm
+# -> %.2.qasm.mlir
+# -> %.2.qasm.opt.mlir
+# -> %.2.final.qasm
+
+roundtrip: $(MLIRS_1) $(OPT_MLIRS_1) $(FINAL_QASM_1) $(MLIRS_2) $(OPT_MLIRS_2) $(FINAL_QASM_2)
+
+%.1.qasm.mlir: %.qasm
+	python ../../../tools/openqasm-to-mlir.py -i $< -o $@
+
+%.2.qasm.mlir: %.1.final.qasm
 	python ../../../tools/openqasm-to-mlir.py -i $< -o $@
 
 %.qasm.opt.mlir: %.qasm.mlir
@@ -24,7 +41,7 @@ all: $(MLIRS) $(OPT_MLIRS) $(FINAL)
 	quantum-translate --mlir-to-openqasm $^ >$@
 
 clean:
-	rm $(MLIRS) $(OPT_MLIRS) $(FINAL) -f
+	rm $(MLIRS_1) $(OPT_MLIRS_1) $(FINAL_QASM_1) $(MLIRS_2) $(OPT_MLIRS_2) $(FINAL_QASM_2) -f
 
-.PHONY: clean
+.PHONY: clean roundtrip diffcheck
 
