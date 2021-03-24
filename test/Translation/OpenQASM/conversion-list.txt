@@ -1,0 +1,8 @@
+E2-teleportation.qasm,E2-teleportation.qasm.mlir
+E3-qft.qasm,E3-qft.qasm.mlir
+E4-inverse-qft-v1.qasm,E4-inverse-qft-v1.qasm.mlir
+E4-inverse-qft-v2.qasm,E4-inverse-qft-v2.qasm.mlir
+E5-ripple-carry-adder.qasm,E5-ripple-carry-adder.qasm.mlir
+E6-randomized-bench.qasm,E6-randomized-bench.qasm.mlir
+E7-quantum-process-tomography.qasm,E7-quantum-process-tomography.qasm.mlir
+E8-error-correction.qasm,E8-error-correction.qasm.mlir

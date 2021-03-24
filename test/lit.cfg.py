@@ -25,7 +25,7 @@ config.name = 'QUANTUM_OPT'
 config.test_format = lit.formats.ShTest(not llvm_config.use_lit_shell)
 
 # suffixes: A list of file extensions to treat as test files.
-config.suffixes = ['.mlir']
+config.suffixes = ['.mlir', '.qasm']
 
 
 # excludes: A list of directories to exclude from the testsuite. The 'Inputs'
@@ -62,6 +62,7 @@ if hasattr(config, 'quantum_obj_root'):
 
     tool_dirs = [config.quantum_tools_dir, config.llvm_tools_dir]
     tools = [
-        'quantum-opt'
+        'quantum-opt',
+        'quantum-translate'
     ]
     llvm_config.add_tool_substitutions(tools, tool_dirs)

@@ -1,4 +1,4 @@
-// RUN: quantum-opt %s | FileCheck %s
+// RUN: quantum-opt %s 2>&1 | FileCheck %s
 
 // CHECK: func
 func @iftest() {
