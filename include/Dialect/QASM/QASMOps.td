@@ -73,6 +73,7 @@ def QASM_PIOp : QASM_Op<"pi", [NoSideEffect]> {
   let results = (outs AnyFloat:$qout);
   let assemblyFormat = [{ attr-dict `:` type($qout) }];
   let verifier = ?;
+  let hasFolder = 1;
 }
 
 //======================

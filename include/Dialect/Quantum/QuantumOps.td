@@ -447,6 +447,13 @@ def UniversalRotationGateOp : Quantum_Op<"U", [NoSideEffect]> {
 //      by IR tranformations.
 
 //===----------------------------------------------------------------------===//
-// QASM Dialect Ops
+// Support Ops
 //===----------------------------------------------------------------------===//
+def CanonicalizeSupportOp : Quantum_Op<"canon"> {
+  let summary = "Op to register extra canonicalization patterns. DO NOT USE";
+  let assemblyFormat = "attr-dict";
+  let verifier = ?;
+  let hasCanonicalizer = 1;
+}
+
 #endif // QUANTUM_OPS

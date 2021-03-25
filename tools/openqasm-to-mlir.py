@@ -791,7 +791,7 @@ class MLIRBlock(MLIRBase):
                 res = self.buildOp(ConstantOp, float(node.value), FloatType())
             return res[0]
         if isinstance(node, Node.Int):
-            res = self.buildOp(ConstantOp, node.value, IntType())
+            res = self.buildOp(ConstantOp, float(node.value), FloatType())
             return res[0]
         if isinstance(node, Node.Prefix):
             op, val = node.children

@@ -1,3 +1,4 @@
+#include "mlir/Dialect/StandardOps/IR/Ops.h"
 #include "mlir/IR/DialectImplementation.h"
 #include "mlir/IR/Types.h"
 #include "mlir/Support/LLVM.h"
@@ -62,4 +63,9 @@ void QASMDialect::printType(Type type, DialectAsmPrinter &printer) const {
   }
 
   assert(false && "Invalid QASM type given to print");
+}
+
+Operation *QASMDialect::materializeConstant(OpBuilder &builder, Attribute value,
+                                            Type type, Location loc) {
+  return builder.create<ConstantOp>(loc, type, value);
 }

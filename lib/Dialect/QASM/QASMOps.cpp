@@ -14,3 +14,7 @@ static LogicalResult verify(IfOp op) {
 
 #define GET_OP_CLASSES
 #include "Dialect/QASM/QASMOps.cpp.inc"
+
+OpFoldResult PIOp::fold(ArrayRef<Attribute> operands) {
+  return FloatAttr::get(getType(), M_PI);
+}

@@ -35,7 +35,7 @@ roundtrip: $(MLIRS_1) $(OPT_MLIRS_1) $(FINAL_QASM_1) $(MLIRS_2) $(OPT_MLIRS_2) $
 	python ../../../tools/openqasm-to-mlir.py -i $< -o $@
 
 %.qasm.opt.mlir: %.qasm.mlir
-	quantum-opt $^ | quantum-opt --cse --canonicalize --cse --inline --cse --symbol-dce >$@
+	quantum-opt $^ | quantum-opt --canonicalize --cse --inline --cse --symbol-dce >$@
 
 %.final.qasm: %.qasm.opt.mlir
 	quantum-translate --mlir-to-openqasm $^ >$@

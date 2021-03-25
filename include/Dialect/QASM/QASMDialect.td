@@ -8,23 +8,26 @@ include "mlir/IR/OpBase.td"
 //===----------------------------------------------------------------------===//
 
 def QASM_Dialect : Dialect {
-    let name = "qasm";
-    let summary = "Dialect for OpenQASM";
-    let description = [{
-        Dialect to represent OpenQASM programs.
-        Spec Version 3.0: https://qiskit.github.io/openqasm/
-        - Version 2.0: https://github.com/Qiskit/openqasm/tree/OpenQASM2.x
-    }];
+  let name = "qasm";
+  let summary = "Dialect for OpenQASM";
+  let description = [{
+    Dialect to represent OpenQASM programs.
+      Spec Version 3.0: https://qiskit.github.io/openqasm/
+      - Version 2.0: https://github.com/Qiskit/openqasm/tree/OpenQASM2.x
+  }];
 
-    let extraClassDeclaration = [{
-      Type parseType(DialectAsmParser &) const override;
-      void printType(Type, DialectAsmPrinter &) const override;
+  let extraClassDeclaration = [{
+    Type parseType(DialectAsmParser &) const override;
+    void printType(Type, DialectAsmPrinter &) const override;
 
-      static StringRef getQubitTypeName() { return "qubit"; };
-      static StringRef getGateAttrName() { return "qasm.gate"; };
-    }];
+    static StringRef getQubitTypeName() { return "qubit"; };
+    static StringRef getGateAttrName() { return "qasm.gate"; };
+    static StringRef getQelibGateAttrName() { return "qasm.stdgate"; };
+    static StringRef getMainFuncAttrName() { return "qasm.main"; };
+  }];
 
-    let cppNamespace = "::mlir::QASM";
+  let cppNamespace = "::mlir::QASM";
+  let hasConstantMaterializer = 1;
 }
 
 //===----------------------------------------------------------------------===//

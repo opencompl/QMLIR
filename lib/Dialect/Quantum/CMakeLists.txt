@@ -2,6 +2,7 @@ add_mlir_dialect_library(MLIRQuantum
   QuantumDialect.cpp
   QuantumTypes.cpp
   QuantumOps.cpp
+  Canonicalizers.cpp
 
   ADDITIONAL_HEADER_DIRS
   ${PROJECT_SOURCE_DIR}/include/Dialect/Quantum

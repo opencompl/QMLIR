@@ -1,3 +1,4 @@
+#include "mlir/Dialect/Affine/IR/AffineOps.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
 #include "mlir/Transforms/DialectConversion.h"
 
@@ -84,37 +85,11 @@ public:
 
 //====== PATTERNS ======
 
-/// qasm.pi : f*
-/// [[to]]
-/// constant [M_PI] : f*
-class PIOpConversion : public QASMOpToQuantumConversionPattern<QASM::PIOp> {
-  APFloat getPIValue(Type type) const {
-    if (type.isa<Float32Type>())
-      return APFloat(float(M_PI));
-    if (type.isa<Float64Type>())
-      return APFloat(double(M_PI));
-    assert(false && "invalid float type for pi");
-  }
-
-public:
-  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
-  LogicalResult
-  matchAndRewrite(QASM::PIOp op, ArrayRef<Value> operands,
-                  ConversionPatternRewriter &rewriter) const override {
-    APFloat pi = getPIValue(op.getType());
-    auto res = rewriter.create<ConstantFloatOp>(rewriter.getUnknownLoc(), pi,
-                                                op.getType().cast<FloatType>());
-    rewriter.replaceOp(op, res.getResult());
-    return success();
-  }
-};
-
 /// %q = qasm.allocate
 /// [[to]]
 /// %q = qssa.allocate() : !qssa.qubit<1>
 class AllocateOpConversion
     : public QASMOpToQuantumConversionPattern<QASM::AllocateOp> {
-
 public:
   using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
   LogicalResult
@@ -135,7 +110,6 @@ public:
 /// %q_{i + 1} = qssa.allocate() : !qssa.qubit<1>
 class MeasureOpConversion
     : public QASMOpToQuantumConversionPattern<QASM::MeasureOp> {
-
 public:
   using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
   LogicalResult
@@ -160,7 +134,6 @@ public:
 /// %q_{i + 1} = qssa.allocate() : !qssa.qubit<1>
 class ResetOpConversion
     : public QASMOpToQuantumConversionPattern<QASM::ResetOp> {
-
 public:
   using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
   LogicalResult
@@ -183,7 +156,6 @@ public:
 /// %q_{i + 1} = qssa.barrier %q_{i} : !qssa.qubit<1>
 class BarrierOpConversion
     : public QASMOpToQuantumConversionPattern<QASM::BarrierOp> {
-
 public:
   using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
   LogicalResult
@@ -206,7 +178,6 @@ public:
 ///    qssa.U(%theta : f*, %phi : f*, %lambda : f*) %q_{i - 1} : !qssa.qubit<1>
 class SingleQubitRotationOpConversion
     : public QASMOpToQuantumConversionPattern<QASM::SingleQubitRotationOp> {
-
 public:
   using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
   LogicalResult
@@ -230,7 +201,6 @@ public:
 /// %a_{i}, %b_{j} = qssa.CNOT %a_{i - 1} %b_{j - 1}
 class ControlledNotOpConversion
     : public QASMOpToQuantumConversionPattern<QASM::ControlledNotOp> {
-
 public:
   using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
   LogicalResult
@@ -255,7 +225,6 @@ public:
 /// @<gate-name>([AnyFloat...], [quantum::QubitType...])
 ///    -> ([quantum::QubitType...])
 class FuncOpConversion : public QASMOpToQuantumConversionPattern<FuncOp> {
-
 public:
   using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
   LogicalResult
@@ -308,7 +277,6 @@ public:
 
 /// Convert the return op for a qasm gate, returning the input qubits
 class ReturnOpConversion : public QASMOpToQuantumConversionPattern<ReturnOp> {
-
 public:
   using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
   LogicalResult
@@ -323,7 +291,6 @@ public:
 };
 
 class CallOpConversion : public QASMOpToQuantumConversionPattern<CallOp> {
-
 public:
   using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
   LogicalResult
@@ -362,6 +329,17 @@ public:
   }
 };
 
+class IfOpConversion : public QASMOpToQuantumConversionPattern<QASM::IfOp> {
+public:
+  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
+  LogicalResult
+  matchAndRewrite(QASM::IfOp op, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    QASM::IfOpAdaptor resolved(operands);
+    return success();
+  }
+};
+
 void populateQASMToQuantumConversionPatterns(
     QASMTypeConverter &typeConverter, QubitMap &qubitMap,
     OwningRewritePatternList &patterns) {
@@ -370,13 +348,13 @@ void populateQASMToQuantumConversionPatterns(
       FuncOpConversion,
       ReturnOpConversion,
       CallOpConversion,
-      PIOpConversion,
       AllocateOpConversion,
       MeasureOpConversion,
       ResetOpConversion,
       BarrierOpConversion,
       SingleQubitRotationOpConversion,
-      ControlledNotOpConversion
+      ControlledNotOpConversion,
+      IfOpConversion
   >(typeConverter, &qubitMap);
   // clang-format on
 }
@@ -385,6 +363,7 @@ struct QASMToQuantumTarget : public ConversionTarget {
   QASMToQuantumTarget(MLIRContext &ctx) : ConversionTarget(ctx) {
     addLegalDialect<StandardOpsDialect>();
     addLegalDialect<quantum::QuantumDialect>();
+    addLegalDialect<AffineDialect>();
 
     addIllegalDialect<QASM::QASMDialect>();
     addDynamicallyLegalOp<FuncOp>(
