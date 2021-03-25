@@ -6,6 +6,7 @@
 //===----------------------------------------------------------------------===//
 
 // RUN: quantum-opt %s | quantum-opt 
+// RUN: quantum-opt %s --inline --cse --memref-dataflow-opt
 
 func private @std_to_bell(%qs: !qssa.qubit<2>) -> !qssa.qubit<2> {
   // H(qs[0])
@@ -41,13 +42,17 @@ func private @teleport(%psiA: !qssa.qubit<1>, %eb: !qssa.qubit<2>) -> (!qssa.qub
   // Measure in Bell basis
   %qsA1 = call @bell_to_std(%qsA0) : (!qssa.qubit<2>) -> !qssa.qubit<2>
   %resA = memref.alloc() : memref<2xi1>
-  qssa.measure %qsA1 -> %resA : !qssa.qubit<2> -> memref<2xi1>
+  // qssa.measure %qsA1 -> %resA : !qssa.qubit<2> -> memref<2xi1>
+  %qsA2:2 = qssa.split %qsA1 : (!qssa.qubit<2>) -> (!qssa.qubit<1>, !qssa.qubit<1>)
+  %bit0 = qssa.measure_one %qsA2#0
+  %bit1 = qssa.measure_one %qsA2#1
+  affine.store %bit0, %resA[0] : memref<2xi1>
+  affine.store %bit1, %resA[1] : memref<2xi1>
 
   // Apply corrections
 
   // 1. Apply X correction, if resA[0] == 1
-  %idx0 = constant 0 : index
-  %corrX = memref.load %resA[%idx0] : memref<2xi1>
+  %corrX = affine.load %resA[0] : memref<2xi1>
 
   %psiB1 = scf.if %corrX -> !qssa.qubit<1> {
     %temp = qssa.X %psiB0 : !qssa.qubit<1>
@@ -57,8 +62,7 @@ func private @teleport(%psiA: !qssa.qubit<1>, %eb: !qssa.qubit<2>) -> (!qssa.qub
   }
 
   // 2. Apply Z correction, if resA[1] == 1
-  %idx1 = constant 1 : index
-  %corrZ = memref.load %resA[%idx1] : memref<2xi1>
+  %corrZ = affine.load %resA[1] : memref<2xi1>
 
   %psiB2 = scf.if %corrZ -> !qssa.qubit<1> {
     %temp = qssa.Z %psiB1 : !qssa.qubit<1>
