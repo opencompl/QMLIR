@@ -62,7 +62,7 @@ def QASM_BarrierOp : QASM_Op<"barrier", []> {
   let verifier = ?;
 }
 
-def QASM_PIOp : QASM_Op<"pi", []> {
+def QASM_PIOp : QASM_Op<"pi", [NoSideEffect]> {
   let summary = "Return the value of pi";
   let description = [{
     %pi = qasm.pi : f32

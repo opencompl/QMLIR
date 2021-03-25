@@ -270,6 +270,29 @@ def Quantum_SinkOp : Quantum_Op<"sink", [MemoryEffects<[MemWrite]>]> {
     let verifier = ?;
 }
 
+def Quantum_BarrierOp : Quantum_Op<"barrier", [NoSideEffect, AllTypesMatch<["qinp", "qout"]>]> {
+  let summary = "Place a barrier for optimization";
+  let description = [{
+    Places a barrier, preventing optimizations to move components across it.
+
+      Example:
+
+      ```mlir
+      // Does NOT fold the two Xs away
+      %0 = qssa.allocate : !qssa.qubit<10>
+      %1 = qssa.X %0 : !qssa.qubit<10>
+      %2 = qssa.barrier %1 : !qssa.qubit<10>
+      %3 = qssa.X %2 : !qssa.qubit<10>
+      qssa.sink %3
+      ```
+  }];
+
+  let arguments = (ins Quantum_QubitType:$qinp);
+  let results = (outs Quantum_QubitType:$qout);
+  let assemblyFormat = [{ $qinp attr-dict `:` type($qout) }];
+  let verifier = ?;
+}
+
 //===----------------------------------------------------------------------===//
 // Primitive Gate Ops
 //===----------------------------------------------------------------------===//
@@ -390,7 +413,8 @@ def CNOTGateOp : Quantum_Op<"CNOT", [NoSideEffect]> {
     }]>
   ];
   let assemblyFormat = [{ $qinp_cont `,` $qinp_targ attr-dict }];
-  let verifier = [{ return success(); }];
+  let verifier = ?;
+  let hasFolder = 1;
 }
 
 def UniversalRotationGateOp : Quantum_Op<"U", [NoSideEffect]> {

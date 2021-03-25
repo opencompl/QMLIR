@@ -166,12 +166,34 @@ public:
   LogicalResult
   matchAndRewrite(QASM::ResetOp op, ArrayRef<Value> operands,
                   ConversionPatternRewriter &rewriter) const override {
-    QASM::MeasureOpAdaptor args(operands);
+    QASM::ResetOpAdaptor args(operands);
     auto parentFuncOp = op->getParentOfType<FuncOp>();
     auto currentQubit = qubitMap->resolveQubit(parentFuncOp, args.qinp());
     rewriter.create<quantum::MeasureQubitOp>(op->getLoc(), currentQubit);
     auto newQubit =
         rewriter.create<quantum::AllocateOp>(rewriter.getUnknownLoc(), 1);
+    qubitMap->updateQubit(parentFuncOp, args.qinp(), newQubit.getResult());
+    rewriter.eraseOp(op);
+    return success();
+  }
+};
+
+/// qasm.barrier %q
+/// [[to]]
+/// %q_{i + 1} = qssa.barrier %q_{i} : !qssa.qubit<1>
+class BarrierOpConversion
+    : public QASMOpToQuantumConversionPattern<QASM::BarrierOp> {
+
+public:
+  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
+  LogicalResult
+  matchAndRewrite(QASM::BarrierOp op, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    QASM::BarrierOpAdaptor args(operands);
+    auto parentFuncOp = op->getParentOfType<FuncOp>();
+    auto currentQubit = qubitMap->resolveQubit(parentFuncOp, args.qinp());
+    auto newQubit = rewriter.create<quantum::BarrierOp>(
+        rewriter.getUnknownLoc(), currentQubit.getType(), currentQubit);
     qubitMap->updateQubit(parentFuncOp, args.qinp(), newQubit.getResult());
     rewriter.eraseOp(op);
     return success();
@@ -352,6 +374,7 @@ void populateQASMToQuantumConversionPatterns(
       AllocateOpConversion,
       MeasureOpConversion,
       ResetOpConversion,
+      BarrierOpConversion,
       SingleQubitRotationOpConversion,
       ControlledNotOpConversion
   >(typeConverter, &qubitMap);

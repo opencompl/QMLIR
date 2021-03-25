@@ -69,5 +69,19 @@ OpFoldResult HadamardGateOp::fold(ArrayRef<Attribute> operands) {
   return nullptr;
 }
 
+LogicalResult
+quantum::CNOTGateOp::fold(ArrayRef<Attribute> operands,
+                          SmallVectorImpl<OpFoldResult> &results) {
+  if (auto parentCNOT = qinp_cont().getDefiningOp<CNOTGateOp>()) {
+    if (parentCNOT.qout_cont() == qinp_cont() &&
+        parentCNOT.qout_targ() == qinp_targ()) {
+      results.push_back(parentCNOT.qinp_cont());
+      results.push_back(parentCNOT.qinp_targ());
+      return success();
+    }
+  }
+  return failure();
+}
+
 #define GET_OP_CLASSES
 #include "Dialect/Quantum/QuantumOps.cpp.inc"
