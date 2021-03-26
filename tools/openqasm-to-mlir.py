@@ -107,7 +107,7 @@ class FloatType(MLIRType):
     """build(<prec>)
     """
     def build(self):
-        prec: int = 32
+        prec: int = 64
         if len(self.args) >= 1:
             prec = self.args[0]
         self.name = f'f{prec}'
@@ -156,9 +156,9 @@ class MLIRAttribute(MLIRBase):
 
 class FloatAttr(MLIRAttribute):
     def build(self, val: float):
-        self.value = val
+        self.value = float(val)
     def show(self) -> str:
-        return str(self.value)
+        return '{:e}'.format(self.value)
 class IntAttr(MLIRAttribute):
     def build(self, val: int):
         self.value = val
@@ -335,34 +335,14 @@ class CallOp(MLIROperation):
         return f'@{self.func}({args}) {attrs}: ({argty}) -> {resty}'
 
 class ConstantOp(MLIROperation):
+    """Constant Op
+    build(val: MLIRAttribute, ty: MLIRType)
+    """
     name = 'constant'
     def build(self):
-        val = self.args[0]
-        if 'ty' in self.kwargs:
-            constTy = self.kwargs['ty']
-            if isinstance(constTy, FloatType):
-                self.addAttribute(FloatAttr(val))
-                self.addResult(constTy)
-                return
-            if isinstance(constTy, IntType):
-                self.addAttribute(IntAttr(val))
-                self.addResult(constTy)
-                return
-            if isinstance(constTy, IndexType):
-                self.addAttribute(IntAttr(val))
-                self.addResult(constTy)
-                return
-            
-        if isinstance(val, float):
-            self.addAttribute(FloatAttr(val))
-            self.addResult(FloatType())
-            return
-        if isinstance(val, int):
-            self.addAttribute(IntAttr(val))
-            self.addResult(IntType())
-            return
-        logger.debug(f">> ConstantOp: {val}, {type(val)}")
-        raise ConversionError("Invalid constant for ConstantOp")
+        val, ty = self.args
+        self.addAttribute(val)
+        self.addResult(ty)
     def getValue(self) -> MLIRAttribute:
         return self.attributes[0]
     def getType(self) -> MLIRType:
@@ -788,10 +768,10 @@ class MLIRBlock(MLIRBase):
             if node.qasm() == 'pi':
                 res = self.buildOp(PIOp, FloatType())
             else:
-                res = self.buildOp(ConstantOp, float(node.value), FloatType())
+                res = self.buildOp(ConstantOp, FloatAttr(node.value), FloatType())
             return res[0]
         if isinstance(node, Node.Int):
-            res = self.buildOp(ConstantOp, float(node.value), FloatType())
+            res = self.buildOp(ConstantOp, FloatAttr(float(node.value)), FloatType())
             return res[0]
         if isinstance(node, Node.Prefix):
             op, val = node.children
@@ -800,10 +780,7 @@ class MLIRBlock(MLIRBase):
                 if op.qasm() == '-':
                     if isinstance(res.getType(), FloatType):
                         nres = self.buildOp(NegFOp, res)[0]
-                    else:
-                        zero = self.buildOp(ConstantOp, 0, IntType())[0]
-                        nres = self.buildOp(SubIOp, zero, res)[0]
-                    return nres
+                        return nres
 
         showtree(node)
         raise UnimplementedError(f"Unknown expression kind {type(node)}: {node.qasm()}")
