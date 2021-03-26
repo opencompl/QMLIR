@@ -132,7 +132,23 @@ def QASM_GlobalPhaseGateOp : QASM_Op<"gphase", []> {
   let verifier = ?;
 }
 
-// Basic Control Flow
+// Custom Gate Call
+def QASM_GateCall : QASM_Op<"gate", []> {
+  let summary = "Add opaque call to a gate";
+  let description = [{
+    ```mlir
+    qasm.gate @name(%alpha, %q) : (f32, !qasm.qubit) -> ()
+  }];
+  let arguments = (ins
+    SymbolRefAttr:$gate_name,
+    Variadic<AnyTypeOf<[AnyFloat, QASM_QubitType]>>:$gate_args);
+  let assemblyFormat = [{
+    $gate_name `(` $gate_args `)` attr-dict `:` functional-type($gate_args, results)
+  }];
+  let verifier = ?;
+}
+
+//================== Basic Control Flow ===================================//
 
 def QASM_CregType : MemRefRankOf<[I1], [1]>;
 def QASM_IfOp : QASM_Op<"if", [SingleBlockImplicitTerminator<"EndIfOp">,
