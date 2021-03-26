@@ -80,7 +80,9 @@ static Type parseQubit(DialectAsmParser &parser, MLIRContext *ctx) {
 
 } // namespace
 
-bool QubitType::hasStaticSize() const { return getSize() != kDynamicSize; }
+bool QubitType::hasStaticSize() const {
+  return getSize() != ShapedType::kDynamicSize;
+}
 
 #define GET_TYPEDEF_CLASSES
 #include "Dialect/Quantum/QuantumOpsTypes.cpp.inc"

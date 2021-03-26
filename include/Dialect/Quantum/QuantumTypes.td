@@ -15,8 +15,7 @@ include "Dialect/Quantum/QuantumDialect.td"
 //===----------------------------------------------------------------------===//
 // Qubit Type
 //===----------------------------------------------------------------------===//
-// def Quantum_QubitType :
-//     Type<CPred<"$_self.isa<QubitType>()">, "Quantum Qubit Type">;
+
 def Quantum_QubitType : Quantum_Type<"Qubit"> {
   let mnemonic = "qubit";
   let summary = "Quantum qubit array type";
@@ -24,13 +23,17 @@ def Quantum_QubitType : Quantum_Type<"Qubit"> {
   let printer = [{ ::print(*this, $_printer); }];
   let parser = [{ return ::parseQubit($_parser, $_ctxt); }];
   let extraClassDeclaration = [{
-    static constexpr int64_t kDynamicSize = ShapedType::kDynamicSize;
     bool hasStaticSize() const;
   }];
 }
 
-def Quantum_SingleQubitType :
-    Type<CPred<"$_self.isa<QubitType>() && $_self.cast<QubitType>().getSize() == 1">, "Quantum Single Qubit Type">
-    , BuildableType<"QubitType::get($_builder.getContext(), 1)">;
+class QubitSizePred<int N> : CPred<"$_self.cast<QubitType>().getSize() == " # N>;
+
+class QubitArrayOfSize<int N>
+  : Type<And<[Quantum_QubitType.predicate, QubitSizePred<N>]>,
+         "Quantum " # N # "-Qubit Type">,
+    BuildableType<"QubitType::get($_builder.getContext(), " # N # ")">;
+
+def Quantum_SingleQubitType : QubitArrayOfSize<1>;
 
 #endif // QUANTUM_TYPES
