@@ -12,8 +12,8 @@
 include "mlir/IR/OpBase.td"
 
 // !qasm.qubit
-def QASM_QubitType
-  : Type<CPred<"$_self.isa<QubitType>()">, "QASM Qubit Type (!qubit)">
-  , BuildableType<"QubitType::get($_builder.getContext())">;
+def QASM_QubitType : QASM_Type<"Qubit"> {
+  let mnemonic = "qubit";
+}
 
 #endif // QASM_TYPES

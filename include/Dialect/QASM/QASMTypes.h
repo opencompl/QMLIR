@@ -7,15 +7,7 @@
 #include "mlir/IR/TypeSupport.h"
 #include "mlir/IR/Types.h"
 
-namespace mlir {
-namespace QASM {
-
-class QubitType : public Type::TypeBase<QubitType, Type, TypeStorage> {
-public:
-  using Base::Base;
-};
-
-} // namespace QASM
-} // namespace mlir
+#define GET_TYPEDEF_CLASSES
+#include "Dialect/QASM/QASMOpsTypes.h.inc"
 
 #endif // QASM_QASMTYPES_H

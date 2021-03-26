@@ -17,10 +17,6 @@ def QASM_Dialect : Dialect {
   }];
 
   let extraClassDeclaration = [{
-    Type parseType(DialectAsmParser &) const override;
-    void printType(Type, DialectAsmPrinter &) const override;
-
-    static StringRef getQubitTypeName() { return "qubit"; };
     static StringRef getGateAttrName() { return "qasm.gate"; };
     static StringRef getQelibGateAttrName() { return "qasm.stdgate"; };
     static StringRef getMainFuncAttrName() { return "qasm.main"; };
@@ -48,5 +44,7 @@ class QASM_Op<string mnemonic, list<OpTrait> traits = []> :
     let printer = [{ ::print(*this, p); }];
     let verifier = [{ return ::verify(*this); }];
 }
+
+class QASM_Type<string name> : TypeDef<QASM_Dialect, name> {}
 
 #endif // QASM_DIALECT

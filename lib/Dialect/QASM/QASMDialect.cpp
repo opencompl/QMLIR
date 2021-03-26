@@ -35,34 +35,11 @@ void QASMDialect::initialize() {
 #define GET_OP_LIST
 #include "Dialect/QASM/QASMOps.cpp.inc"
       >();
-  addTypes<QubitType>();
+  addTypes<
+#define GET_TYPEDEF_LIST
+#include "Dialect/QASM/QASMOpsTypes.cpp.inc"
+    >();
   addInterfaces<QASMInlinerInterface>();
-}
-
-Type QASMDialect::parseType(DialectAsmParser &parser) const {
-  llvm::StringRef keyword;
-
-  if (failed(parser.parseKeyword(&keyword))) {
-    parser.emitError(parser.getNameLoc(), "expected type identifier");
-    return Type();
-  }
-
-  // Qubit type: !qasm.qubit
-  if (keyword == getQubitTypeName()) {
-    return QubitType::get(parser.getBuilder().getContext());
-  }
-
-  parser.emitError(parser.getNameLoc(), "QASM dialect: unknown type");
-  return Type();
-}
-
-void QASMDialect::printType(Type type, DialectAsmPrinter &printer) const {
-  if (auto qubit = type.cast<QubitType>()) {
-    printer << getQubitTypeName();
-    return;
-  }
-
-  assert(false && "Invalid QASM type given to print");
 }
 
 Operation *QASMDialect::materializeConstant(OpBuilder &builder, Attribute value,
