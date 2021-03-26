@@ -5,15 +5,7 @@
 #include "mlir/IR/TypeSupport.h"
 #include "mlir/IR/Types.h"
 
-namespace mlir {
-namespace ZX {
-
-class WireType : public Type::TypeBase<WireType, Type, TypeStorage> {
-public:
-  using Base::Base;
-};
-
-} // namespace ZX
-} // namespace mlir
+#define GET_TYPEDEF_CLASSES
+#include "Dialect/ZX/ZXOpsTypes.h.inc"
 
 #endif // ZX_ZXTYPES_H

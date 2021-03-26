@@ -16,11 +16,6 @@ def ZX_Dialect : Dialect {
     - Wires (SSA-values) must be used exactly once. This includes branching.
   }];
 
-  let extraClassDeclaration = [{
-    Type parseType(DialectAsmParser & parser) const override;
-    void printType(Type type, DialectAsmPrinter & os) const override;
-  }];
-
   let cppNamespace = "::mlir::ZX";
 }
 
@@ -41,5 +36,7 @@ class ZX_Op<string mnemonic, list<OpTrait> traits = []>
   let printer = [{ ::print(*this, p); }];
   let verifier = [{ return ::verify(*this); }];
 }
+
+class ZX_Type<string name> : TypeDef<ZX_Dialect, name> {}
 
 #endif // ZX_DIALECT

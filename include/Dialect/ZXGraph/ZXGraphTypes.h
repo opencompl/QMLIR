@@ -5,15 +5,7 @@
 #include "mlir/IR/TypeSupport.h"
 #include "mlir/IR/Types.h"
 
-namespace mlir {
-namespace ZXGraph {
-
-class NodeType : public Type::TypeBase<NodeType, Type, TypeStorage> {
-public:
-  using Base::Base;
-};
-
-} // namespace ZXGraph
-} // namespace mlir
+#define GET_TYPEDEF_CLASSES
+#include "Dialect/ZXGraph/ZXGraphOpsTypes.h.inc"
 
 #endif // ZXGRAPH_ZXTYPES_H

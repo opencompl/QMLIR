@@ -11,9 +11,8 @@
 
 include "mlir/IR/OpBase.td"
 
-// !zx.wire
-def ZX_WireType
-  : Type<CPred<"$_self.isa<WireType>()">, "ZX Wire Type">
-  , BuildableType<"WireType::get($_builder.getContext())">;
+def ZX_WireType : ZX_Type<"Wire"> {
+  let mnemonic = "wire";
+}
 
 #endif // ZX_TYPES

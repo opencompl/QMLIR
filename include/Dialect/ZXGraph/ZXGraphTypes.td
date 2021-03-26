@@ -12,8 +12,8 @@
 include "mlir/IR/OpBase.td"
 
 // !zxg.node
-def ZXGraph_NodeType
-  : Type<CPred<"$_self.isa<NodeType>()">, "ZX Node Type">
-  , BuildableType<"NodeType::get($_builder.getContext())">;
+def ZXGraph_NodeType : ZXGraph_Type<"Node"> {
+  let mnemonic = "node";
+}
 
 #endif // ZXGRAPH_TYPES

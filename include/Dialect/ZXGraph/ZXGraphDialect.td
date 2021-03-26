@@ -14,11 +14,6 @@ def ZXGraph_Dialect : Dialect {
     First declare nodes, and then join them using wires
   }];
 
-  let extraClassDeclaration = [{
-    Type parseType(DialectAsmParser & parser) const override;
-    void printType(Type type, DialectAsmPrinter & os) const override;
-  }];
-
   let cppNamespace = "::mlir::ZXGraph";
 }
 
@@ -39,5 +34,7 @@ class ZXGraph_Op<string mnemonic, list<OpTrait> traits = []>
   let printer = [{ ::print(*this, p); }];
   let verifier = [{ return ::verify(*this); }];
 }
+
+class ZXGraph_Type<string name> : TypeDef<ZXGraph_Dialect, name> {}
 
 #endif // ZXGRAPH_DIALECT

@@ -2,6 +2,7 @@
 #include "mlir/IR/Types.h"
 #include "mlir/Support/LLVM.h"
 #include "mlir/Support/LogicalResult.h"
+#include "mlir/Transforms/InliningUtils.h"
 
 #include "Dialect/ZX/ZXDialect.h"
 #include "Dialect/ZX/ZXOps.h"
@@ -10,36 +11,33 @@
 using namespace mlir;
 using namespace mlir::ZX;
 
+namespace {
+/// This class defines the interface for handling inlining with qssa
+/// operations.
+struct ZXInlinerInterface : public DialectInlinerInterface {
+  using DialectInlinerInterface::DialectInlinerInterface;
+
+  /// All operations within math ops can be inlined.
+  bool isLegalToInline(Operation *, Region *, bool,
+                       BlockAndValueMapping &) const final {
+    return true;
+  }
+  bool isLegalToInline(Region *dest, Region *src, bool,
+                       BlockAndValueMapping &) const final {
+    return true;
+  }
+};
+} // end anonymous namespace
+
 void ZXDialect::initialize() {
   addOperations<
 #define GET_OP_LIST
 #include "Dialect/ZX/ZXOps.cpp.inc"
       >();
-  addTypes<WireType>();
+  addTypes<
+#define GET_TYPEDEF_LIST
+#include "Dialect/ZX/ZXOpsTypes.cpp.inc"
+    >();
+  addInterfaces<ZXInlinerInterface>();
 }
 
-Type ZXDialect::parseType(DialectAsmParser &parser) const {
-  llvm::StringRef keyword;
-
-  if (failed(parser.parseKeyword(&keyword))) {
-    parser.emitError(parser.getNameLoc(), "expected type identifier");
-    return Type();
-  }
-
-  // Wire type: !zx.wire
-  if (keyword == "wire") {
-    return WireType::get(parser.getBuilder().getContext());
-  }
-
-  parser.emitError(parser.getNameLoc(), "ZX dialect: unknown type");
-  return Type();
-}
-
-void ZXDialect::printType(Type type, DialectAsmPrinter &printer) const {
-  if (auto node = type.cast<WireType>()) {
-    printer << "wire";
-    return;
-  }
-
-  assert(false && "Invalid ZX type given to print");
-}
