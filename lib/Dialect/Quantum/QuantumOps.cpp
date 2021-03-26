@@ -14,7 +14,6 @@
 #include "llvm/ADT/ArrayRef.h"
 
 #include "Dialect/Quantum/QuantumOps.h"
-#include "TypeDetail.h"
 
 using namespace mlir;
 using namespace mlir::quantum;

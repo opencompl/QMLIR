@@ -23,14 +23,6 @@ def Quantum_Dialect : Dialect {
         languages like Q#, Silq, Cirq, Qiskit etc. and build a sufficiently
         general-purpose dialect.
     }];
-
-    let extraClassDeclaration = [{
-      Type parseType(DialectAsmParser &parser) const override;
-      void printType(Type type, DialectAsmPrinter &os) const override;
-
-      static StringRef getQubitTypeName() { return "qubit"; }
-    }];
-
     let cppNamespace = "::mlir::quantum";
 }
 
@@ -52,5 +44,7 @@ class Quantum_Op<string mnemonic, list<OpTrait> traits = []> :
     let printer = [{ ::print(*this, p); }];
     let verifier = [{ return ::verify(*this); }];
 }
+
+class Quantum_Type<string name> : TypeDef<Quantum_Dialect, name> {}
 
 #endif // QUANTUM_DIALECT

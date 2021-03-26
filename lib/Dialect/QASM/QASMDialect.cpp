@@ -38,7 +38,7 @@ void QASMDialect::initialize() {
   addTypes<
 #define GET_TYPEDEF_LIST
 #include "Dialect/QASM/QASMOpsTypes.cpp.inc"
-    >();
+      >();
   addInterfaces<QASMInlinerInterface>();
 }
 

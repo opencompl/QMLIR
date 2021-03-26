@@ -10,12 +10,24 @@
 #define QUANTUM_TYPES
 
 include "mlir/IR/OpBase.td"
+include "Dialect/Quantum/QuantumDialect.td"
 
 //===----------------------------------------------------------------------===//
 // Qubit Type
 //===----------------------------------------------------------------------===//
-def Quantum_QubitType :
-    Type<CPred<"$_self.isa<QubitType>()">, "Quantum Qubit Type">;
+// def Quantum_QubitType :
+//     Type<CPred<"$_self.isa<QubitType>()">, "Quantum Qubit Type">;
+def Quantum_QubitType : Quantum_Type<"Qubit"> {
+  let mnemonic = "qubit";
+  let summary = "Quantum qubit array type";
+  let parameters = (ins "int64_t":$size);
+  let printer = [{ ::print(*this, $_printer); }];
+  let parser = [{ return ::parseQubit($_parser, $_ctxt); }];
+  let extraClassDeclaration = [{
+    static constexpr int64_t kDynamicSize = ShapedType::kDynamicSize;
+    bool hasStaticSize() const;
+  }];
+}
 
 def Quantum_SingleQubitType :
     Type<CPred<"$_self.isa<QubitType>() && $_self.cast<QubitType>().getSize() == 1">, "Quantum Single Qubit Type">

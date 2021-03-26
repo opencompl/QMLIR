@@ -37,8 +37,7 @@ void ZXGraphDialect::initialize() {
   addTypes<
 #define GET_TYPEDEF_LIST
 #include "Dialect/ZXGraph/ZXGraphOpsTypes.cpp.inc"
-    >();
+      >();
 
   addInterfaces<ZXGraphInlinerInterface>();
 }
-

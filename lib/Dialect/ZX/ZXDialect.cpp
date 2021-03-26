@@ -37,7 +37,6 @@ void ZXDialect::initialize() {
   addTypes<
 #define GET_TYPEDEF_LIST
 #include "Dialect/ZX/ZXOpsTypes.cpp.inc"
-    >();
+      >();
   addInterfaces<ZXInlinerInterface>();
 }
-

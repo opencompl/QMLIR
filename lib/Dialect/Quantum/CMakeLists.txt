@@ -1,6 +1,5 @@
 add_mlir_dialect_library(MLIRQuantum
   QuantumDialect.cpp
-  QuantumTypes.cpp
   QuantumOps.cpp
   Canonicalizers.cpp
 

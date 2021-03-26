@@ -566,15 +566,11 @@ void populateQuantumToStdConversionPatterns(
 QuantumTypeConverter::QuantumTypeConverter(MLIRContext *context)
     : context(context) {
   // Add type conversions
-  addConversion([&](QubitType qubitType) -> Type {
-    return MemRefType::get(qubitType.getMemRefShape(),
-                           qubitType.getMemRefType());
-  });
-  addConversion([&](Type type) -> Optional<Type> {
-    if (type.isa<QubitType>())
-      return llvm::None;
-    return type;
-  });
+  addConversion([](Type type) { return type; });
+  // addConversion([&](QubitType qubitType) -> Type {
+  //   // return MemRefType::get(qubitType.getMemRefShape(),
+  //   //                       qubitType.getMemRefType());
+  // });
 }
 
 //===----------------------------------------------------------------------===//

@@ -1,8 +1,8 @@
 #include "mlir/IR/DialectImplementation.h"
 #include "llvm/ADT/TypeSwitch.h"
 
-#include "Dialect/ZXGraph/ZXGraphTypes.h"
 #include "Dialect/ZXGraph/ZXGraphDialect.h"
+#include "Dialect/ZXGraph/ZXGraphTypes.h"
 
 #define GET_TYPEDEF_CLASSES
 #include "Dialect/ZXGraph/ZXGraphOpsTypes.cpp.inc"

@@ -4,7 +4,6 @@
 #include "Dialect/QASM/QASMDialect.h"
 #include "Dialect/QASM/QASMTypes.h"
 
-
 #define GET_TYPEDEF_CLASSES
 #include "Dialect/QASM/QASMOpsTypes.cpp.inc"
 
