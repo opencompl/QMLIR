@@ -16,6 +16,7 @@ test/Scratches/
 Output/
 
 .ipynb_checkpoints
+t-*.ipynb
 *.vim
 .vs
 *autosave*

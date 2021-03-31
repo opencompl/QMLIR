@@ -1,15 +1,7 @@
-#!/usr/bin/env python
 # coding: utf-8
-
-# In[ ]:
-
-
 # OpenQASM Lang Spec: https://arxiv.org/pdf/1707.03429v2.pdf
 
-
-# In[ ]:
-
-
+#%%
 import sys
 import logging
 import argparse
@@ -19,10 +11,7 @@ from typing import Union
 from qiskit.qasm import Qasm
 import qiskit.qasm.node as Node
 
-
-# In[ ]:
-
-
+#%%
 def setupLogger(lev):
     logger = logging.getLogger('Notebook')
 
@@ -44,10 +33,7 @@ def setupLogger(lev):
 
 logger = setupLogger(logging.WARNING)
 
-
-# In[ ]:
-
-
+#%%
 class ConversionError(Exception):
     pass
 
@@ -62,10 +48,7 @@ def showtree(node, indent=0):
     for child in node.children:
         showtree(child, indent + 1)
 
-
-# In[ ]:
-
-
+#%%
 """ Base class for MLIR Objects """
 class MLIRBase:
     def __init__(self, *args, **kwargs):
@@ -81,10 +64,7 @@ class MLIRBase:
     def show(self) -> str:
         raise UnimplementedError("Abstract Method")
 
-
-# In[ ]:
-
-
+#%%
 """ Base class for MLIR Types
 Form: [ `!` $dialect `.` ] $name
 """
