@@ -140,7 +140,7 @@ def QASM_GateCall : QASM_Op<"gate", []> {
     qasm.gate @name(%alpha, %q) : (f32, !qasm.qubit) -> ()
   }];
   let arguments = (ins
-    SymbolRefAttr:$gate_name,
+    FlatSymbolRefAttr:$gate_name,
     Variadic<AnyTypeOf<[AnyFloat, QASM_QubitType]>>:$gate_args);
   let assemblyFormat = [{
     $gate_name `(` $gate_args `)` attr-dict `:` functional-type($gate_args, results)

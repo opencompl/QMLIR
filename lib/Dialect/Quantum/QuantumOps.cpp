@@ -39,6 +39,18 @@ OpFoldResult ConcatOp::fold(ArrayRef<Attribute> operands) {
   return nullptr;
 }
 
+LogicalResult DimensionOp::fold(ArrayRef<Attribute> operands,
+                                SmallVectorImpl<OpFoldResult> &results) {
+  auto qubitType = qinp().getType().cast<QubitType>();
+  if (qubitType.hasStaticSize()) {
+    results.push_back(qinp());
+    auto it = IntegerAttr::get(size().getType(), qubitType.getSize());
+    results.push_back(it);
+    return success();
+  }
+  return failure();
+}
+
 OpFoldResult IDGateOp::fold(ArrayRef<Attribute> operands) { return qinp(); }
 
 OpFoldResult PauliXGateOp::fold(ArrayRef<Attribute> operands) {

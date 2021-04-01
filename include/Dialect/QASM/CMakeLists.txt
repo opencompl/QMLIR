@@ -4,3 +4,4 @@ add_mlir_doc(QASMTypes -gen-op-doc QASMTypes QASM/)
 add_mlir_doc(QASMOps -gen-op-doc QASMOps QASM/)
 
 add_subdirectory(Analysis)
+add_subdirectory(Transforms)

@@ -14,3 +14,4 @@ add_mlir_dialect_library(MLIRQASM
     )
 
 add_subdirectory(Analysis)
+add_subdirectory(Transforms)

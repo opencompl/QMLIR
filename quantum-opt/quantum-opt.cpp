@@ -15,6 +15,7 @@
 #include "Conversion/QuantumToStandard/Passes.h"
 #include "Dialect/QASM/Analysis/Passes.h"
 #include "Dialect/QASM/QASMDialect.h"
+#include "Dialect/QASM/Transforms/Passes.h"
 #include "Dialect/Quantum/QuantumDialect.h"
 #include "Dialect/Quantum/Transforms/Passes.h"
 #include "Dialect/ZX/Transforms/Passes.h"
@@ -36,6 +37,7 @@ void registerQuantumPasses() {
 
   registerQASMToQuantumConversionPasses();
   registerQASMAnalysisPasses();
+  registerQASMTransformsPasses();
 
   registerZXTransformsPasses();
   registerZXGraphTransformsPasses();

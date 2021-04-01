@@ -19,7 +19,7 @@ include "Dialect/Quantum/QuantumTypes.td"
 // Allocate Op
 //===----------------------------------------------------------------------===//
 
-def Quantum_AllocateOp : Quantum_Op<"allocate", [MemoryEffects<[MemRead]>]> {
+def Quantum_AllocateOp : Quantum_Op<"alloc", [MemoryEffects<[MemAlloc]>]> {
     let summary = "Allocate an array of qubits.";
     let description = [{
         This operation takes no arguments,
@@ -28,12 +28,12 @@ def Quantum_AllocateOp : Quantum_Op<"allocate", [MemoryEffects<[MemRead]>]> {
         Example:
 
         ```mlir
-        // allocate a fixed number of qubits
-        %q0 = qssa.allocate() : !qssa.qubit<10>
+        // alloc a fixed number of qubits
+        %q0 = qssa.alloc : !qssa.qubit<10>
 
-        // allocate a variable number of qubits
+        // alloc a variable number of qubits
         %n = constant 10 : index
-        %q1 = qssa.allocate(%n) : !qssa.qubit<?>
+        %q1 = qssa.alloc(%n) : !qssa.qubit<?>
         ```
     }];
 
@@ -47,7 +47,7 @@ def Quantum_AllocateOp : Quantum_Op<"allocate", [MemoryEffects<[MemRead]>]> {
     ];
 
     let verifier = ?;
-    let assemblyFormat = [{ `(` $dynamicsize `)` attr-dict `:` type($qout) }];
+    let assemblyFormat = [{ ( `(` $dynamicsize^ `)` )? attr-dict `:` type($qout) }];
 }
 
 //===----------------------------------------------------------------------===//
@@ -75,6 +75,7 @@ def Quantum_DimensionOp : Quantum_Op<"dim", [NoSideEffect, AllTypesMatch<["qinp"
     let results = (outs Quantum_QubitType:$qout, Index:$size);
     let assemblyFormat = [{ $qinp attr-dict `:` type($qinp) }];
     let verifier = ?;
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
