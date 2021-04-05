@@ -315,7 +315,7 @@ class SimplePrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
   let arguments = (ins Quantum_QubitType:$qinp);
   let results = (outs Quantum_QubitType:$qout);
   let assemblyFormat = [{ $qinp attr-dict `:` type($qinp) }];
-  let verifier = [{ return success(); }];
+  let verifier = ?;
 }
 
 //===----------------------------------------------------------------------===//

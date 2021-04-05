@@ -329,6 +329,75 @@ public:
   }
 };
 
+class GateCallOpConversion
+    : public QASMOpToQuantumConversionPattern<QASM::GateCall> {
+  template <class GateOp>
+  Value insertSimplePrimitiveGateOp(Location loc, Value inputQubit,
+                                    ConversionPatternRewriter &rewriter) const {
+    auto gateOp = rewriter.create<quantum::PauliXGateOp>(
+        loc, inputQubit.getType(), inputQubit);
+    return gateOp.qout();
+  }
+
+public:
+  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
+  LogicalResult
+  matchAndRewrite(QASM::GateCall gateOp, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    QASM::GateCallAdaptor resolvedOperands(operands);
+    auto parentFuncOp = gateOp->getParentOfType<FuncOp>();
+
+    // qubits to return
+    SmallVector<Type> resultTypes;
+    SmallVector<Value> arguments, baseQubits;
+    for (auto arg : resolvedOperands.getOperands()) {
+      if (arg.getType().isa<quantum::QubitType>()) {
+        resultTypes.push_back(arg.getType());
+        auto qubit = qubitMap->resolveQubit(parentFuncOp, arg);
+        arguments.push_back(qubit);
+        baseQubits.push_back(arg);
+      } else {
+        arguments.push_back(arg);
+      }
+    }
+
+    SmallVector<Value> resultQubits;
+
+    if (gateOp.gate_name() == "x") {
+      resultQubits.push_back(insertSimplePrimitiveGateOp<quantum::PauliXGateOp>(
+          gateOp->getLoc(), baseQubits[0], rewriter));
+    } else if (gateOp.gate_name() == "y") {
+      resultQubits.push_back(insertSimplePrimitiveGateOp<quantum::PauliYGateOp>(
+          gateOp->getLoc(), baseQubits[0], rewriter));
+    } else if (gateOp.gate_name() == "z") {
+      resultQubits.push_back(insertSimplePrimitiveGateOp<quantum::PauliZGateOp>(
+          gateOp->getLoc(), baseQubits[0], rewriter));
+    } else if (gateOp.gate_name() == "h") {
+      resultQubits.push_back(
+          insertSimplePrimitiveGateOp<quantum::HadamardGateOp>(
+              gateOp->getLoc(), baseQubits[0], rewriter));
+    } else {
+      // generate new call
+      emitWarning(gateOp->getLoc())
+          << "Unknown gate call, converting to std.call instead";
+      auto newCallOp = rewriter.create<CallOp>(
+          gateOp->getLoc(), gateOp.gate_name(), resultTypes, arguments);
+      resultQubits = newCallOp.getResults();
+    }
+
+    rewriter.eraseOp(gateOp);
+
+    // update qubit map
+    for (auto qubitPair : llvm::zip(baseQubits, resultQubits)) {
+      Value baseQubit, finalQubit;
+      std::tie(baseQubit, finalQubit) = qubitPair;
+      qubitMap->updateQubit(parentFuncOp, baseQubit, finalQubit);
+    }
+
+    return success();
+  }
+};
+
 class IfOpConversion : public QASMOpToQuantumConversionPattern<QASM::IfOp> {
 public:
   using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
@@ -348,6 +417,7 @@ void populateQASMToQuantumConversionPatterns(
       FuncOpConversion,
       ReturnOpConversion,
       CallOpConversion,
+      GateCallOpConversion,
       AllocateOpConversion,
       MeasureOpConversion,
       ResetOpConversion,
