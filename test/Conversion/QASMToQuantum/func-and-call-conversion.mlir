@@ -17,7 +17,7 @@ func private @somegate(%cst : f32, %0 : !qasm.qubit) attributes {qasm.gate, qasm
 func @callconv() {
   // CHECK-NEXT: %[[cst:.*]] = constant [[zero:.*]] : f32
   %cst = constant 0.0 : f32
-  // CHECK-NEXT: %[[q0:.*]] = qssa.allocate() : !qssa.qubit<1>
+  // CHECK-NEXT: %[[q0:.*]] = qssa.alloc : !qssa.qubit<1>
   %0 = qasm.allocate
   // CHECK-NEXT: %[[q1:.*]] = call @somegate(%[[cst]], %[[q0]]) : (f32, !qssa.qubit<1>) -> !qssa.qubit<1>
   call @somegate(%cst, %0) {qasm.gate} : (f32, !qasm.qubit) -> ()

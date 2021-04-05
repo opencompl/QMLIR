@@ -14,8 +14,8 @@ func @measure_fold(%0: !qssa.qubit<1>) -> i1 {
 // CHECK: func @inline_fold() -> i1 {
 func @inline_fold() -> i1 {
   %0 = constant 0 : index
-  // CHECK: %[[q:.*]] = qssa.allocate() : !qssa.qubit<1>
-  %q = qssa.allocate() : !qssa.qubit<1>
+  // CHECK: %[[q:.*]] = qssa.alloc : !qssa.qubit<1>
+  %q = qssa.alloc : !qssa.qubit<1>
   // CHECK: %[[r:.*]] = qssa.measure_one %[[q]]
   %res = call @measure_fold(%q) : (!qssa.qubit<1>) -> i1
   %mem = memref.alloc() : memref<1xi1>

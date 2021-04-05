@@ -4,8 +4,8 @@
 
 // CHECK: func @barrier() {
 func @barrier() {
-  // CHECK-NEXT: %[[q0:.*]] = qssa.allocate() : !qssa.qubit<10>
-  %0 = qssa.allocate() : !qssa.qubit<10>
+  // CHECK-NEXT: %[[q0:.*]] = qssa.alloc : !qssa.qubit<10>
+  %0 = qssa.alloc : !qssa.qubit<10>
   // CHECK-NEXT: %[[q1:.*]] = qssa.X %[[q0]] : !qssa.qubit<10>
   %1 = qssa.X %0 : !qssa.qubit<10>
   // CHECK-NEXT: %[[q2:.*]] = qssa.barrier %[[q1]] : !qssa.qubit<10>
@@ -21,8 +21,8 @@ func @barrier() {
 
 // CHECK-NEXT: func @nobarrier() {
 func @nobarrier() {
-  // CHECK-NEXT: %[[q0:.*]] = qssa.allocate() : !qssa.qubit<10>
-  %0 = qssa.allocate() : !qssa.qubit<10>
+  // CHECK-NEXT: %[[q0:.*]] = qssa.alloc : !qssa.qubit<10>
+  %0 = qssa.alloc : !qssa.qubit<10>
   %1 = qssa.X %0 : !qssa.qubit<10>
   %2 = qssa.X %1 : !qssa.qubit<10>
   // CHECK-NEXT: qssa.sink %[[q0]] : !qssa.qubit<10>

@@ -82,11 +82,11 @@ func private @prepare_bell(%qa : !qssa.qubit<1>, %qb : !qssa.qubit<1>) -> !qssa.
 
 func @main() {
   // Alice's qubits
-  %psiA = qssa.allocate() : !qssa.qubit<1>
-  %ebA = qssa.allocate() : !qssa.qubit<1>
+  %psiA = qssa.alloc() : !qssa.qubit<1>
+  %ebA = qssa.alloc() : !qssa.qubit<1>
 
   // Bob's qubits
-  %ebB = qssa.allocate() : !qssa.qubit<1>
+  %ebB = qssa.alloc() : !qssa.qubit<1>
 
   // Entangle the qubits
   %eb = call @prepare_bell(%ebA, %ebB) : (!qssa.qubit<1>, !qssa.qubit<1>) -> !qssa.qubit<2>

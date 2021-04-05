@@ -19,7 +19,7 @@ include "Dialect/Quantum/QuantumTypes.td"
 // Allocate Op
 //===----------------------------------------------------------------------===//
 
-def Quantum_AllocateOp : Quantum_Op<"alloc", [MemoryEffects<[MemAlloc]>]> {
+def Quantum_AllocateOp : Quantum_Op<"alloc", [MemoryEffects<[MemRead]>]> {
     let summary = "Allocate an array of qubits.";
     let description = [{
         This operation takes no arguments,
@@ -182,7 +182,6 @@ def Quantum_SplitOp : Quantum_Op<"split", [NoSideEffect]> {
 // Measure Op
 //===----------------------------------------------------------------------===//
 
-def Quantum_MeasurementType : MemRefRankOf<[I1], [1]>;
 
 def Quantum_MeasureQubitOp : Quantum_Op<"measure_one", [NoSideEffect]> {
     let summary = "Measure a single qubit.";
@@ -214,12 +213,14 @@ def Quantum_MeasureQubitOp : Quantum_Op<"measure_one", [NoSideEffect]> {
     let verifier = ?;
 }
 
-def Quantum_MeasureOp : Quantum_Op<"measure", [MemoryEffects<[MemWrite]>]> {
+def Quantum_MeasurementType : 1DTensorOf<[I1]>;
+
+def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
     let summary = "Measure an array of qubits.";
     let description = [{
         This operation takes an array of qubits of type `qubit<N>`
         and returns the measurement outcome in the standard basis
-        as a 1-D array of bits (`i1`)
+        as a 1-D tensor of bits (`i1`)
 
         Note: The qubits are consumed and can no longer be used.
 
@@ -227,30 +228,17 @@ def Quantum_MeasureOp : Quantum_Op<"measure", [MemoryEffects<[MemWrite]>]> {
 
         ```mlir
         %qs = qssa.allocate : !qssa.qubit<10>
-        %mem = memref.alloc() : memref<10xi1>
-        qssa.measure %qs -> %mem : !qssa.qubit<10> -> memref<10xi1>
+        %res = qssa.measure %qs : !qssa.qubit<10> -> tensor<10xi1>
         ```
     }];
 
-    let arguments = (ins Quantum_QubitType:$qinp, Quantum_MeasurementType:$res);
+    let arguments = (ins Quantum_QubitType:$qinp);
+    let results = (outs Quantum_MeasurementType:$res);
 
-    let assemblyFormat = [{
-        $qinp `->` $res attr-dict `:` type($qinp) `->` type($res)
-    }];
-
-    let verifier = [{
-        auto qubitType = qinp().getType().cast<QubitType>();
-        auto memRefType = res().getType().cast<MemRefType>();
-
-        if (qubitType.hasStaticSize() != memRefType.hasStaticShape() ||
-            (qubitType.hasStaticSize() &&
-             qubitType.getSize() != memRefType.getShape()[0]))
-            return emitOpError("Qubit and result sizes don't match.");
-        return success();
-    }];
+    let assemblyFormat = [{ $qinp attr-dict `:` type($qinp) `->` type($res) }];
 }
 
-def Quantum_SinkOp : Quantum_Op<"sink", [MemoryEffects<[MemWrite]>]> {
+def Quantum_SinkOp : Quantum_Op<"sink"> {
     let summary = "Sink an array of qubits.";
     let description = [{
       Use this operation to sink qubits without storing measurement results.

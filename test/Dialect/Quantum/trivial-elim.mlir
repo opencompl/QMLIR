@@ -12,7 +12,7 @@ func private @cx(%qs : !qssa.qubit<2>) -> !qssa.qubit<2> {
 
 // CHECK: func @main() {
 func @main() {
-  %qs = qssa.allocate() : !qssa.qubit<2>
+  %qs = qssa.alloc : !qssa.qubit<2>
   %qs1 = call @cx(%qs) : (!qssa.qubit<2>) -> !qssa.qubit<2>
 // CHECK-NEXT:   return
   return

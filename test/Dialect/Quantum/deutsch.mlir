@@ -20,7 +20,7 @@ func private @oracle(%x : !qssa.qubit<?>, %y : !qssa.qubit<1>)
 // implements U|x⟩ = (-1)^{f(x)} |x⟩
 func @phase_flip_oracle(%x : !qssa.qubit<?>)
   -> !qssa.qubit<?> {
-  %y0 = qssa.allocate() : !qssa.qubit<1>
+  %y0 = qssa.alloc() : !qssa.qubit<1>
   %y1 = qssa.X %y0 : !qssa.qubit<1>
   %y2 = qssa.H %y1 : !qssa.qubit<1>
   %x1, %y3 = call @oracle(%x, %y2)
@@ -33,12 +33,11 @@ func @phase_flip_oracle(%x : !qssa.qubit<?>)
 
 // return false for constant, true for balanced
 func @deutsch_josza(%n : index) -> i1 { // %n : number of input bits
-  %x0 = qssa.allocate(%n) : !qssa.qubit<?>
+  %x0 = qssa.alloc(%n) : !qssa.qubit<?>
   %x1 = qssa.H %x0 : !qssa.qubit<?>
   %x2 = call @phase_flip_oracle(%x1) : (!qssa.qubit<?>) -> !qssa.qubit<?>
   %x3 = qssa.H %x2 : !qssa.qubit<?>
-  %res = memref.alloc(%n) : memref<?xi1>
-  qssa.measure %x3 -> %res : !qssa.qubit<?> -> memref<?xi1>
+  %res = qssa.measure %x3 : !qssa.qubit<?> -> tensor<?xi1>
 
   // compute bitwise-OR of all the bits in %res
   %false = constant 0 : i1
@@ -48,7 +47,7 @@ func @deutsch_josza(%n : index) -> i1 { // %n : number of input bits
 
   %ans = scf.for %i = %0 to %lst step %1
     iter_args(%out = %false) -> i1 {
-    %v = memref.load %res[%i] : memref<?xi1>
+    %v = tensor.extract %res[%i] : tensor<?xi1>
     %cur = or %out, %v : i1
     scf.yield %cur : i1
   }

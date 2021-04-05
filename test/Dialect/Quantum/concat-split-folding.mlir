@@ -24,17 +24,15 @@ func @split_fold(%0: !qssa.qubit<2>) -> (!qssa.qubit<1>, !qssa.qubit<1>) {
   // CHECK: }
 }
 
-// CHECK: func @inline_fold() {
-func @inline_fold() {
-  // CHECK: %[[q:.*]] = qssa.allocate() : !qssa.qubit<2>
-  %0 = qssa.allocate() : !qssa.qubit<2>
+// CHECK: func @inline_fold() -> tensor<2xi1> {
+func @inline_fold() -> tensor<2xi1> {
+  // CHECK: %[[q:.*]] = qssa.alloc : !qssa.qubit<2>
+  %0 = qssa.alloc : !qssa.qubit<2>
   %1, %2 = call @split_fold(%0) : (!qssa.qubit<2>) -> (!qssa.qubit<1>, !qssa.qubit<1>)
   %3 = call @concat_fold(%1, %2) : (!qssa.qubit<1>, !qssa.qubit<1>) -> (!qssa.qubit<2>)
-  // CHECK: %[[m:.*]] = memref.alloc() : memref<2xi1>
-  %mem = memref.alloc() : memref<2xi1>
-  // CHECK: qssa.measure %[[q]] -> %[[m]] : !qssa.qubit<2> -> memref<2xi1>
-  qssa.measure %3 -> %mem : !qssa.qubit<2> -> memref<2xi1>
-  // CHECK: return
-  return
+  // CHECK: %[[res:.*]] = qssa.measure %[[q]] : !qssa.qubit<2> -> tensor<2xi1>
+  %res = qssa.measure %3 : !qssa.qubit<2> -> tensor<2xi1>
+  // CHECK: return %[[res]] : tensor<2xi1>
+  return %res : tensor<2xi1>
   // CHECK: }
 }

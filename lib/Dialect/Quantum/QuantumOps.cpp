@@ -18,6 +18,18 @@
 using namespace mlir;
 using namespace mlir::quantum;
 
+//==== Verifiers ================//
+LogicalResult verify(MeasureOp measureOp) {
+  auto inputType = measureOp.qinp().getType().cast<QubitType>();
+  auto resultType = measureOp.res().getType().cast<RankedTensorType>();
+  if (!inputType.hasStaticSize() && !resultType.hasStaticShape())
+    return success();
+  if (inputType.hasStaticSize() && resultType.hasStaticShape() &&
+      inputType.getSize() == resultType.getShape()[0])
+    return success();
+  return measureOp.emitOpError("Mismatched qubit array and result tensor size");
+}
+
 //==== Folders ==============================================================//
 LogicalResult SplitOp::fold(ArrayRef<Attribute> operands,
                             SmallVectorImpl<OpFoldResult> &results) {

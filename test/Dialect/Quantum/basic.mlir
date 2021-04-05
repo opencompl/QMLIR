@@ -8,15 +8,14 @@ func @toffoli(%in: !qssa.qubit<3>) -> !qssa.qubit<3> {
   return %in: !qssa.qubit<3>
 }
 
-func @main() {
-  %q0 = qssa.allocate() : !qssa.qubit<3>
+func @main() -> tensor<2xi1> {
+  %q0 = qssa.alloc() : !qssa.qubit<3>
   %q1 = call @toffoli(%q0) : (!qssa.qubit<3>) -> !qssa.qubit<3>
   %q2, %q3 = qssa.split %q1 : (!qssa.qubit<3>) -> (!qssa.qubit<1>, !qssa.qubit<2>)
-  %res = memref.alloc() : memref<1xi1>
-  qssa.measure %q2 -> %res : !qssa.qubit<1> -> memref<1xi1>
+  %res = qssa.measure %q2 : !qssa.qubit<1> -> tensor<1xi1>
 
   %idx0 = constant 0 : index
-  %r0 = memref.load %res[%idx0] : memref<1xi1>
+  %r0 = tensor.extract %res[%idx0] : tensor<1xi1>
 
   %q4 = scf.if %r0 -> !qssa.qubit<2> {
     %q5, %q6 = qssa.split %q3 : (!qssa.qubit<2>) -> (!qssa.qubit<1>, !qssa.qubit<1>)
@@ -26,8 +25,7 @@ func @main() {
     scf.yield %q3 : !qssa.qubit<2>
   }
 
-  %res1 = memref.alloc() : memref<2xi1>
-  qssa.measure %q4 -> %res1 : !qssa.qubit<2> -> memref<2xi1>
+  %res1 = qssa.measure %q4 : !qssa.qubit<2> -> tensor<2xi1>
 
-  return
+  return %res1 : tensor<2xi1>
 }
