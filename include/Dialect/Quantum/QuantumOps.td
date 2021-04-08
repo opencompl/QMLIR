@@ -296,13 +296,25 @@ def IDGateOp : Quantum_Op<"id", [NoSideEffect, AllTypesMatch<["qinp", "qout"]>]>
 
 // Base Class for parameterless gate ops
 //
-//   %1 = qssa.gate %0 : !qssa.qubit<?>
+//   %1 = qssa.<gate> %0 : !qssa.qubit<?>
 //
 class SimplePrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
   : Quantum_Op<mnemonic, !listconcat([NoSideEffect, AllTypesMatch<["qinp", "qout"]>], traits)> {
   let arguments = (ins Quantum_QubitType:$qinp);
   let results = (outs Quantum_QubitType:$qout);
   let assemblyFormat = [{ $qinp attr-dict `:` type($qinp) }];
+  let verifier = ?;
+}
+
+// Base Class for single parameter gate ops
+//
+//   %1 = qssa.<gate> (%a : f32) %0 : !qssa.qubit<?>
+//
+class PrimitiveSingleParamGateOp<string mnemonic, list<OpTrait> traits = []>
+  : Quantum_Op<mnemonic, !listconcat([NoSideEffect, AllTypesMatch<["qinp", "qout"]>], traits)> {
+  let arguments = (ins AnyFloat:$param, Quantum_QubitType:$qinp);
+  let results = (outs Quantum_QubitType:$qout);
+  let assemblyFormat = [{ `(` $param `:` type($param) `)`$qinp attr-dict `:` type($qinp) }];
   let verifier = ?;
 }
 
@@ -376,6 +388,16 @@ def HadamardGateOp : SimplePrimitiveGateOp<"H"> {
       ```
   }];
   let hasFolder = 1;
+}
+
+def RotateXOp : PrimitiveSingleParamGateOp<"Rx"> {
+  let summary = "Rotate about X axis by the given angle.";
+}
+def RotateYOp : PrimitiveSingleParamGateOp<"Ry"> {
+  let summary = "Rotate about Y axis by the given angle.";
+}
+def RotateZOp : PrimitiveSingleParamGateOp<"Rz"> {
+  let summary = "Rotate about Z axis by the given angle.";
 }
 
 def CNOTGateOp : Quantum_Op<"CNOT", [NoSideEffect]> {

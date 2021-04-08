@@ -8,6 +8,8 @@ namespace mlir {
 class Pass;
 
 std::unique_ptr<FunctionPass> createQuantumRewritePass();
+std::unique_ptr<FunctionPass> createQuantumDepthComputePass();
+std::unique_ptr<FunctionPass> createQuantumClearDepthPass();
 
 //===----------------------------------------------------------------------===//
 // Registration
