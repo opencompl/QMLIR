@@ -5,6 +5,12 @@ Template taken from [jmgorius/mlir-standalone-template](https://github.com/jmgor
 
 ## How to build
 
+Clone all submodules:
+```sh
+git submodule init
+git submodule update
+```
+
 This setup assumes that you have built LLVM and MLIR in `$BUILD_DIR` and installed them to `$PREFIX`. To build and launch the tests, run
 ```sh
 mkdir build && cd build
@@ -21,7 +27,7 @@ CMake so that it installs `FileCheck` to the chosen installation prefix.
 
 ## LLVM Build Info
 
-Check the [https://github.com/anurudhp/QMLIR/blob/master/.github/workflows/build-and-test.yml#L6](LLVM commit info) for latest verified build.
+Check the [LLVM COMMIT INFO](https://github.com/anurudhp/QMLIR/blob/master/.github/workflows/build-and-test.yml#L6) for latest verified build.
 
 ## License
 
