@@ -4,6 +4,7 @@ set(LIBS
     ${dialect_libs}
     ${conversion_libs}
     MLIROptLib
+    nlohmann_json::nlohmann_json
     )
 add_llvm_executable(quantum-opt quantum-opt.cpp)
 
