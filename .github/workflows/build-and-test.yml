@@ -20,46 +20,46 @@ jobs:
           extensions: 'h,cpp'
           clangFormatVersion: 9
 
-  build:
-    name: Build and test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get Project Code
-        uses: actions/checkout@v2
-        with:
-          path: 'mlir-standalone'
-      - name: Cache LLVM
-        id: cache-llvm
-        uses: actions/cache@v2
-        with:
-          path: llvm-project
-          key: ${{ runner.os }}-llvm-install-${{ env.LLVM_COMMIT }}
-      - name: Get LLVM
-        if: steps.cache-llvm.outputs.cache-hit != 'true'
-        uses: actions/checkout@v2
-        with:
-          repository: 'llvm/llvm-project'
-          ref: '${{ env.LLVM_COMMIT }}'
-          path: 'llvm-project'
-      - name: Install LLVM
-        if: steps.cache-llvm.outputs.cache-hit != 'true'
-        run: |
-          mkdir $GITHUB_WORKSPACE/llvm-project/build
-          mkdir $GITHUB_WORKSPACE/llvm-project/prefix
-          cd $GITHUB_WORKSPACE/llvm-project/build
-          cmake $GITHUB_WORKSPACE/llvm-project/llvm -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_BUILD_EXAMPLES=OFF -DLLVM_TARGETS_TO_BUILD="host" -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/llvm-project/prefix -DLLVM_ENABLE_PROJECTS='mlir' -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_ENABLE_OCAMLDOC=OFF -DLLVM_ENABLE_BINDINGS=OFF -DLLVM_INSTALL_UTILS=ON -DLLVM_ENABLE_LLD=ON
-          cmake --build . --target install -- -j$(nproc)
-      - name: Sanitizer build
-        run: |
-          export PATH=$PATH:$GITHUB_WORKSPACE/llvm-project/prefix/bin
-          mkdir $GITHUB_WORKSPACE/mlir-standalone/sanitizer-build
-          cd $GITHUB_WORKSPACE/mlir-standalone/sanitizer-build
-          cmake $GITHUB_WORKSPACE/mlir-standalone -DCMAKE_BUILD_TYPE=Debug -DUSE_SANITIZER='Address;Undefined' ${{ env.CMAKE_FLAGS }}
-          cmake --build . --target check-quantum-opt -- -j$(nproc)
-      - name: Release build
-        run: |
-          export PATH=$PATH:$GITHUB_WORKSPACE/llvm-project/prefix/bin
-          mkdir $GITHUB_WORKSPACE/mlir-standalone/build
-          cd $GITHUB_WORKSPACE/mlir-standalone/build
-          cmake $GITHUB_WORKSPACE/mlir-standalone -DCMAKE_BUILD_TYPE=Release ${{ env.CMAKE_FLAGS }}
-          cmake --build . --target check-quantum-opt -- -j$(nproc)
+          # build:
+          #   name: Build and test
+          #   runs-on: ubuntu-latest
+          #   steps:
+          #     - name: Get Project Code
+          #       uses: actions/checkout@v2
+          #       with:
+          #         path: 'mlir-standalone'
+          #     - name: Cache LLVM
+          #       id: cache-llvm
+          #       uses: actions/cache@v2
+          #       with:
+          #         path: llvm-project
+          #         key: ${{ runner.os }}-llvm-install-${{ env.LLVM_COMMIT }}
+          #     - name: Get LLVM
+          #       if: steps.cache-llvm.outputs.cache-hit != 'true'
+          #       uses: actions/checkout@v2
+          #       with:
+          #         repository: 'llvm/llvm-project'
+          #         ref: '${{ env.LLVM_COMMIT }}'
+          #         path: 'llvm-project'
+          #     - name: Install LLVM
+          #       if: steps.cache-llvm.outputs.cache-hit != 'true'
+          #       run: |
+          #         mkdir $GITHUB_WORKSPACE/llvm-project/build
+          #         mkdir $GITHUB_WORKSPACE/llvm-project/prefix
+          #         cd $GITHUB_WORKSPACE/llvm-project/build
+          #         cmake $GITHUB_WORKSPACE/llvm-project/llvm -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_BUILD_EXAMPLES=OFF -DLLVM_TARGETS_TO_BUILD="host" -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/llvm-project/prefix -DLLVM_ENABLE_PROJECTS='mlir' -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_ENABLE_OCAMLDOC=OFF -DLLVM_ENABLE_BINDINGS=OFF -DLLVM_INSTALL_UTILS=ON -DLLVM_ENABLE_LLD=ON
+          #         cmake --build . --target install -- -j$(nproc)
+          #     - name: Sanitizer build
+          #       run: |
+          #         export PATH=$PATH:$GITHUB_WORKSPACE/llvm-project/prefix/bin
+          #         mkdir $GITHUB_WORKSPACE/mlir-standalone/sanitizer-build
+          #         cd $GITHUB_WORKSPACE/mlir-standalone/sanitizer-build
+          #         cmake $GITHUB_WORKSPACE/mlir-standalone -DCMAKE_BUILD_TYPE=Debug -DUSE_SANITIZER='Address;Undefined' ${{ env.CMAKE_FLAGS }}
+          #         cmake --build . --target check-quantum-opt -- -j$(nproc)
+          #     - name: Release build
+          #       run: |
+          #         export PATH=$PATH:$GITHUB_WORKSPACE/llvm-project/prefix/bin
+          #         mkdir $GITHUB_WORKSPACE/mlir-standalone/build
+          #         cd $GITHUB_WORKSPACE/mlir-standalone/build
+          #         cmake $GITHUB_WORKSPACE/mlir-standalone -DCMAKE_BUILD_TYPE=Release ${{ env.CMAKE_FLAGS }}
+          #         cmake --build . --target check-quantum-opt -- -j$(nproc)
