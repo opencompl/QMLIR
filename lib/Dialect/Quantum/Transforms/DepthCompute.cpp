@@ -19,26 +19,35 @@ class DepthComputePass : public QuantumDepthComputePassBase<DepthComputePass> {
 template <class Op, int Contrib>
 struct DepthComputePattern : public OpRewritePattern<Op> {
   using OpRewritePattern<Op>::OpRewritePattern;
- 
+
   LogicalResult match(Op op) const final {
-    return success(!op->hasAttr("depth"));
+    return success(!op->hasAttr("qdepth"));
   }
   void rewrite(Op op, PatternRewriter &rewriter) const final {
     auto depthAttrType = IntegerType::get(rewriter.getContext(), 64);
     int64_t depth = 0;
     for (auto operand : op->getOperands()) {
       if (operand.getType().template isa<QubitType>()) {
-        if (auto depthAttr =
-                operand.getDefiningOp()->template getAttrOfType<IntegerAttr>(
-                    "depth")) {
-          depth = std::max(depth, depthAttr.getInt());
+        if (auto parentOp = operand.getDefiningOp()) {
+          if (auto depthAttr =
+                  parentOp->template getAttrOfType<IntegerAttr>("qdepth")) {
+            depth = std::max(depth, depthAttr.getInt());
+          }
         }
       }
     }
     depth += Contrib;
     auto depthAttr = IntegerAttr::get(depthAttrType, depth);
-    rewriter.updateRootInPlace(op, [&]() { op->setAttr("depth", depthAttr); });
+    rewriter.updateRootInPlace(op, [&]() { op->setAttr("qdepth", depthAttr); });
   }
+};
+
+struct FunctionDepthComputePattern : public OpRewritePattern<ReturnOp> {
+  using OpRewritePattern::OpRewritePattern;
+  LogicalResult match(ReturnOp op) const final {
+    return success(!op->hasAttr("qdepth"));
+  }
+  void rewrite(ReturnOp op, PatternRewriter &rewriter) const final {}
 };
 
 void DepthComputePass::runOnFunction() {
@@ -83,10 +92,10 @@ class DepthClearPass : public QuantumDepthClearPassBase<DepthClearPass> {
 struct ClearDepthPattern : public RewritePattern {
   ClearDepthPattern() : RewritePattern(1, Pattern::MatchAnyOpTypeTag()) {}
   LogicalResult match(Operation *op) const final {
-    return success(op->hasAttr("depth"));
+    return success(op->hasAttr("qdepth"));
   }
   void rewrite(Operation *op, PatternRewriter &rewriter) const final {
-    rewriter.updateRootInPlace(op, [&]() { op->removeAttr("depth"); });
+    rewriter.updateRootInPlace(op, [&]() { op->removeAttr("qdepth"); });
   }
 };
 
