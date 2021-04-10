@@ -30,8 +30,8 @@ func @inline_fold() -> tensor<2xi1> {
   %0 = qssa.alloc : !qssa.qubit<2>
   %1, %2 = call @split_fold(%0) : (!qssa.qubit<2>) -> (!qssa.qubit<1>, !qssa.qubit<1>)
   %3 = call @concat_fold(%1, %2) : (!qssa.qubit<1>, !qssa.qubit<1>) -> (!qssa.qubit<2>)
-  // CHECK: %[[res:.*]] = qssa.measure %[[q]] : !qssa.qubit<2> -> tensor<2xi1>
-  %res = qssa.measure %3 : !qssa.qubit<2> -> tensor<2xi1>
+  // CHECK: %[[res:.*]], %[[qq:.*]] = qssa.measure %[[q]] : !qssa.qubit<2> -> tensor<2xi1>
+  %res, %4 = qssa.measure %3 : !qssa.qubit<2> -> tensor<2xi1>
   // CHECK: return %[[res]] : tensor<2xi1>
   return %res : tensor<2xi1>
   // CHECK: }

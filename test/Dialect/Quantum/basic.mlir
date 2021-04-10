@@ -12,7 +12,7 @@ func @main() -> tensor<2xi1> {
   %q0 = qssa.alloc() : !qssa.qubit<3>
   %q1 = call @toffoli(%q0) : (!qssa.qubit<3>) -> !qssa.qubit<3>
   %q2, %q3 = qssa.split %q1 : (!qssa.qubit<3>) -> (!qssa.qubit<1>, !qssa.qubit<2>)
-  %res = qssa.measure %q2 : !qssa.qubit<1> -> tensor<1xi1>
+  %res, %ign0 = qssa.measure %q2 : !qssa.qubit<1> -> tensor<1xi1>
 
   %idx0 = constant 0 : index
   %r0 = tensor.extract %res[%idx0] : tensor<1xi1>
@@ -25,7 +25,7 @@ func @main() -> tensor<2xi1> {
     scf.yield %q3 : !qssa.qubit<2>
   }
 
-  %res1 = qssa.measure %q4 : !qssa.qubit<2> -> tensor<2xi1>
+  %res1, %ign1 = qssa.measure %q4 : !qssa.qubit<2> -> tensor<2xi1>
 
   return %res1 : tensor<2xi1>
 }

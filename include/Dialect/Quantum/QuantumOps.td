@@ -215,12 +215,12 @@ def Quantum_MeasureQubitOp : Quantum_Op<"measure_one", [NoSideEffect]> {
 
 def Quantum_MeasurementType : 1DTensorOf<[I1]>;
 
-def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
+def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect, AllTypesMatch<["qinp", "qout"]>]> {
     let summary = "Measure an array of qubits.";
     let description = [{
         This operation takes an array of qubits of type `qubit<N>`
         and returns the measurement outcome in the standard basis
-        as a 1-D tensor of bits (`i1`)
+        as a 1-D tensor of bits (`i1`) and the final qubits.
 
         Note: The qubits are consumed and can no longer be used.
 
@@ -228,12 +228,12 @@ def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect]> {
 
         ```mlir
         %qs = qssa.allocate : !qssa.qubit<10>
-        %res = qssa.measure %qs : !qssa.qubit<10> -> tensor<10xi1>
+        %res, %qs' = qssa.measure %qs : !qssa.qubit<10> -> tensor<10xi1>
         ```
     }];
 
     let arguments = (ins Quantum_QubitType:$qinp);
-    let results = (outs Quantum_MeasurementType:$res);
+    let results = (outs Quantum_MeasurementType:$res, Quantum_QubitType:$qout);
 
     let assemblyFormat = [{ $qinp attr-dict `:` type($qinp) `->` type($res) }];
 }

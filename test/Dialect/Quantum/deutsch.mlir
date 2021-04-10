@@ -37,7 +37,7 @@ func @deutsch_josza(%n : index) -> i1 { // %n : number of input bits
   %x1 = qssa.H %x0 : !qssa.qubit<?>
   %x2 = call @phase_flip_oracle(%x1) : (!qssa.qubit<?>) -> !qssa.qubit<?>
   %x3 = qssa.H %x2 : !qssa.qubit<?>
-  %res = qssa.measure %x3 : !qssa.qubit<?> -> tensor<?xi1>
+  %res, %x4 = qssa.measure %x3 : !qssa.qubit<?> -> tensor<?xi1>
 
   // compute bitwise-OR of all the bits in %res
   %false = constant 0 : i1
