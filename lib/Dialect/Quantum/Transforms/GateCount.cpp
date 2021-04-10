@@ -16,16 +16,27 @@ class GateCountPass : public QuantumGateCountPassBase<GateCountPass> {
   void runOnFunction() override;
 };
 
-void GateCountPass::runOnFunction() {
-  OwningRewritePatternList patterns(&getContext());
-  // patterns.insert<
-  //     // clang-format off
-  //     // clang-format on
-  //     >(&getContext());
-  if (failed(
-          applyPatternsAndFoldGreedily(getFunction(), std::move(patterns)))) {
-    signalPassFailure();
+class GateCountAnalysis {
+  llvm::StringMap<int> gateCounts;
+
+  void addGate(FuncOp func, StringRef gateName) { gateCounts[gateName] += 1; }
+
+public:
+  GateCountAnalysis(Operation *op) {
+    auto module = dyn_cast<ModuleOp>(op);
+
+    module.walk([&](Operation *op) {
+      if (auto cnotOp = dyn_cast<CNOTGateOp>(op)) {
+        auto func = cnotOp->getParentOfType<FuncOp>();
+        addGate(func, "CNOT");
+      }
+    });
   }
+};
+
+void GateCountPass::runOnFunction() {
+  markAllAnalysesPreserved();
+  auto analysis = getAnalysis<GateCountAnalysis>();
 }
 
 namespace mlir {
