@@ -14,11 +14,10 @@ g_fpaths = glob.glob("circuit_mlir/*.qasm.mlir")
 
 g_data = []
 for (i, fpath) in enumerate(g_fpaths):
-    if i > 10: break
-    print("|%s|  [%d/%d]" % (fpath, i+1, len(g_fpaths)))
+    print("[%3d/%3d] |%60s|" % (i+1, len(g_fpaths), fpath))
     call = g_opt(fpath, "--qasm-gate-count", "-o", "/dev/null").wait()
     stderr = call.stderr.decode()
     g_data.append(json.loads(stderr))
 
-with open("gate_count_data.json", "w") as f:
+with open("gate-count-data.json", "w") as f:
     json.dump(g_data, f, indent=2)

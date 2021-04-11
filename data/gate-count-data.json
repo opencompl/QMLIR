@@ -1,0 +1,2130 @@
+[
+  {
+    "gates": {
+      "cnot": 32,
+      "u": 0
+    },
+    "path": "circuit_mlir/decod24-bdd_294_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 283,
+      "u": 367
+    },
+    "path": "circuit_mlir/cm82a_208.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 17,
+      "u": 20
+    },
+    "path": "circuit_mlir/alu-v1_29.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 283,
+      "u": 0
+    },
+    "path": "circuit_mlir/cm82a_208_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 10,
+      "u": 10
+    },
+    "path": "circuit_mlir/4mod5-v0_20.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 99,
+      "u": 0
+    },
+    "path": "circuit_mlir/4_49_16_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 72,
+      "u": 92
+    },
+    "path": "circuit_mlir/4mod7-v1_96.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 28084,
+      "u": 0
+    },
+    "path": "circuit_mlir/sym10_262_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 30,
+      "u": 36
+    },
+    "path": "circuit_mlir/4gt13_92.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 2,
+      "u": 0
+    },
+    "path": "circuit_mlir/test1.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 123,
+      "u": 147
+    },
+    "path": "circuit_mlir/sym6_316.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 9800,
+      "u": 12645
+    },
+    "path": "circuit_mlir/life_238.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 71932,
+      "u": 92484
+    },
+    "path": "circuit_mlir/urf5_158.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 149,
+      "u": 0
+    },
+    "path": "circuit_mlir/ham7_104_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 18,
+      "u": 19
+    },
+    "path": "circuit_mlir/alu-v3_35.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 10066,
+      "u": 0
+    },
+    "path": "circuit_mlir/urf2_277_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 18,
+      "u": 19
+    },
+    "path": "circuit_mlir/alu-v1_28.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 72,
+      "u": 0
+    },
+    "path": "circuit_mlir/4mod7-v1_96_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 29,
+      "u": 19
+    },
+    "path": "circuit_mlir/test7.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 134,
+      "u": 0
+    },
+    "path": "circuit_mlir/rd53_135_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 154,
+      "u": 189
+    },
+    "path": "circuit_mlir/rd84_142.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 113,
+      "u": 145
+    },
+    "path": "circuit_mlir/4gt4-v0_72.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 60380,
+      "u": 64982
+    },
+    "path": "circuit_mlir/urf3_279.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 124,
+      "u": 151
+    },
+    "path": "circuit_mlir/rd53_311.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 86,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt12-v0_88_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 2100,
+      "u": 0
+    },
+    "path": "circuit_mlir/misex1_241_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 4459,
+      "u": 5764
+    },
+    "path": "circuit_mlir/sqn_258.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 771,
+      "u": 1005
+    },
+    "path": "circuit_mlir/pm1_249.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 17,
+      "u": 0
+    },
+    "path": "circuit_mlir/3_17_13_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 2648,
+      "u": 3402
+    },
+    "path": "circuit_mlir/cycle10_2_110.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 65,
+      "u": 81
+    },
+    "path": "circuit_mlir/one-two-three-v0_98.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 205,
+      "u": 0
+    },
+    "path": "circuit_mlir/C17_204_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 107,
+      "u": 0
+    },
+    "path": "circuit_mlir/hwb4_49_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 256,
+      "u": 324
+    },
+    "path": "circuit_mlir/rd53_133.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 18,
+      "u": 9
+    },
+    "path": "circuit_mlir/4gt11_82.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 17,
+      "u": 19
+    },
+    "path": "circuit_mlir/test6.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 2319,
+      "u": 3002
+    },
+    "path": "circuit_mlir/rd73_252.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 69,
+      "u": 0
+    },
+    "path": "circuit_mlir/aj-e11_165_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 78,
+      "u": 0
+    },
+    "path": "circuit_mlir/mod10_176_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 49,
+      "u": 54
+    },
+    "path": "circuit_mlir/4gt13_91.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 267,
+      "u": 345
+    },
+    "path": "circuit_mlir/majority_239.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 46,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt5_76_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 4459,
+      "u": 0
+    },
+    "path": "circuit_mlir/sqn_258_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 107,
+      "u": 126
+    },
+    "path": "circuit_mlir/hwb4_49.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 9,
+      "u": 10
+    },
+    "path": "circuit_mlir/ex-1_166.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 564,
+      "u": 0
+    },
+    "path": "circuit_mlir/rd53_251_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 30372,
+      "u": 0
+    },
+    "path": "circuit_mlir/hwb8_113_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16,
+      "u": 0
+    },
+    "path": "circuit_mlir/mod5mils_65_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 105,
+      "u": 126
+    },
+    "path": "circuit_mlir/4gt4-v0_79.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 18,
+      "u": 19
+    },
+    "path": "circuit_mlir/alu-v4_37.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 200,
+      "u": 269
+    },
+    "path": "circuit_mlir/rd53_131.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 10,
+      "u": 0
+    },
+    "path": "circuit_mlir/4mod5-v0_20_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 38,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-v0_26_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 15232,
+      "u": 0
+    },
+    "path": "circuit_mlir/sym9_193_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 198,
+      "u": 253
+    },
+    "path": "circuit_mlir/alu-v2_31.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 5,
+      "u": 0
+    },
+    "path": "circuit_mlir/exapmle_MCTS.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 11844,
+      "u": 0
+    },
+    "path": "circuit_mlir/max46_240_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 75180,
+      "u": 96660
+    },
+    "path": "circuit_mlir/urf6_160.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 149,
+      "u": 0
+    },
+    "path": "circuit_mlir/decod24-enable_126_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 112,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt12-v0_87_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 525,
+      "u": 0
+    },
+    "path": "circuit_mlir/f2_232_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 336,
+      "u": 0
+    },
+    "path": "circuit_mlir/sf_274_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 23,
+      "u": 28
+    },
+    "path": "circuit_mlir/decod24-v0_38.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 60,
+      "u": 0
+    },
+    "path": "circuit_mlir/rd53_138_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 128,
+      "u": 0
+    },
+    "path": "circuit_mlir/one-two-three-v0_97_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16864,
+      "u": 21713
+    },
+    "path": "circuit_mlir/sao2_257.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 150,
+      "u": 636
+    },
+    "path": "circuit_mlir/ising_model_16.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 3858,
+      "u": 4905
+    },
+    "path": "circuit_mlir/ham15_107.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 11844,
+      "u": 15282
+    },
+    "path": "circuit_mlir/max46_240.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 23764,
+      "u": 0
+    },
+    "path": "circuit_mlir/urf5_280_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 1701,
+      "u": 0
+    },
+    "path": "circuit_mlir/sym6_145_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16,
+      "u": 0
+    },
+    "path": "circuit_mlir/4mod5-v1_24_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 56329,
+      "u": 72415
+    },
+    "path": "circuit_mlir/plus63mod4096_163.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 69,
+      "u": 82
+    },
+    "path": "circuit_mlir/aj-e11_165.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 5,
+      "u": 2
+    },
+    "path": "circuit_mlir/ex1_226.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 0,
+      "u": 0
+    },
+    "path": "circuit_mlir/hwb9_119_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 215,
+      "u": 270
+    },
+    "path": "circuit_mlir/cnt3-5_180.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 4986,
+      "u": 0
+    },
+    "path": "circuit_mlir/cm85a_209_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 11,
+      "u": 10
+    },
+    "path": "circuit_mlir/4mod5-v1_22.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 60,
+      "u": 72
+    },
+    "path": "circuit_mlir/rd53_138.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 23,
+      "u": 0
+    },
+    "path": "circuit_mlir/decod24-v0_38_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 5,
+      "u": 0
+    },
+    "path": "circuit_mlir/ex1_226_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 36,
+      "u": 48
+    },
+    "path": "circuit_mlir/rd32_270.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16,
+      "u": 19
+    },
+    "path": "circuit_mlir/mod5mils_65.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 53,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt13_90_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 149,
+      "u": 171
+    },
+    "path": "circuit_mlir/ham7_104.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 72,
+      "u": 90
+    },
+    "path": "circuit_mlir/4mod7-v0_94.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 7840,
+      "u": 10096
+    },
+    "path": "circuit_mlir/co14_215.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16864,
+      "u": 0
+    },
+    "path": "circuit_mlir/sao2_257_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 1314,
+      "u": 0
+    },
+    "path": "circuit_mlir/sqrt8_260_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 32,
+      "u": 0
+    },
+    "path": "circuit_mlir/one-two-three-v3_101_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16624,
+      "u": 0
+    },
+    "path": "circuit_mlir/dist_223_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 336,
+      "u": 445
+    },
+    "path": "circuit_mlir/sf_274.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 108,
+      "u": 136
+    },
+    "path": "circuit_mlir/mod10_171.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 23,
+      "u": 27
+    },
+    "path": "circuit_mlir/miller_11.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 51,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-v4_36_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 14,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt11_83_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 196,
+      "u": 0
+    },
+    "path": "circuit_mlir/mod8-10_177_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 152,
+      "u": 0
+    },
+    "path": "circuit_mlir/mod8-10_178_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 205,
+      "u": 262
+    },
+    "path": "circuit_mlir/C17_204.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 7,
+      "u": 0
+    },
+    "path": "circuit_mlir/sys6_test2.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 128,
+      "u": 162
+    },
+    "path": "circuit_mlir/one-two-three-v0_97.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 2648,
+      "u": 0
+    },
+    "path": "circuit_mlir/cycle10_2_110_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 38,
+      "u": 46
+    },
+    "path": "circuit_mlir/alu-v0_26.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 3089,
+      "u": 0
+    },
+    "path": "circuit_mlir/square_root_7_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 66,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt10-v1_81_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 17,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-v1_29_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 336,
+      "u": 0
+    },
+    "path": "circuit_mlir/sf_276_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 415,
+      "u": 539
+    },
+    "path": "circuit_mlir/con1_216.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 17,
+      "u": 19
+    },
+    "path": "circuit_mlir/alu-v0_27.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 18,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-v3_35_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 1314,
+      "u": 1695
+    },
+    "path": "circuit_mlir/sqrt8_260.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16,
+      "u": 20
+    },
+    "path": "circuit_mlir/rd32-v1_68.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 598,
+      "u": 738
+    },
+    "path": "circuit_mlir/hwb5_53.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 31,
+      "u": 38
+    },
+    "path": "circuit_mlir/4mod5-v0_18.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 59,
+      "u": 73
+    },
+    "path": "circuit_mlir/one-two-three-v1_99.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 448,
+      "u": 0
+    },
+    "path": "circuit_mlir/rd53_130_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 267,
+      "u": 0
+    },
+    "path": "circuit_mlir/majority_239_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 98,
+      "u": 117
+    },
+    "path": "circuit_mlir/sys6-v0_111.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 105,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt4-v0_79_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16,
+      "u": 0
+    },
+    "path": "circuit_mlir/4mod5-v0_19_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 134,
+      "u": 162
+    },
+    "path": "circuit_mlir/rd53_135.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 275,
+      "u": 0
+    },
+    "path": "circuit_mlir/ex2_227_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 564,
+      "u": 727
+    },
+    "path": "circuit_mlir/rd53_251.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 77,
+      "u": 96
+    },
+    "path": "circuit_mlir/mini_alu_305.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 90,
+      "u": 390
+    },
+    "path": "circuit_mlir/ising_model_10.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 23,
+      "u": 0
+    },
+    "path": "circuit_mlir/miller_11_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 1405,
+      "u": 1808
+    },
+    "path": "circuit_mlir/radd_250.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 179,
+      "u": 216
+    },
+    "path": "circuit_mlir/4gt4-v0_73.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16,
+      "u": 0
+    },
+    "path": "circuit_mlir/rd32-v0_66_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 72,
+      "u": 0
+    },
+    "path": "circuit_mlir/4mod7-v0_94_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 86,
+      "u": 108
+    },
+    "path": "circuit_mlir/4gt12-v0_88.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 32,
+      "u": 0
+    },
+    "path": "circuit_mlir/4mod5-v1_23_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 200,
+      "u": 0
+    },
+    "path": "circuit_mlir/rd53_131_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 109,
+      "u": 126
+    },
+    "path": "circuit_mlir/4gt4-v0_78.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 240,
+      "u": 0
+    },
+    "path": "circuit_mlir/qft_16_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 1343,
+      "u": 1730
+    },
+    "path": "circuit_mlir/z4_268.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 2952,
+      "u": 3771
+    },
+    "path": "circuit_mlir/hwb6_56.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 532,
+      "u": 689
+    },
+    "path": "circuit_mlir/cm152a_212.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 198,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-v2_31_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 22,
+      "u": 0
+    },
+    "path": "circuit_mlir/decod24-v2_43_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 17,
+      "u": 19
+    },
+    "path": "circuit_mlir/alu-v0_27_example.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 9,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt11_84_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 90,
+      "u": 0
+    },
+    "path": "circuit_mlir/qft_10_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 427,
+      "u": 559
+    },
+    "path": "circuit_mlir/wim_266.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 30,
+      "u": 38
+    },
+    "path": "circuit_mlir/4gt13-v1_93.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 239,
+      "u": 0
+    },
+    "path": "circuit_mlir/mod5adder_127_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 30372,
+      "u": 39008
+    },
+    "path": "circuit_mlir/hwb8_113.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 5,
+      "u": 0
+    },
+    "path": "circuit_mlir/graycode6_47_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 46,
+      "u": 45
+    },
+    "path": "circuit_mlir/4gt5_76.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 448,
+      "u": 595
+    },
+    "path": "circuit_mlir/rd53_130.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 833,
+      "u": 1081
+    },
+    "path": "circuit_mlir/dc1_220.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 3089,
+      "u": 4541
+    },
+    "path": "circuit_mlir/square_root_7.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 32,
+      "u": 37
+    },
+    "path": "circuit_mlir/4mod5-v1_23.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 58,
+      "u": 73
+    },
+    "path": "circuit_mlir/4gt5_77.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 90955,
+      "u": 116820
+    },
+    "path": "circuit_mlir/hwb9_119.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 10066,
+      "u": 10046
+    },
+    "path": "circuit_mlir/urf2_277.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 32,
+      "u": 38
+    },
+    "path": "circuit_mlir/one-two-three-v3_101.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 24,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-v3_34_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 81865,
+      "u": 105247
+    },
+    "path": "circuit_mlir/plus63mod8192_164.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 113,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt4-v0_72_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 8232,
+      "u": 10620
+    },
+    "path": "circuit_mlir/mlp4_245.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 99,
+      "u": 118
+    },
+    "path": "circuit_mlir/4_49_16.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 175,
+      "u": 0
+    },
+    "path": "circuit_mlir/ex3_229_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 15232,
+      "u": 19649
+    },
+    "path": "circuit_mlir/sym9_193.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 223,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-v2_30_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 8,
+      "u": 1
+    },
+    "path": "circuit_mlir/test.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16624,
+      "u": 21422
+    },
+    "path": "circuit_mlir/dist_223.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 175,
+      "u": 228
+    },
+    "path": "circuit_mlir/ex3_229.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 104,
+      "u": 107
+    },
+    "path": "circuit_mlir/0410184_169.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 13,
+      "u": 0
+    },
+    "path": "circuit_mlir/mod5d1_63_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 59,
+      "u": 0
+    },
+    "path": "circuit_mlir/one-two-three-v1_99_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 65,
+      "u": 0
+    },
+    "path": "circuit_mlir/one-two-three-v0_98_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 119,
+      "u": 154
+    },
+    "path": "circuit_mlir/4gt4-v1_74.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 25,
+      "u": 28
+    },
+    "path": "circuit_mlir/mod5d2_64.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 126,
+      "u": 0
+    },
+    "path": "circuit_mlir/mini-alu_167_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 35210,
+      "u": 0
+    },
+    "path": "circuit_mlir/urf2_152_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 17,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-v0_27_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 90,
+      "u": 110
+    },
+    "path": "circuit_mlir/qft_10.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 66,
+      "u": 82
+    },
+    "path": "circuit_mlir/4gt10-v1_81.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 38,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-bdd_288_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 90,
+      "u": 0
+    },
+    "path": "circuit_mlir/ising_model_10_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 85,
+      "u": 90
+    },
+    "path": "circuit_mlir/cnt3-5_179.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 4131,
+      "u": 5331
+    },
+    "path": "circuit_mlir/dc2_222.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 7493,
+      "u": 0
+    },
+    "path": "circuit_mlir/root_255_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 10681,
+      "u": 13698
+    },
+    "path": "circuit_mlir/hwb7_59.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 15232,
+      "u": 19649
+    },
+    "path": "circuit_mlir/9symml_195.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 120,
+      "u": 513
+    },
+    "path": "circuit_mlir/ising_model_13.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 771,
+      "u": 1005
+    },
+    "path": "circuit_mlir/cm42a_207.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 15232,
+      "u": 0
+    },
+    "path": "circuit_mlir/9symml_195_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 154,
+      "u": 0
+    },
+    "path": "circuit_mlir/rd84_142_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 78,
+      "u": 100
+    },
+    "path": "circuit_mlir/mod10_176.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 17,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-v2_33_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 415,
+      "u": 0
+    },
+    "path": "circuit_mlir/con1_216_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 25,
+      "u": 0
+    },
+    "path": "circuit_mlir/mod5d2_64_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 17,
+      "u": 20
+    },
+    "path": "circuit_mlir/alu-v2_33.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 31,
+      "u": 0
+    },
+    "path": "circuit_mlir/4mod5-bdd_287_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 109,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt4-v0_78_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16,
+      "u": 0
+    },
+    "path": "circuit_mlir/rd32-v1_68_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 53,
+      "u": 54
+    },
+    "path": "circuit_mlir/4gt13_90.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 38,
+      "u": 0
+    },
+    "path": "circuit_mlir/decod24-v1_41_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 5960,
+      "u": 7698
+    },
+    "path": "circuit_mlir/rd84_253.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 36,
+      "u": 0
+    },
+    "path": "circuit_mlir/rd32_270_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 256,
+      "u": 0
+    },
+    "path": "circuit_mlir/rd53_133_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 5,
+      "u": 0
+    },
+    "path": "circuit_mlir/graycode6_47.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 72,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-v2_32_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 28084,
+      "u": 36199
+    },
+    "path": "circuit_mlir/sym10_262.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 9408,
+      "u": 0
+    },
+    "path": "circuit_mlir/sym9_148_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 126,
+      "u": 162
+    },
+    "path": "circuit_mlir/mini-alu_167.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 1405,
+      "u": 0
+    },
+    "path": "circuit_mlir/radd_250_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 18,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt11_82_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 9,
+      "u": 9
+    },
+    "path": "circuit_mlir/4gt11_84.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 18,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-v4_37_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 4986,
+      "u": 6428
+    },
+    "path": "circuit_mlir/cm85a_209.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 5,
+      "u": 3
+    },
+    "path": "circuit_mlir/test3.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 32,
+      "u": 0
+    },
+    "path": "circuit_mlir/one-two-three-v2_100_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 58,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt5_77_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 72,
+      "u": 91
+    },
+    "path": "circuit_mlir/alu-v2_32.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 32,
+      "u": 41
+    },
+    "path": "circuit_mlir/decod24-bdd_294.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 119,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt4-v1_74_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 23764,
+      "u": 26065
+    },
+    "path": "circuit_mlir/urf5_280.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 275,
+      "u": 356
+    },
+    "path": "circuit_mlir/ex2_227.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 85,
+      "u": 0
+    },
+    "path": "circuit_mlir/cnt3-5_179_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 5960,
+      "u": 0
+    },
+    "path": "circuit_mlir/rd84_253_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 112,
+      "u": 135
+    },
+    "path": "circuit_mlir/4gt12-v0_87.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 38,
+      "u": 45
+    },
+    "path": "circuit_mlir/4gt5_75.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 24,
+      "u": 28
+    },
+    "path": "circuit_mlir/alu-v3_34.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 100,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt12-v1_89_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 38,
+      "u": 47
+    },
+    "path": "circuit_mlir/decod24-v1_41.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16,
+      "u": 18
+    },
+    "path": "circuit_mlir/rd32-v0_66.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 31,
+      "u": 0
+    },
+    "path": "circuit_mlir/4mod5-v0_18_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 1343,
+      "u": 0
+    },
+    "path": "circuit_mlir/z4_268_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 77,
+      "u": 0
+    },
+    "path": "circuit_mlir/mini_alu_305_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 223,
+      "u": 281
+    },
+    "path": "circuit_mlir/alu-v2_30.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 2100,
+      "u": 2713
+    },
+    "path": "circuit_mlir/misex1_241.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 9,
+      "u": 0
+    },
+    "path": "circuit_mlir/ex-1_166_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 100,
+      "u": 128
+    },
+    "path": "circuit_mlir/4gt12-v1_89.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 104,
+      "u": 0
+    },
+    "path": "circuit_mlir/0410184_169_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 149,
+      "u": 189
+    },
+    "path": "circuit_mlir/decod24-enable_126.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 11,
+      "u": 0
+    },
+    "path": "circuit_mlir/4mod5-v1_22_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 154209,
+      "u": 235971
+    },
+    "path": "circuit_mlir/ground_state_estimation_10.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 179,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt4-v0_73_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 525,
+      "u": 681
+    },
+    "path": "circuit_mlir/f2_232.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 9408,
+      "u": 12096
+    },
+    "path": "circuit_mlir/sym9_148.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 5,
+      "u": 2
+    },
+    "path": "circuit_mlir/xor5_254.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 22,
+      "u": 30
+    },
+    "path": "circuit_mlir/decod24-v2_43.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 116,
+      "u": 135
+    },
+    "path": "circuit_mlir/4gt12-v0_86.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 224028,
+      "u": 288036
+    },
+    "path": "circuit_mlir/urf4_187.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 80878,
+      "u": 103986
+    },
+    "path": "circuit_mlir/urf1_149.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 14772,
+      "u": 19055
+    },
+    "path": "circuit_mlir/clip_206.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 14772,
+      "u": 0
+    },
+    "path": "circuit_mlir/clip_206_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 8232,
+      "u": 0
+    },
+    "path": "circuit_mlir/mlp4_245_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 2319,
+      "u": 0
+    },
+    "path": "circuit_mlir/rd73_252_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 2952,
+      "u": 0
+    },
+    "path": "circuit_mlir/hwb6_56_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 120,
+      "u": 0
+    },
+    "path": "circuit_mlir/ising_model_13_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 2,
+      "u": 3
+    },
+    "path": "circuit_mlir/test4.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 185276,
+      "u": 238212
+    },
+    "path": "circuit_mlir/urf3_155.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 64,
+      "u": 86
+    },
+    "path": "circuit_mlir/decod24-v3_45.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 2,
+      "u": 0
+    },
+    "path": "circuit_mlir/test2.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 38,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt5_75_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 196,
+      "u": 244
+    },
+    "path": "circuit_mlir/mod8-10_177.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 2,
+      "u": 2
+    },
+    "path": "circuit_mlir/test5.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 35210,
+      "u": 45270
+    },
+    "path": "circuit_mlir/urf2_152.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 116,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt12-v0_86_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16,
+      "u": 19
+    },
+    "path": "circuit_mlir/4mod5-v0_19.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 14,
+      "u": 9
+    },
+    "path": "circuit_mlir/4gt11_83.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 11,
+      "u": 9
+    },
+    "path": "circuit_mlir/ham3_102.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 869,
+      "u": 1124
+    },
+    "path": "circuit_mlir/squar5_261.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 1498,
+      "u": 1941
+    },
+    "path": "circuit_mlir/adr4_197.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 30,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt13_92_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 104,
+      "u": 126
+    },
+    "path": "circuit_mlir/rd73_140.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 1701,
+      "u": 2187
+    },
+    "path": "circuit_mlir/sym6_145.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 51,
+      "u": 64
+    },
+    "path": "circuit_mlir/alu-v4_36.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 26692,
+      "u": 28074
+    },
+    "path": "circuit_mlir/urf1_278.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 13,
+      "u": 9
+    },
+    "path": "circuit_mlir/mod5d1_63.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 79,
+      "u": 100
+    },
+    "path": "circuit_mlir/4gt4-v0_80.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 31,
+      "u": 39
+    },
+    "path": "circuit_mlir/4mod5-bdd_287.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 30,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt13-v1_93_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 152,
+      "u": 190
+    },
+    "path": "circuit_mlir/mod8-10_178.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 4636,
+      "u": 5983
+    },
+    "path": "circuit_mlir/inc_237.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 98,
+      "u": 0
+    },
+    "path": "circuit_mlir/sys6-v0_111_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 11,
+      "u": 0
+    },
+    "path": "circuit_mlir/ham3_102_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 38,
+      "u": 46
+    },
+    "path": "circuit_mlir/alu-bdd_288.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 32,
+      "u": 37
+    },
+    "path": "circuit_mlir/one-two-three-v2_100.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 7840,
+      "u": 0
+    },
+    "path": "circuit_mlir/co14_215_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 7493,
+      "u": 9666
+    },
+    "path": "circuit_mlir/root_255.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 148,
+      "u": 180
+    },
+    "path": "circuit_mlir/sym9_146.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 5,
+      "u": 0
+    },
+    "path": "circuit_mlir/xor5_254_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 598,
+      "u": 0
+    },
+    "path": "circuit_mlir/hwb5_53_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 1498,
+      "u": 0
+    },
+    "path": "circuit_mlir/adr4_197_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 18,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-v1_28_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 239,
+      "u": 316
+    },
+    "path": "circuit_mlir/mod5adder_127.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 16,
+      "u": 20
+    },
+    "path": "circuit_mlir/4mod5-v1_24.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 336,
+      "u": 442
+    },
+    "path": "circuit_mlir/sf_276.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 240,
+      "u": 272
+    },
+    "path": "circuit_mlir/qft_16.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 108,
+      "u": 0
+    },
+    "path": "circuit_mlir/mod10_171_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 49,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt13_91_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 26692,
+      "u": 0
+    },
+    "path": "circuit_mlir/urf1_278_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 17,
+      "u": 19
+    },
+    "path": "circuit_mlir/3_17_13.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 64,
+      "u": 0
+    },
+    "path": "circuit_mlir/decod24-v3_45_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 17,
+      "u": 0
+    },
+    "path": "circuit_mlir/alu-v0_27_example_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 79,
+      "u": 0
+    },
+    "path": "circuit_mlir/4gt4-v0_80_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 150,
+      "u": 0
+    },
+    "path": "circuit_mlir/ising_model_16_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 10681,
+      "u": 0
+    },
+    "path": "circuit_mlir/hwb7_59_onlyCX.qasm.mlir"
+  }
+]
