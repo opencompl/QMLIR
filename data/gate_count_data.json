@@ -1,0 +1,79 @@
+[
+  {
+    "gates": {
+      "cnot": 32,
+      "u": 0
+    },
+    "path": "circuit_mlir/decod24-bdd_294_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 283,
+      "u": 367
+    },
+    "path": "circuit_mlir/cm82a_208.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 17,
+      "u": 20
+    },
+    "path": "circuit_mlir/alu-v1_29.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 283,
+      "u": 0
+    },
+    "path": "circuit_mlir/cm82a_208_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 10,
+      "u": 10
+    },
+    "path": "circuit_mlir/4mod5-v0_20.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 99,
+      "u": 0
+    },
+    "path": "circuit_mlir/4_49_16_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 72,
+      "u": 92
+    },
+    "path": "circuit_mlir/4mod7-v1_96.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 28084,
+      "u": 0
+    },
+    "path": "circuit_mlir/sym10_262_onlyCX.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 30,
+      "u": 36
+    },
+    "path": "circuit_mlir/4gt13_92.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 2,
+      "u": 0
+    },
+    "path": "circuit_mlir/test1.qasm.mlir"
+  },
+  {
+    "gates": {
+      "cnot": 123,
+      "u": 147
+    },
+    "path": "circuit_mlir/sym6_316.qasm.mlir"
+  }
+]

@@ -3,11 +3,14 @@
 #include "Dialect/QASM/QASMOps.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
 #include <nlohmann/json.hpp>
+#include <fstream>
+#include <iostream>
 
 #include "PassDetail.h"
 
 // #include "external/json/include/nlohmann/json.hpp"
 
+using namespace nlohmann;
 using namespace mlir;
 using namespace QASM;
 
@@ -65,13 +68,17 @@ private:
 
 void GateCountPass::runOnOperation() {
   auto analysis = getAnalysis<GateCountAnalysis>();
-  llvm::errs() << "// -------- QASM Gate Count analysis --------\n";
-  auto gateCounts = analysis.getGateCounts("qasm_main");
-  llvm::errs() << "\"qasm_main\": {\n";
-  llvm::errs() << "  \"CX\": \"" << gateCounts.cnot << "\",\n";
-  llvm::errs() << "  \"U\": \"" << gateCounts.u << "\"\n";
-  llvm::errs() << "}\n";
-  llvm::errs() << "// ------------------------------------------\n";
+  GateCounts gateCounts = analysis.getGateCounts("qasm_main");
+  std::ofstream o("out.json", std::ios_base::app);
+  json j;
+  j["gates"]["cnot"] = gateCounts.cnot;
+  j["gates"]["u"] = gateCounts.u;
+
+  Location l = this->getOperation().getLoc();
+  mlir::FileLineColLoc fcl = l.cast<mlir::FileLineColLoc>();
+  j["path"] = fcl.getFilename().str();
+  std::string outstr = j.dump();
+  llvm::errs() << j.dump();
 }
 
 } // namespace
