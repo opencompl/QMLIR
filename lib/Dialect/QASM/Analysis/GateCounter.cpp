@@ -2,8 +2,11 @@
 #include "Dialect/QASM/Analysis/Passes.h"
 #include "Dialect/QASM/QASMOps.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
+#include <nlohmann/json.hpp>
 
 #include "PassDetail.h"
+
+// #include "external/json/include/nlohmann/json.hpp"
 
 using namespace mlir;
 using namespace QASM;

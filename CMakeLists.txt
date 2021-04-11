@@ -49,6 +49,7 @@ include(sanitizers)
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 set(JSON_Install OFF CACHE INTERNAL "")
 add_subdirectory(external/json)
+include_directories(external/json/include)
 #### </json>
 
 add_subdirectory(include)
