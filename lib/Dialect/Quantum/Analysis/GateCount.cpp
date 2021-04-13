@@ -20,9 +20,11 @@ class GateCountPass : public QuantumGateCountPassBase<GateCountPass> {
 
 class GateCountAnalysis {
   // gateCounts[funcName][gateName] = #gates
-  llvm::StringMap<llvm::StringMap<int>> gateCounts;
+  llvm::StringMap<llvm::StringMap<int64_t>> gateCounts;
+  // depths[funcName] = circuit_depth
+  llvm::StringMap<int64_t> depths;
 
-  void addGate(FuncOp func, StringRef gateName, int count = 1) {
+  void addGate(FuncOp func, StringRef gateName, int64_t count = 1) {
     gateCounts[func.getName()][gateName] += count;
   }
   void addCall(FuncOp func, StringRef gateCallName) {
@@ -31,12 +33,20 @@ class GateCountAnalysis {
           childGateCount.second;
     }
   }
+  void updateDepth(FuncOp func, int64_t depth) {
+    depths[func.getName()] = std::max(depths[func.getName()], depth);
+  }
 
 public:
   GateCountAnalysis(Operation *op) {
     auto module = dyn_cast<ModuleOp>(op);
     for (auto func : module.getOps<FuncOp>()) {
       func.walk([&](Operation *op) {
+        // compute depth
+        if (op->hasAttrOfType<IntegerAttr>("qdepth")) {
+          updateDepth(func, op->getAttrOfType<IntegerAttr>("qdepth").getInt());
+        }
+        // compute gate counts
         if (auto callOp = dyn_cast<CallOp>(op)) {
           addCall(func, callOp.getCallee());
         } else if (isa<CNOTGateOp>(op)) {
@@ -83,6 +93,9 @@ public:
       }
       stats[func.getKey().str()]["ops"] = funcStat;
       stats[func.getKey().str()]["depth"] = -1;
+    }
+    for (auto &func : depths) {
+      stats[func.getKey().str()]["depth"] = func.getValue();
     }
 
     return stats;
