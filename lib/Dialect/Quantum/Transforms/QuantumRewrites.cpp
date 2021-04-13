@@ -6,8 +6,8 @@
 #include "mlir/Pass/Pass.h"
 #include "mlir/Transforms/GreedyPatternRewriteDriver.h"
 
+#include "../PassDetail.h"
 #include "Dialect/Quantum/QuantumOps.h"
-#include "PassDetail.h"
 
 using namespace mlir;
 using namespace mlir::quantum;
@@ -18,7 +18,7 @@ class QuantumRewritePass : public QuantumRewritePassBase<QuantumRewritePass> {
 
 namespace {
 #include "Dialect/Quantum/Transforms/QuantumRewrites.h.inc"
-}
+} // namespace
 
 void QuantumRewritePass::runOnFunction() {
   OwningRewritePatternList patterns(&getContext());

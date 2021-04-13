@@ -6,8 +6,8 @@
 #include "mlir/Pass/Pass.h"
 #include "mlir/Transforms/GreedyPatternRewriteDriver.h"
 
+#include "../PassDetail.h"
 #include "Dialect/Quantum/QuantumOps.h"
-#include "PassDetail.h"
 
 using namespace mlir;
 using namespace mlir::quantum;

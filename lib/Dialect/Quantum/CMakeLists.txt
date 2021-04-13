@@ -13,4 +13,5 @@ add_mlir_dialect_library(MLIRQuantum
   MLIRIR
 )
 
+add_subdirectory(Analysis)
 add_subdirectory(Transforms)

@@ -5,8 +5,8 @@
 #include "mlir/IR/PatternMatch.h"
 #include "mlir/Pass/Pass.h"
 
+#include "../PassDetail.h"
 #include "Dialect/Quantum/QuantumOps.h"
-#include "PassDetail.h"
 
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;

@@ -1,13 +1,15 @@
-#ifndef QUANTUM_TRANSFORMS_PASSES_TD
-#define QUANTUM_TRANSFORMS_PASSES_TD
+#ifndef QUANTUM_PASSES_TD
+#define QUANTUM_PASSES_TD
 
 include "mlir/Pass/PassBase.td"
 
+// Transforms/optimizations
 def QuantumRewritePass : FunctionPass<"qssa-apply-rewrites"> {
   let summary = "Apply basic qssa rewrite rules";
   let constructor = "mlir::createQuantumRewritePass()";
 }
 
+// Dynamic Analysis (with updates)
 def QuantumDepthComputePass : FunctionPass<"qssa-compute-depths"> {
   let summary = "Compute circuit depth for all operations";
   let constructor = "mlir::createQuantumDepthComputePass()";
@@ -18,9 +20,10 @@ def QuantumDepthClearPass : FunctionPass<"qssa-clear-depths"> {
   let constructor = "mlir::createQuantumClearDepthPass()";
 }
 
+// Static Analysis (no updates)
 def QuantumGateCountPass : Pass<"qssa-gate-count", "ModuleOp"> {
   let summary = "Count gates and sub-circuit patterns in main (marked qasm.main)";
   let constructor = "mlir::createQuantumGateCountPass()";
 }
 
-#endif // QUANTUM_TRANSFORMS_PASSES_TD
+#endif // QUANTUM_PASSES_TD

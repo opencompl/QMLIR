@@ -1,5 +1,5 @@
-#ifndef QUANTUM_TRANSFORMS_PASSES_H_
-#define QUANTUM_TRANSFORMS_PASSES_H_
+#ifndef QUANTUM_PASSES_H_
+#define QUANTUM_PASSES_H_
 
 #include "mlir/Pass/Pass.h"
 
@@ -18,8 +18,8 @@ std::unique_ptr<Pass> createQuantumGateCountPass();
 
 /// Generate the code for registering passes.
 #define GEN_PASS_REGISTRATION
-#include "Dialect/Quantum/Transforms/Passes.h.inc"
+#include "Dialect/Quantum/Passes.h.inc"
 
 } // namespace mlir
 
-#endif // QUANTUM_TRANSFORMS_PASSES_H_
+#endif // QUANTUM_PASSES_H_
