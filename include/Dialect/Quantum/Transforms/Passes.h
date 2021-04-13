@@ -10,7 +10,7 @@ class Pass;
 std::unique_ptr<FunctionPass> createQuantumRewritePass();
 std::unique_ptr<FunctionPass> createQuantumDepthComputePass();
 std::unique_ptr<FunctionPass> createQuantumClearDepthPass();
-std::unique_ptr<FunctionPass> createQuantumGateCountPass();
+std::unique_ptr<Pass> createQuantumGateCountPass();
 
 //===----------------------------------------------------------------------===//
 // Registration

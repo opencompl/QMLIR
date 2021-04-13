@@ -306,6 +306,14 @@ class SimplePrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
   let arguments = (ins Quantum_QubitType:$qinp);
   let results = (outs Quantum_QubitType:$qout);
   let assemblyFormat = [{ $qinp attr-dict `:` type($qinp) }];
+  let extraClassDeclaration = [{
+    int64_t numQubits() {
+      auto qubitType = qinp().getType().cast<QubitType>();
+      if (qubitType.hasStaticSize())
+        return qubitType.getSize();
+      return -1;
+    }
+  }];
   let verifier = ?;
 }
 
@@ -318,6 +326,14 @@ class PrimitiveSingleParamGateOp<string mnemonic, list<OpTrait> traits = []>
   let arguments = (ins AnyFloat:$param, Quantum_QubitType:$qinp);
   let results = (outs Quantum_QubitType:$qout);
   let assemblyFormat = [{ `(` $param `:` type($param) `)`$qinp attr-dict `:` type($qinp) }];
+  let extraClassDeclaration = [{
+    int64_t numQubits() {
+      auto qubitType = qinp().getType().cast<QubitType>();
+      if (qubitType.hasStaticSize())
+        return qubitType.getSize();
+      return -1;
+    }
+  }];
   let verifier = ?;
 }
 

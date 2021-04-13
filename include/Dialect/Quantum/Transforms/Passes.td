@@ -18,7 +18,7 @@ def QuantumDepthClearPass : FunctionPass<"qssa-clear-depths"> {
   let constructor = "mlir::createQuantumClearDepthPass()";
 }
 
-def QuantumGateCountPass : FunctionPass<"qssa-gate-count"> {
+def QuantumGateCountPass : Pass<"qssa-gate-count", "ModuleOp"> {
   let summary = "Count gates and sub-circuit patterns in main (marked qasm.main)";
   let constructor = "mlir::createQuantumGateCountPass()";
 }
