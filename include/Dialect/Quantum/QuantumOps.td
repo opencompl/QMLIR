@@ -202,12 +202,15 @@ def Quantum_MeasureQubitOp : Quantum_Op<"measure_one", [NoSideEffect]> {
     }];
 
     let arguments = (ins Quantum_SingleQubitType:$qinp);
-    let results = (outs I1:$res);
+    let results = (outs I1:$res, Quantum_SingleQubitType:$qout);
 
     let assemblyFormat = [{ $qinp attr-dict }];
     let builders = [
       OpBuilder<(ins "::mlir::Value":$inp), [{
-        return build($_builder, $_state, ::mlir::IntegerType::get($_builder.getContext(), 1), inp);
+        return build($_builder, $_state,
+                     ::mlir::IntegerType::get($_builder.getContext(), 1),
+                     inp.getType(),
+                     inp);
       }]>
     ];
     let verifier = ?;
@@ -387,6 +390,23 @@ def HadamardGateOp : SimplePrimitiveGateOp<"H"> {
       %q1 = quantum.H %q0 : !quantum.qubit<?>
       ```
   }];
+  let hasFolder = 1;
+}
+
+def PhaseGateOp : SimplePrimitiveGateOp<"S"> {
+  let summary = "Phase (S) gate";
+  let hasFolder = 1;
+}
+def PhaseDaggerGateOp : SimplePrimitiveGateOp<"Sdg"> {
+  let summary = "Phase inverse (S-dagger) gate";
+  let hasFolder = 1;
+}
+def TGateOp : SimplePrimitiveGateOp<"T"> {
+  let summary = "T gate";
+  let hasFolder = 1;
+}
+def TDaggerGateOp : SimplePrimitiveGateOp<"Tdg"> {
+  let summary = "T-dagger gate";
   let hasFolder = 1;
 }
 

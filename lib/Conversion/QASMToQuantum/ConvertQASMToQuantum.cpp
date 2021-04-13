@@ -1,4 +1,5 @@
 #include "mlir/Dialect/Affine/IR/AffineOps.h"
+#include "mlir/Dialect/SCF/SCF.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
 #include "mlir/Transforms/DialectConversion.h"
 
@@ -106,8 +107,7 @@ public:
 
 /// %res = qasm.measure %q
 /// [[to]]
-/// %res = qssa.measure_one %q_{i}
-/// %q_{i + 1} = qssa.allocate() : !qssa.qubit<1>
+/// %res, %q_{i + 1} = qssa.measure_one %q_{i}
 class MeasureOpConversion
     : public QASMOpToQuantumConversionPattern<QASM::MeasureOp> {
 public:
@@ -120,10 +120,8 @@ public:
     auto currentQubit = qubitMap->resolveQubit(parentFuncOp, args.qinp());
     auto newOp =
         rewriter.create<quantum::MeasureQubitOp>(op->getLoc(), currentQubit);
-    rewriter.replaceOp(op, newOp.getResult());
-    auto newQubit =
-        rewriter.create<quantum::AllocateOp>(rewriter.getUnknownLoc(), 1);
-    qubitMap->updateQubit(parentFuncOp, args.qinp(), newQubit.getResult());
+    rewriter.replaceOp(op, newOp.getResult(0));
+    qubitMap->updateQubit(parentFuncOp, args.qinp(), newOp.getResult(1));
     return success();
   }
 };
@@ -334,8 +332,8 @@ class GateCallOpConversion
   template <class GateOp>
   Value insertSimplePrimitiveGateOp(Location loc, Value inputQubit,
                                     ConversionPatternRewriter &rewriter) const {
-    auto gateOp = rewriter.create<quantum::PauliXGateOp>(
-        loc, inputQubit.getType(), inputQubit);
+    auto gateOp =
+        rewriter.create<GateOp>(loc, inputQubit.getType(), inputQubit);
     return gateOp.qout();
   }
 
@@ -363,19 +361,46 @@ public:
 
     SmallVector<Value> resultQubits;
 
+    // currently supported: x, y, z, s, sdg, t, tdg, rx, ry, rz
     if (gateOp.gate_name() == "x") {
       resultQubits.push_back(insertSimplePrimitiveGateOp<quantum::PauliXGateOp>(
-          gateOp->getLoc(), baseQubits[0], rewriter));
+          gateOp->getLoc(), arguments[0], rewriter));
     } else if (gateOp.gate_name() == "y") {
       resultQubits.push_back(insertSimplePrimitiveGateOp<quantum::PauliYGateOp>(
-          gateOp->getLoc(), baseQubits[0], rewriter));
+          gateOp->getLoc(), arguments[0], rewriter));
     } else if (gateOp.gate_name() == "z") {
       resultQubits.push_back(insertSimplePrimitiveGateOp<quantum::PauliZGateOp>(
-          gateOp->getLoc(), baseQubits[0], rewriter));
+          gateOp->getLoc(), arguments[0], rewriter));
     } else if (gateOp.gate_name() == "h") {
       resultQubits.push_back(
           insertSimplePrimitiveGateOp<quantum::HadamardGateOp>(
-              gateOp->getLoc(), baseQubits[0], rewriter));
+              gateOp->getLoc(), arguments[0], rewriter));
+    } else if (gateOp.gate_name() == "s") {
+      resultQubits.push_back(insertSimplePrimitiveGateOp<quantum::PhaseGateOp>(
+          gateOp->getLoc(), arguments[0], rewriter));
+    } else if (gateOp.gate_name() == "sdg") {
+      resultQubits.push_back(
+          insertSimplePrimitiveGateOp<quantum::PhaseDaggerGateOp>(
+              gateOp->getLoc(), arguments[0], rewriter));
+    } else if (gateOp.gate_name() == "t") {
+      resultQubits.push_back(insertSimplePrimitiveGateOp<quantum::TGateOp>(
+          gateOp->getLoc(), arguments[0], rewriter));
+    } else if (gateOp.gate_name() == "tdg") {
+      resultQubits.push_back(
+          insertSimplePrimitiveGateOp<quantum::TDaggerGateOp>(
+              gateOp->getLoc(), arguments[0], rewriter));
+    } else if (gateOp.gate_name() == "rx") {
+      resultQubits.push_back(rewriter.create<quantum::RotateXOp>(
+          gateOp->getLoc(), arguments[1].getType(), arguments[0],
+          arguments[1]));
+    } else if (gateOp.gate_name() == "ry") {
+      resultQubits.push_back(rewriter.create<quantum::RotateYOp>(
+          gateOp->getLoc(), arguments[1].getType(), arguments[0],
+          arguments[1]));
+    } else if (gateOp.gate_name() == "rz") {
+      resultQubits.push_back(rewriter.create<quantum::RotateZOp>(
+          gateOp->getLoc(), arguments[1].getType(), arguments[0],
+          arguments[1]));
     } else {
       // generate new call
       emitWarning(gateOp->getLoc())
@@ -405,7 +430,17 @@ public:
   matchAndRewrite(QASM::IfOp op, ArrayRef<Value> operands,
                   ConversionPatternRewriter &rewriter) const override {
     QASM::IfOpAdaptor resolved(operands);
-    return success();
+
+    /// If condition
+    // int registerSize =
+    //     resolved.creg().getType().cast<MemRefType>().getDimSize(0);
+    // for (int i = 0; i < registerSize; i++) {
+    //   auto lhs = rewriter.create<AffineLoadOp>();
+    // }
+
+    /// Final IfOp
+    // auto newIfOp = rewriter.create<scf::IfOp>();
+    return failure();
   }
 };
 
