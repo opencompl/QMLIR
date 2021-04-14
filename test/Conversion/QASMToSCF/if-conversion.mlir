@@ -1,5 +1,5 @@
 // RUN: quantum-opt %s
-// RUN: quantum-opt --convert-qasm-to-qssa %s | quantum-opt | FileCheck %s
+// RUN: quantum-opt --convert-qasm-to-scf %s | quantum-opt | FileCheck %s
 
 func @ifconv() {
   %0 = qasm.allocate

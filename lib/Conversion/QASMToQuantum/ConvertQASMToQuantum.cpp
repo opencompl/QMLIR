@@ -423,27 +423,6 @@ public:
   }
 };
 
-class IfOpConversion : public QASMOpToQuantumConversionPattern<QASM::IfOp> {
-public:
-  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
-  LogicalResult
-  matchAndRewrite(QASM::IfOp op, ArrayRef<Value> operands,
-                  ConversionPatternRewriter &rewriter) const override {
-    QASM::IfOpAdaptor resolved(operands);
-
-    /// If condition
-    // int registerSize =
-    //     resolved.creg().getType().cast<MemRefType>().getDimSize(0);
-    // for (int i = 0; i < registerSize; i++) {
-    //   auto lhs = rewriter.create<AffineLoadOp>();
-    // }
-
-    /// Final IfOp
-    // auto newIfOp = rewriter.create<scf::IfOp>();
-    return failure();
-  }
-};
-
 void populateQASMToQuantumConversionPatterns(
     QASMTypeConverter &typeConverter, QubitMap &qubitMap,
     OwningRewritePatternList &patterns) {
@@ -458,8 +437,7 @@ void populateQASMToQuantumConversionPatterns(
       ResetOpConversion,
       BarrierOpConversion,
       SingleQubitRotationOpConversion,
-      ControlledNotOpConversion,
-      IfOpConversion
+      ControlledNotOpConversion
   >(typeConverter, &qubitMap);
   // clang-format on
 }
