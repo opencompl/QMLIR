@@ -1,2 +1,3 @@
 add_subdirectory(QuantumToStandard)
 add_subdirectory(QASMToQuantum)
+add_subdirectory(QASMToSCF)
