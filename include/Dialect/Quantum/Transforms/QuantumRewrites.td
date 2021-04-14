@@ -19,4 +19,28 @@ def : Pat<(TGateOp (TGateOp $q)), (PhaseGateOp $q)>;
 // T^-1 . T^-1 = S^-1
 def : Pat<(TDaggerGateOp (TDaggerGateOp $q)), (PhaseDaggerGateOp $q)>;
 
+// Merge adjacent U ops, if all angles are constants
+// class mergeZYZ<component> : NativeCodeCall<"convertYZYtoZYZ($0, $1, $2)." # component # "()">;
+
+// U(...).U(...) = U(...)
+// U(theta, phi, lambda)
+//           = U(theta2, phi2, lambda2).U(theta1, phi1, lambda1)
+//           = Rz(phi2).Ry(theta2).Rz(lambda2+phi1).Ry(theta1).Rz(lambda1)
+//           = Rz(phi2).Rz(phi').Ry(theta').Rz(lambda').Rz(lambda1)
+//           = U(theta', phi2 + phi', lambda1 + lambda')
+// def : Pat<(UniversalRotationGateOp
+//             (ConstantFloatOp $theta2),
+//             $phi2,
+//             (ConstantFloatOp $lambda2),
+//             (UniversalRotationGateOp
+//                (ConstantFloatOp $theta1),
+//                (ConstantFloatOp $phi1),
+//                $lambda1,
+//                $q)),
+//           (UniversalRotationGateOp
+//              (ConstantFloatOp (mergeZYZ<theta> theta1, theta2, lambda1)),
+//              (AddFOp phi2, (ConstantFloatOp (mergeZYZ<phi>))),
+//              (AddFOp lambda1, (ConstantFloatOp (mergeZYZ<lambda>))),
+//              $q)>;
+
 #endif // QUANTUM_TRANSFORMS_QUANTUMREWRITES_TD
