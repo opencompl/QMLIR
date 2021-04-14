@@ -103,4 +103,5 @@ def autolabel(rects):
 fig.tight_layout()
 
 filename = os.path.basename(__file__).replace(".py", ".pdf")
+fig.set_size_inches(5,2)
 fig.savefig(filename)

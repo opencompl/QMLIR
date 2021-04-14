@@ -141,6 +141,8 @@ ax.legend(ncol=100, frameon=False, loc='lower right', bbox_to_anchor=(0, 1, 1, 0
 ax.set_xticks([])
 ax.set_ylabel('%optimization', rotation='horizontal', position = (1, 1.05),
     horizontalalignment='left', verticalalignment='bottom')
+
+fig.set_size_inches(5,2)
 fig.tight_layout()
 fig.savefig('optim-ratio.pdf')
 
@@ -164,6 +166,8 @@ ax.legend(ncol=100, frameon=False, loc='lower right', bbox_to_anchor=(0, 1, 1, 0
 ax.set_xticks([])
 ax.set_ylabel('%opt/time', rotation='horizontal', position = (1, 1.05),
     horizontalalignment='left', verticalalignment='bottom')
+
+fig.set_size_inches(5,2)
 fig.tight_layout()
 fig.savefig('opt-fact-per-unit-time.pdf')
 
