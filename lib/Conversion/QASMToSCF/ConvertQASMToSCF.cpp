@@ -26,11 +26,41 @@ private:
   MLIRContext *context;
 };
 
+struct QASMIfOpConversion : OpConversionPattern<QASM::IfOp> {
+  using OpConversionPattern::OpConversionPattern;
+  LogicalResult
+  matchAndRewrite(QASM::IfOp op, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const final {
+    int64_t regSize = op.creg().getType().cast<MemRefType>().getShape()[0];
+    auto trueOp =
+        rewriter.create<ConstantIntOp>(rewriter.getUnknownLoc(), 1, 1);
+    Value cond = trueOp;
+    for (int64_t i = 0; i < regSize; i++) {
+      Value bit = rewriter.create<AffineLoadOp>(
+          op->getLoc(), op.creg(), rewriter.getConstantAffineMap(i),
+          ValueRange{});
+      if ((op.value() >> i) & 1) {
+        bit = rewriter.create<XOrOp>(op->getLoc(), bit.getType(), bit, trueOp);
+      }
+      cond = rewriter.create<AndOp>(op->getLoc(), bit.getType(), cond, bit);
+    }
+    auto scfIfOp = rewriter.create<scf::IfOp>(op->getLoc(), cond, false);
+    auto thenBuilder = scfIfOp.getThenBodyBuilder();
+    for (auto &inst : op.ifBlock().getBlocks().begin()->getOperations()) {
+      thenBuilder.insert(inst.clone());
+      break;
+    }
+    rewriter.eraseOp(op);
+    return success();
+  }
+};
+
 void populateQASMToSCFConversionPatterns(QASMTypeConverter &typeConverter,
                                          OwningRewritePatternList &patterns) {
   // clang-format off
-  //patterns.insert<
-  //>(typeConverter);
+  patterns.insert<
+    QASMIfOpConversion
+  >(typeConverter, patterns.getContext());
   // clang-format on
 }
 
@@ -38,6 +68,7 @@ struct QASMToSCFTarget : public ConversionTarget {
   QASMToSCFTarget(MLIRContext &ctx) : ConversionTarget(ctx) {
     addLegalDialect<StandardOpsDialect>();
     addLegalDialect<scf::SCFDialect>();
+    addLegalDialect<AffineDialect>();
 
     addIllegalOp<QASM::IfOp>();
   }
