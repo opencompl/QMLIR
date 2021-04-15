@@ -9,6 +9,11 @@ def QuantumRewritePass : FunctionPass<"qssa-apply-rewrites"> {
   let constructor = "mlir::createQuantumRewritePass()";
 }
 
+def QuantumConvert1QToUPass : FunctionPass<"qssa-convert-1q-to-U"> {
+  let summary = "Convert all single qubit primitives to U (u3) calls";
+  let constructor = "mlir::createQuantumConvert1QToUPass()";
+}
+
 // Dynamic Analysis (with updates)
 def QuantumDepthComputePass : FunctionPass<"qssa-compute-depths"> {
   let summary = "Compute circuit depth for all operations";
