@@ -17,7 +17,7 @@ class Convert1QToUPass : public QuantumConvert1QToUPassBase<Convert1QToUPass> {
 };
 
 namespace {
-#include "Dialect/Quantum/Transforms/QuantumRewrites.h.inc"
+#include "Dialect/Quantum/Transforms/Convert1QToU.h.inc"
 } // namespace
 
 void Convert1QToUPass::runOnFunction() {
