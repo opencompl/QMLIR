@@ -7,6 +7,8 @@ func @ifconv() {
   %mem = memref.alloc() : memref<3xi1>
   qasm.if %mem = 0 : memref<3xi1> {
     qasm.CX %0, %1
+    qasm.CX %0, %1
+    qasm.CX %0, %1
   }
   qasm.CX %0, %1
   return

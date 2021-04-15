@@ -47,8 +47,9 @@ struct QASMIfOpConversion : OpConversionPattern<QASM::IfOp> {
     auto scfIfOp = rewriter.create<scf::IfOp>(op->getLoc(), cond, false);
     auto thenBuilder = scfIfOp.getThenBodyBuilder();
     for (auto &inst : op.ifBlock().getBlocks().begin()->getOperations()) {
+      if (inst.hasTrait<OpTrait::IsTerminator>())
+        break;
       thenBuilder.insert(inst.clone());
-      break;
     }
     rewriter.eraseOp(op);
     return success();
