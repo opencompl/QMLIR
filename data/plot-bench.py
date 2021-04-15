@@ -118,7 +118,7 @@ for d in plotdata:
     else:
         plotdata_simple.append(d)
 
-log(">> Plotting without anamolies!")
+log(">> Plotting [%d] test cases without anamolies!"% (len(plotdata_simple)))
 to_plot = plotdata_simple
 
 xs = np.arange(len(to_plot))
