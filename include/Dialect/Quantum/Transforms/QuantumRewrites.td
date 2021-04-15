@@ -43,4 +43,19 @@ def : Pat<(TDaggerGateOp (TDaggerGateOp $q)), (PhaseDaggerGateOp $q)>;
 //              (AddFOp lambda1, (ConstantFloatOp (mergeZYZ<lambda>))),
 //              $q)>;
 
+// https://qiskit.org/documentation/stubs/qiskit.transpiler.passes.RemoveDiagonalGatesBeforeMeasure.html
+def : Pat<(Quantum_MeasureOp (RotateZOp $param, $q)), (Quantum_MeasureOp $q)>;
+def : Pat<(Quantum_MeasureOp (PhaseGateOp $q)), (Quantum_MeasureOp $q)>;
+def : Pat<(Quantum_MeasureOp (PhaseDaggerGateOp $q)), (Quantum_MeasureOp $q)>;
+def : Pat<(Quantum_MeasureOp (TGateOp $q)), (Quantum_MeasureOp $q)>;
+def : Pat<(Quantum_MeasureOp (TDaggerGateOp $q)), (Quantum_MeasureOp $q)>;
+def : Pat<(Quantum_MeasureOp (PauliZGateOp $q)), (Quantum_MeasureOp $q)>;
+
+def : Pat<(Quantum_MeasureQubitOp (RotateZOp $param, $q)), (Quantum_MeasureQubitOp $q)>;
+def : Pat<(Quantum_MeasureQubitOp (PhaseGateOp $q)), (Quantum_MeasureQubitOp $q)>;
+def : Pat<(Quantum_MeasureQubitOp (PhaseDaggerGateOp $q)), (Quantum_MeasureQubitOp $q)>;
+def : Pat<(Quantum_MeasureQubitOp (TGateOp $q)), (Quantum_MeasureQubitOp $q)>;
+def : Pat<(Quantum_MeasureQubitOp (TDaggerGateOp $q)), (Quantum_MeasureQubitOp $q)>;
+def : Pat<(Quantum_MeasureQubitOp (PauliZGateOp $q)), (Quantum_MeasureQubitOp $q)>;
+
 #endif // QUANTUM_TRANSFORMS_QUANTUMREWRITES_TD
