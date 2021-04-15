@@ -36,6 +36,8 @@ public:
   };
   std::vector<Value> resolve(Value arg) { return qubits[arg]; }
 
+  MLIRContext *getContext() const { return ctx; }
+
 private:
   [[maybe_unused]] MLIRContext *ctx;
   llvm::DenseMap<Value, std::vector<Value>> qubits;
@@ -58,17 +60,41 @@ private:
 };
 
 template <typename Op>
-class QuantumToQASMOpConversion : OpConversionPattern<Op> {
-public:
-  QuantumToQASMOpConversion(MLIRContext *ctx) : OpConversionPattern<Op>(ctx) {}
+struct QuantumToQASMOpConversion : OpConversionPattern<Op> {
+  QubitMap *qubitMap;
+  Type getQASMQubitType() const {
+    return QASM::QubitType::get(qubitMap->getContext());
+  }
+
+  QuantumToQASMOpConversion(MLIRContext *ctx, QubitMap *qubitMap)
+      : OpConversionPattern<Op>(ctx), qubitMap(qubitMap) {}
+};
+
+struct AllocateOpConversion : QuantumToQASMOpConversion<quantum::AllocateOp> {
+  using QuantumToQASMOpConversion::QuantumToQASMOpConversion;
+  LogicalResult
+  matchAndRewrite(quantum::AllocateOp op, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const final {
+    int64_t size = op.getType().cast<quantum::QubitType>().getSize();
+    std::vector<Value> qubits;
+    for (int64_t i = 0; i < size; i++) {
+      auto qubit =
+          rewriter.create<QASM::AllocateOp>(op->getLoc(), getQASMQubitType());
+      qubits.push_back(qubit);
+    }
+    qubitMap->allocate(op.getResult(), qubits);
+    rewriter.eraseOp(op);
+    return success();
+  }
 };
 
 void populateQuantumToQASMConversionPatterns(
     QuantumTypeConverter &typeConverter, QubitMap &qubitMap,
     OwningRewritePatternList &patterns) {
   // clang-format off
-  // patterns.insert<
-  // >(typeConverter, &qubitMap);
+  patterns.insert<
+      AllocateOpConversion
+  >(patterns.getContext(), &qubitMap);
   // clang-format on
 }
 
