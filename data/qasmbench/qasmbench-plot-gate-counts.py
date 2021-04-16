@@ -12,6 +12,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 
+LABEL_FONT_SIZE = 8
+TICK_FONT_SIZE = 6
+
 # Use TrueType fonts instead of Type 3 fonts
 # Type 3 fonts embed bitmaps and are not allowed in camera-ready submissions
 # for many conferences. TrueType fonts look better and are accepted.
@@ -49,7 +52,7 @@ class PlotDatum:
         self.kind = kind # default, qiskit, qssa, zx
         self.idx = idx
         if 'ops' not in stats or 'depth' not in stats:
-            print(f'> INVALID {label}::{kind} : {stats}')
+            log(f'> INVALID {label}::{kind} : {stats}')
             self.gates = {}
             self.cx = -1
             self.u = -1
@@ -97,12 +100,9 @@ for test in rawdata:
     pidx += 1
     data = FullData(test, rawdata[test], pidx)
     plotdata.append(data)
-    if data.getKind('qssa_full').tot < data.getKind('qiskit_lev2').tot:
-        to_show = {'name': test, 'qssa': rawdata[test]['qssa_full'], 'qiskit':rawdata[test]['qiskit_lev2']}
-        print(json.dumps(to_show, indent=2))
-
-
-
+    # if data.getKind('qssa_full').tot < data.getKind('qiskit_lev2').tot:
+    #     to_show = {'name': test, 'qssa': rawdata[test]['qssa_full'], 'qiskit':rawdata[test]['qiskit_lev2']}
+    #     print(json.dumps(to_show, indent=2))
 plotdata.sort()
 
 
@@ -111,7 +111,7 @@ to_plot = plotdata
 log(">> Plotting [%d] test cases..."% (len(to_plot)))
 
 xs = np.arange(len(to_plot))
-width = 0.2
+width = 0.3
 
 #### Optimization ratio
 fig, ax = plt.subplots(figsize=(15,10))
@@ -123,7 +123,7 @@ for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qssa_full']):
         col = light_gray
         label = 'qiskit -O1'
     if kind == 'qiskit_lev2':
-        col = light_red
+        col = dark_red
         label = 'qiskit -O2'
     if kind == 'qssa_full':
         col = dark_blue
@@ -133,14 +133,32 @@ for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qssa_full']):
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 
-ax.legend(ncol=100, frameon=False, loc='lower right', bbox_to_anchor=(0, 1, 1, 0))
+ax.legend(ncol=100, frameon=False, loc='lower right', bbox_to_anchor=(0, 1, 1, 0), fontsize=LABEL_FONT_SIZE)
 
 ax.set_xticks([])
+ax.tick_params(axis='y', labelsize=TICK_FONT_SIZE)
 ax.set_ylabel('%optimization', rotation='horizontal', position = (1, 1.05),
-    horizontalalignment='left', verticalalignment='bottom')
+    horizontalalignment='left', verticalalignment='bottom', fontsize=LABEL_FONT_SIZE)
 
 fig.set_size_inches(5,2)
 fig.tight_layout()
 filename = os.path.basename(__file__).replace(".py", ".pdf")
 fig.savefig(filename)
 
+### Stats for the paper
+beat1, equal1 = 0,0
+beat2, equal2 = 0,0
+for p in to_plot:
+    qssa = p.getKind('qssa_full')
+    qis1 = p.getKind('qiskit_lev1')
+    qis2 = p.getKind('qiskit_lev2')
+    if qssa.tot < qis2.tot:
+        beat2 += 1
+    if qssa.tot <= qis2.tot:
+        equal2 += 1
+    if qssa.tot < qis1.tot:
+        beat1 += 1
+    if qssa.tot <= qis1.tot:
+        equal1 += 1
+print(f'> beat1 = {beat1}, equal1 = {equal1}')
+print(f'> beat2 = {beat2}, equal2 = {equal2}')

@@ -149,7 +149,7 @@ axs[1].spines['top'].set_visible(False)
 # ax.set_xticks([])
 axs[1].tick_params(axis='x', labelsize=TICK_FONT_SIZE)
 axs[1].tick_params(axis='y', labelsize=TICK_FONT_SIZE)
-axs[1].set_xlabel('log(gate depth)', fontsize=LABEL_FONT_SIZE)
+axs[1].set_xlabel('log(circuit depth)', fontsize=LABEL_FONT_SIZE)
 axs[1].set_ylabel('# of programs', rotation='horizontal', position = (1, 1.05),
     horizontalalignment='left', verticalalignment='bottom', fontsize=LABEL_FONT_SIZE)
 
