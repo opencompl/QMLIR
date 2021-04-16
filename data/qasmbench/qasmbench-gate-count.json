@@ -50,6 +50,15 @@
         "quantum-rewrites": 0.0037,
         "quantum-analysis": 0.0005
       }
+    },
+    "qiskit_lev3": {
+      "depth": 5,
+      "ops": {
+        "measure": 4,
+        "cx": 3,
+        "u2": 1
+      },
+      "time": 0.12856909999391064
     }
   },
   "small_deutsch_n2": {
@@ -104,6 +113,15 @@
         "quantum-rewrites": 0.0043,
         "quantum-analysis": 0.0007
       }
+    },
+    "qiskit_lev3": {
+      "depth": 4,
+      "ops": {
+        "u2": 3,
+        "measure": 2,
+        "cx": 1
+      },
+      "time": 0.038027972041163594
     }
   },
   "small_qrng_n4": {
@@ -152,6 +170,14 @@
         "quantum-rewrites": 0.0042,
         "quantum-analysis": 0.0006
       }
+    },
+    "qiskit_lev3": {
+      "depth": 2,
+      "ops": {
+        "u2": 4,
+        "measure": 4
+      },
+      "time": 0.00904208398424089
     }
   },
   "small_quantumwalks_n2": {
@@ -207,6 +233,16 @@
         "quantum-rewrites": 0.0039,
         "quantum-analysis": 0.0006
       }
+    },
+    "qiskit_lev3": {
+      "depth": 8,
+      "ops": {
+        "u3": 7,
+        "cx": 3,
+        "measure": 2,
+        "u2": 1
+      },
+      "time": 0.026688297977671027
     }
   },
   "small_iswap_n2": {
@@ -264,6 +300,16 @@
         "quantum-rewrites": 0.0051,
         "quantum-analysis": 0.0007
       }
+    },
+    "qiskit_lev3": {
+      "depth": 6,
+      "ops": {
+        "u2": 4,
+        "cx": 2,
+        "measure": 2,
+        "u1": 1
+      },
+      "time": 0.03387268999358639
     }
   },
   "small_qft_n4": {
@@ -326,6 +372,18 @@
         "quantum-rewrites": 0.0092,
         "quantum-analysis": 0.001
       }
+    },
+    "qiskit_lev3": {
+      "depth": 21,
+      "ops": {
+        "u1": 15,
+        "cx": 12,
+        "u2": 4,
+        "measure": 4,
+        "u3": 2,
+        "barrier": 1
+      },
+      "time": 0.10477556003024802
     }
   },
   "small_qec_sm_n5": {
@@ -382,6 +440,16 @@
         "quantum-rewrites": 0.0092,
         "quantum-analysis": 0.0012
       }
+    },
+    "qiskit_lev3": {
+      "depth": 7,
+      "ops": {
+        "measure": 5,
+        "u3": 4,
+        "cx": 4,
+        "barrier": 1
+      },
+      "time": 0.07383060903521255
     }
   },
   "small_teleportation_n3": {
@@ -438,6 +506,16 @@
         "quantum-rewrites": 0.005,
         "quantum-analysis": 0.0008
       }
+    },
+    "qiskit_lev3": {
+      "depth": 5,
+      "ops": {
+        "measure": 3,
+        "u2": 2,
+        "cx": 2,
+        "u3": 1
+      },
+      "time": 0.029453416005708277
     }
   },
   "small_inverseqft_n4": {
@@ -492,6 +570,16 @@
         "quantum-rewrites": 0.0122,
         "quantum-analysis": 0.0015
       }
+    },
+    "qiskit_lev3": {
+      "depth": 12,
+      "ops": {
+        "u2": 8,
+        "u1": 6,
+        "measure": 4,
+        "barrier": 1
+      },
+      "time": 0.01119293097872287
     }
   },
   "small_lpn_n5": {
@@ -545,6 +633,15 @@
         "quantum-rewrites": 0.0049,
         "quantum-analysis": 0.0006
       }
+    },
+    "qiskit_lev3": {
+      "depth": 5,
+      "ops": {
+        "u2": 5,
+        "measure": 5,
+        "cx": 2
+      },
+      "time": 0.021309505973476917
     }
   },
   "small_fredkin_n3": {
@@ -604,6 +701,17 @@
         "quantum-rewrites": 0.0073,
         "quantum-analysis": 0.0008
       }
+    },
+    "qiskit_lev3": {
+      "depth": 12,
+      "ops": {
+        "cx": 8,
+        "u1": 6,
+        "measure": 3,
+        "u3": 2,
+        "u2": 2
+      },
+      "time": 0.0528031830326654
     }
   },
   "small_toffoli_n3": {
@@ -663,6 +771,17 @@
         "quantum-rewrites": 0.0088,
         "quantum-analysis": 0.0008
       }
+    },
+    "qiskit_lev3": {
+      "depth": 12,
+      "ops": {
+        "cx": 6,
+        "u1": 5,
+        "measure": 3,
+        "u3": 2,
+        "u2": 2
+      },
+      "time": 0.05195819097571075
     }
   },
   "small_shor_n5": {
@@ -725,6 +844,18 @@
         "quantum-rewrites": 0.0254,
         "quantum-analysis": 0.0022
       }
+    },
+    "qiskit_lev3": {
+      "depth": 50,
+      "ops": {
+        "cx": 25,
+        "u1": 17,
+        "u2": 10,
+        "u3": 7,
+        "measure": 3,
+        "reset": 2
+      },
+      "time": 0.22745756403310224
     }
   },
   "small_adder_n4": {
@@ -784,6 +915,17 @@
         "quantum-rewrites": 0.0097,
         "quantum-analysis": 0.0008
       }
+    },
+    "qiskit_lev3": {
+      "depth": 12,
+      "ops": {
+        "cx": 10,
+        "u1": 7,
+        "measure": 4,
+        "u3": 2,
+        "u2": 2
+      },
+      "time": 0.05919669498689473
     }
   },
   "small_grover_n2": {
@@ -840,6 +982,16 @@
         "quantum-rewrites": 0.0058,
         "quantum-analysis": 0.0006
       }
+    },
+    "qiskit_lev3": {
+      "depth": 6,
+      "ops": {
+        "u2": 4,
+        "cx": 2,
+        "measure": 2,
+        "u1": 1
+      },
+      "time": 0.04108718503266573
     }
   },
   "small_wstate_n3": {
@@ -899,6 +1051,17 @@
         "quantum-rewrites": 0.0097,
         "quantum-analysis": 0.001
       }
+    },
+    "qiskit_lev3": {
+      "depth": 14,
+      "ops": {
+        "u3": 6,
+        "cx": 6,
+        "u1": 5,
+        "measure": 3,
+        "u2": 2
+      },
+      "time": 0.073983768990729
     }
   },
   "small_linearsolver_n3": {
@@ -955,6 +1118,16 @@
         "quantum-rewrites": 0.0063,
         "quantum-analysis": 0.0007
       }
+    },
+    "qiskit_lev3": {
+      "depth": 10,
+      "ops": {
+        "u2": 5,
+        "cx": 4,
+        "measure": 3,
+        "u3": 2
+      },
+      "time": 0.06674819497857243
     }
   },
   "small_qaoa_n3": {
@@ -1014,6 +1187,17 @@
         "quantum-rewrites": 0.0084,
         "quantum-analysis": 0.0009
       }
+    },
+    "qiskit_lev3": {
+      "depth": 11,
+      "ops": {
+        "cx": 6,
+        "u2": 3,
+        "u3": 3,
+        "measure": 3,
+        "u1": 2
+      },
+      "time": 0.06757843098603189
     }
   },
   "medium_multiply_n13": {
@@ -1076,6 +1260,18 @@
         "quantum-rewrites": 0.0237,
         "quantum-analysis": 0.0016
       }
+    },
+    "qiskit_lev3": {
+      "depth": 43,
+      "ops": {
+        "cx": 40,
+        "u1": 33,
+        "u2": 12,
+        "u3": 4,
+        "measure": 4,
+        "barrier": 3
+      },
+      "time": 0.20015691698063165
     }
   },
   "small_hs4_n4": {
@@ -1130,6 +1326,15 @@
         "quantum-rewrites": 0.007,
         "quantum-analysis": 0.0007
       }
+    },
+    "qiskit_lev3": {
+      "depth": 6,
+      "ops": {
+        "u2": 8,
+        "cx": 4,
+        "measure": 4
+      },
+      "time": 0.04196542996214703
     }
   },
   "medium_adder_n10": {
@@ -1189,6 +1394,17 @@
         "quantum-rewrites": 0.0317,
         "quantum-analysis": 0.0023
       }
+    },
+    "qiskit_lev3": {
+      "depth": 96,
+      "ops": {
+        "cx": 65,
+        "u1": 44,
+        "u2": 16,
+        "u3": 5,
+        "measure": 5
+      },
+      "time": 0.421745716012083
     }
   },
   "medium_simon_n6": {
@@ -1251,6 +1467,18 @@
         "quantum-rewrites": 0.0153,
         "quantum-analysis": 0.0012
       }
+    },
+    "qiskit_lev3": {
+      "depth": 28,
+      "ops": {
+        "cx": 14,
+        "u1": 13,
+        "u2": 8,
+        "measure": 6,
+        "u3": 5,
+        "barrier": 2
+      },
+      "time": 0.0740204059984535
     }
   },
   "small_qec_en_n5": {
@@ -1305,6 +1533,15 @@
         "quantum-rewrites": 0.008,
         "quantum-analysis": 0.0009
       }
+    },
+    "qiskit_lev3": {
+      "depth": 15,
+      "ops": {
+        "u2": 12,
+        "cx": 10,
+        "measure": 5
+      },
+      "time": 0.06856111501110718
     }
   },
   "large_swap_test_n25": {
@@ -1364,6 +1601,17 @@
         "quantum-rewrites": 0.0403,
         "quantum-analysis": 0.0027
       }
+    },
+    "qiskit_lev3": {
+      "depth": 101,
+      "ops": {
+        "cx": 84,
+        "u1": 51,
+        "u2": 40,
+        "u3": 20,
+        "measure": 1
+      },
+      "time": 0.5698275619652122
     }
   },
   "small_basis_change_n3": {
@@ -1422,6 +1670,17 @@
         "quantum-rewrites": 0.0118,
         "quantum-analysis": 0.0009
       }
+    },
+    "qiskit_lev3": {
+      "depth": 22,
+      "ops": {
+        "u3": 13,
+        "cx": 10,
+        "u2": 8,
+        "measure": 3,
+        "u1": 2
+      },
+      "time": 0.09505502402316779
     }
   },
   "large_cat_state_n22": {
@@ -1478,6 +1737,16 @@
         "quantum-rewrites": 0.0114,
         "quantum-analysis": 0.0014
       }
+    },
+    "qiskit_lev3": {
+      "depth": 23,
+      "ops": {
+        "measure": 22,
+        "cx": 21,
+        "u2": 1,
+        "barrier": 1
+      },
+      "time": 0.07667916698846966
     }
   },
   "large_ghz_state_n23": {
@@ -1534,6 +1803,16 @@
         "quantum-rewrites": 0.0119,
         "quantum-analysis": 0.0012
       }
+    },
+    "qiskit_lev3": {
+      "depth": 24,
+      "ops": {
+        "measure": 23,
+        "cx": 22,
+        "u2": 1,
+        "barrier": 1
+      },
+      "time": 0.09549333096947521
     }
   },
   "small_pea_n5": {
@@ -1590,6 +1869,17 @@
         "quantum-rewrites": 0.0157,
         "quantum-analysis": 0.0015
       }
+    },
+    "qiskit_lev3": {
+      "depth": 32,
+      "ops": {
+        "cx": 17,
+        "u1": 14,
+        "u2": 8,
+        "u3": 5,
+        "measure": 4
+      },
+      "time": 0.16917177999857813
     }
   },
   "medium_qpe_n9": {
@@ -1652,6 +1942,18 @@
         "quantum-rewrites": 0.0261,
         "quantum-analysis": 0.002
       }
+    },
+    "qiskit_lev3": {
+      "depth": 75,
+      "ops": {
+        "cx": 43,
+        "u1": 42,
+        "u2": 18,
+        "measure": 6,
+        "u3": 3,
+        "barrier": 3
+      },
+      "time": 0.2907693180022761
     }
   },
   "small_bell_n4": {
@@ -1709,6 +2011,16 @@
         "quantum-rewrites": 0.0097,
         "quantum-analysis": 0.0011
       }
+    },
+    "qiskit_lev3": {
+      "depth": 8,
+      "ops": {
+        "u2": 11,
+        "cx": 5,
+        "measure": 4,
+        "u3": 2
+      },
+      "time": 0.07443000201601535
     }
   },
   "large_bigadder_n18": {
@@ -1768,6 +2080,17 @@
         "quantum-rewrites": 0.0554,
         "quantum-analysis": 0.0036
       }
+    },
+    "qiskit_lev3": {
+      "depth": 149,
+      "ops": {
+        "cx": 130,
+        "u1": 88,
+        "u2": 32,
+        "measure": 9,
+        "u3": 8
+      },
+      "time": 0.7136909289984033
     }
   },
   "small_ipea_n2": {
@@ -1827,6 +2150,18 @@
         "quantum-rewrites": 0.032,
         "quantum-analysis": 0.0035
       }
+    },
+    "qiskit_lev3": {
+      "depth": 34,
+      "ops": {
+        "u1": 12,
+        "u2": 10,
+        "cx": 5,
+        "u3": 4,
+        "measure": 4,
+        "reset": 3
+      },
+      "time": 0.09052749595139176
     }
   },
   "medium_bb84_n8": {
@@ -1878,6 +2213,15 @@
         "quantum-rewrites": 0.0116,
         "quantum-analysis": 0.001
       }
+    },
+    "qiskit_lev3": {
+      "depth": 4,
+      "ops": {
+        "measure": 16,
+        "u2": 6,
+        "u3": 5
+      },
+      "time": 0.01998407201608643
     }
   },
   "medium_bv_n14": {
@@ -1935,6 +2279,16 @@
         "quantum-rewrites": 0.0162,
         "quantum-analysis": 0.0013
       }
+    },
+    "qiskit_lev3": {
+      "depth": 16,
+      "ops": {
+        "u2": 27,
+        "cx": 13,
+        "measure": 13,
+        "barrier": 2
+      },
+      "time": 0.08297140599461272
     }
   },
   "small_variational_n4": {
@@ -1994,6 +2348,17 @@
         "quantum-rewrites": 0.0157,
         "quantum-analysis": 0.001
       }
+    },
+    "qiskit_lev3": {
+      "depth": 14,
+      "ops": {
+        "u2": 12,
+        "cx": 8,
+        "u3": 6,
+        "measure": 4,
+        "u1": 2
+      },
+      "time": 0.11192996602039784
     }
   },
   "large_bv_n19": {
@@ -2051,6 +2416,16 @@
         "quantum-rewrites": 0.0219,
         "quantum-analysis": 0.0016
       }
+    },
+    "qiskit_lev3": {
+      "depth": 21,
+      "ops": {
+        "u2": 37,
+        "cx": 18,
+        "measure": 18,
+        "barrier": 2
+      },
+      "time": 0.11074365099193528
     }
   },
   "medium_multiplier_n15": {
@@ -2110,6 +2485,17 @@
         "quantum-rewrites": 0.0924,
         "quantum-analysis": 0.005
       }
+    },
+    "qiskit_lev3": {
+      "depth": 231,
+      "ops": {
+        "cx": 222,
+        "u1": 199,
+        "u2": 40,
+        "u3": 4,
+        "measure": 3
+      },
+      "time": 1.2689134899992496
     }
   },
   "large_cc_n18": {
@@ -2169,6 +2555,16 @@
         "quantum-rewrites": 0.1857,
         "quantum-analysis": 0.0196
       }
+    },
+    "qiskit_lev3": {
+      "depth": 23,
+      "ops": {
+        "u2": 52,
+        "cx": 18,
+        "measure": 18,
+        "barrier": 2
+      },
+      "time": 0.14243043796159327
     }
   },
   "medium_seca_n11": {
@@ -2229,6 +2625,17 @@
         "quantum-rewrites": 0.0423,
         "quantum-analysis": 0.0026
       }
+    },
+    "qiskit_lev3": {
+      "depth": 69,
+      "ops": {
+        "cx": 80,
+        "u1": 51,
+        "u2": 44,
+        "barrier": 7,
+        "measure": 3
+      },
+      "time": 0.49137271603103727
     }
   },
   "medium_qf21_n15": {
@@ -2291,6 +2698,18 @@
         "quantum-rewrites": 0.0382,
         "quantum-analysis": 0.0027
       }
+    },
+    "qiskit_lev3": {
+      "depth": 188,
+      "ops": {
+        "cx": 115,
+        "u1": 113,
+        "u2": 30,
+        "u3": 3,
+        "barrier": 3,
+        "measure": 3
+      },
+      "time": 0.6831822980311699
     }
   },
   "medium_sat_n11": {
@@ -2350,6 +2769,17 @@
         "quantum-rewrites": 0.1202,
         "quantum-analysis": 0.0073
       }
+    },
+    "qiskit_lev3": {
+      "depth": 388,
+      "ops": {
+        "cx": 252,
+        "u1": 240,
+        "u2": 67,
+        "u3": 12,
+        "measure": 4
+      },
+      "time": 1.4381881519802846
     }
   },
   "small_error_correctiond3_n5": {
@@ -2409,6 +2839,17 @@
         "quantum-rewrites": 0.0251,
         "quantum-analysis": 0.0019
       }
+    },
+    "qiskit_lev3": {
+      "depth": 65,
+      "ops": {
+        "u2": 50,
+        "cx": 35,
+        "measure": 5,
+        "u1": 3,
+        "id": 1
+      },
+      "time": 0.22590019495692104
     }
   },
   "small_basis_test_n4": {
@@ -2465,6 +2906,17 @@
         "quantum-rewrites": 0.0227,
         "quantum-analysis": 0.0014
       }
+    },
+    "qiskit_lev3": {
+      "depth": 18,
+      "ops": {
+        "cx": 17,
+        "u3": 11,
+        "u2": 8,
+        "measure": 4,
+        "u1": 1
+      },
+      "time": 0.22991219395771623
     }
   },
   "large_wstate_n27": {
@@ -2522,6 +2974,16 @@
         "quantum-rewrites": 0.0418,
         "quantum-analysis": 0.0026
       }
+    },
+    "qiskit_lev3": {
+      "depth": 55,
+      "ops": {
+        "u3": 53,
+        "cx": 52,
+        "measure": 27,
+        "barrier": 1
+      },
+      "time": 0.4365749579737894
     }
   },
   "large_multiplier_n25": {
@@ -2581,6 +3043,17 @@
         "quantum-rewrites": 0.2741,
         "quantum-analysis": 0.0144
       }
+    },
+    "qiskit_lev3": {
+      "depth": 655,
+      "ops": {
+        "cx": 670,
+        "u1": 609,
+        "u2": 108,
+        "measure": 5,
+        "u3": 3
+      },
+      "time": 3.7608003609930165
     }
   },
   "small_vqe_uccsd_n4": {
@@ -2640,6 +3113,17 @@
         "quantum-rewrites": 0.035,
         "quantum-analysis": 0.0021
       }
+    },
+    "qiskit_lev3": {
+      "depth": 111,
+      "ops": {
+        "cx": 71,
+        "u2": 50,
+        "u1": 14,
+        "u3": 10,
+        "measure": 4
+      },
+      "time": 0.5258873809943907
     }
   },
   "small_dnn_n2": {
@@ -2698,6 +3182,16 @@
         "quantum-rewrites": 0.0385,
         "quantum-analysis": 0.0017
       }
+    },
+    "qiskit_lev3": {
+      "depth": 8,
+      "ops": {
+        "u3": 6,
+        "cx": 3,
+        "u2": 2,
+        "measure": 2
+      },
+      "time": 0.12617298297118396
     }
   },
   "large_ising_n26": {
@@ -2757,6 +3251,17 @@
         "quantum-rewrites": 0.0654,
         "quantum-analysis": 0.0028
       }
+    },
+    "qiskit_lev3": {
+      "depth": 9,
+      "ops": {
+        "cx": 50,
+        "u1": 49,
+        "u2": 26,
+        "measure": 26,
+        "barrier": 1
+      },
+      "time": 0.48096303100464866
     }
   },
   "medium_qaoa_n6": {
@@ -2814,6 +3319,17 @@
         "quantum-rewrites": 0.0454,
         "quantum-analysis": 0.0022
       }
+    },
+    "qiskit_lev3": {
+      "depth": 46,
+      "ops": {
+        "u2": 40,
+        "cx": 36,
+        "u3": 34,
+        "measure": 6,
+        "u1": 4
+      },
+      "time": 0.4269527989672497
     }
   },
   "medium_ising_n10": {
@@ -2872,6 +3388,17 @@
         "quantum-rewrites": 0.0975,
         "quantum-analysis": 0.0032
       }
+    },
+    "qiskit_lev3": {
+      "depth": 42,
+      "ops": {
+        "cx": 90,
+        "u1": 87,
+        "u3": 40,
+        "u2": 10,
+        "measure": 10
+      },
+      "time": 0.8168129819678143
     }
   },
   "medium_qft_n15": {
@@ -2931,6 +3458,17 @@
         "quantum-rewrites": 0.0656,
         "quantum-analysis": 0.0063
       }
+    },
+    "qiskit_lev3": {
+      "depth": 97,
+      "ops": {
+        "u1": 224,
+        "cx": 210,
+        "u2": 15,
+        "measure": 15,
+        "barrier": 1
+      },
+      "time": 1.0095863009919412
     }
   },
   "large_square_root_n18": {
@@ -2993,6 +3531,18 @@
         "quantum-rewrites": 0.4205,
         "quantum-analysis": 0.0205
       }
+    },
+    "qiskit_lev3": {
+      "depth": 1192,
+      "ops": {
+        "cx": 898,
+        "u1": 715,
+        "u2": 314,
+        "u3": 82,
+        "reset": 60,
+        "measure": 13
+      },
+      "time": 4.8679080459987745
     }
   },
   "large_qft_n20": {
@@ -3052,6 +3602,17 @@
         "quantum-rewrites": 0.1203,
         "quantum-analysis": 0.0104
       }
+    },
+    "qiskit_lev3": {
+      "depth": 132,
+      "ops": {
+        "u1": 393,
+        "cx": 374,
+        "u2": 20,
+        "measure": 20,
+        "barrier": 1
+      },
+      "time": 1.7381983989616856
     }
   },
   "medium_dnn_n8": {
@@ -3110,6 +3671,17 @@
         "quantum-rewrites": 0.1516,
         "quantum-analysis": 0.0059
       }
+    },
+    "qiskit_lev3": {
+      "depth": 34,
+      "ops": {
+        "u3": 92,
+        "cx": 64,
+        "u2": 40,
+        "measure": 8,
+        "u1": 4
+      },
+      "time": 0.8230733910459094
     }
   },
   "small_basis_trotter_n4": {
@@ -3169,6 +3741,17 @@
         "quantum-rewrites": 0.2592,
         "quantum-analysis": 0.0127
       }
+    },
+    "qiskit_lev3": {
+      "depth": 293,
+      "ops": {
+        "u2": 250,
+        "cx": 230,
+        "u3": 182,
+        "measure": 4,
+        "u1": 2
+      },
+      "time": 2.658554458001163
     }
   },
   "medium_vqe_uccsd_n6": {
@@ -3228,6 +3811,17 @@
         "quantum-rewrites": 0.2782,
         "quantum-analysis": 0.0141
       }
+    },
+    "qiskit_lev3": {
+      "depth": 1298,
+      "ops": {
+        "cx": 923,
+        "u2": 506,
+        "u1": 141,
+        "u3": 69,
+        "measure": 6
+      },
+      "time": 4.802246560982894
     }
   },
   "large_dnn_n16": {
@@ -3286,6 +3880,17 @@
         "quantum-rewrites": 0.3105,
         "quantum-analysis": 0.011
       }
+    },
+    "qiskit_lev3": {
+      "depth": 34,
+      "ops": {
+        "u3": 184,
+        "cx": 128,
+        "u2": 80,
+        "measure": 16,
+        "u1": 8
+      },
+      "time": 1.5709193719667383
     }
   },
   "large_ising_model_n500": {
@@ -3342,6 +3947,16 @@
         "quantum-rewrites": 0.1959,
         "quantum-analysis": 0.0447
       }
+    },
+    "qiskit_lev3": {
+      "depth": 9,
+      "ops": {
+        "cx": 998,
+        "u1": 997,
+        "u2": 500,
+        "measure": 500
+      },
+      "time": 8.838397331011947
     }
   },
   "medium_vqe_uccsd_n8": {
@@ -3401,6 +4016,17 @@
         "quantum-rewrites": 0.2497,
         "quantum-analysis": 0.0635
       }
+    },
+    "qiskit_lev3": {
+      "depth": 6424,
+      "ops": {
+        "cx": 4807,
+        "u2": 2256,
+        "u1": 602,
+        "u3": 253,
+        "measure": 8
+      },
+      "time": 31.862548780045472
     }
   },
   "large_ising_model_n1000": {
@@ -3457,6 +4083,16 @@
         "quantum-rewrites": 0.1981,
         "quantum-analysis": 0.0448
       }
+    },
+    "qiskit_lev3": {
+      "depth": 9,
+      "ops": {
+        "cx": 1998,
+        "u1": 1997,
+        "u2": 1000,
+        "measure": 500
+      },
+      "time": 16.59971580700949
     }
   }
 }
