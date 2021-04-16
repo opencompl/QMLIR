@@ -41,7 +41,7 @@ lg2 = lambda n: math.log(n, 2)
 
 
 rawdata = None # raw data
-with open("./qasmbench-gate-count.json", "r") as f:
+with open("./gate-count-bench.json", "r") as f:
     rawdata = json.load(f)
 assert rawdata is not None
 
@@ -52,7 +52,7 @@ class PlotDatum:
         self.kind = kind # default, qiskit, qssa, zx
         self.idx = idx
         if 'ops' not in stats or 'depth' not in stats:
-            print(f'> INVALID {label}::{kind} : {stats}')
+            log(f'> INVALID {label}::{kind} : {stats}')
             self.gates = {}
             self.cx = -1
             self.u = -1
@@ -71,8 +71,6 @@ class PlotDatum:
             self.depth = stats['depth']
             self.tot = sum([gates[g] for g in gates])
             self.time = stats['time']
-            if kind == 'qssa_full':
-                self.time -= stats['passes']['Inliner']
 
     def __lt__(self, other):
         return self.tot < other.tot
@@ -96,24 +94,17 @@ class FullData:
     def getKind(self, k):
         return self.data[k]
 
+
 plotdata = []
-plotdata_small = []
-plotdata_medium = []
-plotdata_large = []
+plotdata_routing = []
 pidx = 0
 for test in rawdata:
     pidx += 1
     data = FullData(test, rawdata[test], pidx)
-    plotdata.append(data)
-    if test.find('small') == 0:
-        plotdata_small.append(data)
-    elif test.find('medium') == 0:
-        plotdata_medium.append(data)
-    elif test.find('large') == 0:
-        plotdata_large.append(data)
+    if test.find('onlyCX') >= 0:
+        plotdata_routing.append(data)
     else:
-        log(f'> Test does not fit in any category: {test}')
-
+        plotdata.append(data)
 
 plotdata.sort()
 
@@ -127,19 +118,8 @@ width = 0.2
 
 #### Optimization ratio
 fig, ax = plt.subplots(figsize=(15,10))
-for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qssa_full']):
-    ratio = lambda p: p.getKind(kind).time
-    # ratio = lambda p: math.log(p.getKind(kind).time * 1000)
-    # ratio = lambda p: p.getKind(kind).time / p.getKind(kind).tot
-    # ratio = lambda p:  p.getKind('default').tot/p.getKind(kind).time
-    #ratio = lambda p: p.getKind(kind).time / p.getKind('qiskit_lev3').time
-    ratio = lambda p: p.getKind('qiskit_lev3').time / p.getKind(kind).time
-
-    for p in to_plot:
-        if ratio(p)>1 and kind == 'qssa_full':
-            #log(p.test)
-            #log(json.dumps(rawdata[p.test], indent=2))
-            pass
+for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qiskit_lev3', 'qssa_full']):
+    ratio = lambda p: 100*(1-p.getKind(kind).tot / p.getKind('default').tot)
     col = None
     label = None
     if kind == 'qiskit_lev1':
@@ -155,6 +135,7 @@ for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qssa_full']):
         col = dark_blue
         label = 'qssa'
     rects1 = ax.bar(xs + ((idx + 1) * 1 * width), [ratio(p) for p in to_plot], width, label=label, color=col)
+    #rects1 = ax.plot(xs, [ratio(p) for p in to_plot], label=label, color=col)
 
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
@@ -163,7 +144,7 @@ ax.legend(ncol=100, frameon=False, loc='lower right', bbox_to_anchor=(0, 1, 1, 0
 
 ax.set_xticks([])
 ax.tick_params(axis='y', labelsize=TICK_FONT_SIZE)
-ax.set_ylabel('speedup over qiskit -O3', rotation='horizontal', position = (1, 1.05),
+ax.set_ylabel('%optimization', rotation='horizontal', position = (1, 1.05),
     horizontalalignment='left', verticalalignment='bottom', fontsize=LABEL_FONT_SIZE)
 
 fig.set_size_inches(5,2)
@@ -171,3 +152,29 @@ fig.tight_layout()
 filename = os.path.basename(__file__).replace(".py", ".pdf")
 fig.savefig(filename)
 
+### Stats for the paper
+beat1, equal1, fail1 = [], [], []
+beat2, equal2, fail2 = [], [], []
+for lev in [1,2,3]:
+    beat = []
+    equal = []
+    fail = []
+    for p in to_plot:
+        qssa = p.getKind('qssa_full')
+        qis = p.getKind('qiskit_lev' + str(lev))
+        if qssa.tot < qis.tot:
+            beat.append(p.test)
+        elif qssa.tot == qis.tot:
+            equal.append(p.test)
+        else:
+            fail.append(p.test)
+    print(f">>>>>>>>> LEVEL {lev} >>>>>>>>>>>>")
+    print(f'> beat = {len(beat)}, equal = {len(equal)+len(beat)}')
+    print()
+    print(f'> beat: {beat}')
+    print()
+    print(f'> equal: {equal}')
+    print()
+    print(f'> fail: {fail}')
+    print()
+    print("---------------------------------")

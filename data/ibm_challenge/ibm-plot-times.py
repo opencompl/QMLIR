@@ -41,7 +41,7 @@ lg2 = lambda n: math.log(n, 2)
 
 
 rawdata = None # raw data
-with open("./qasmbench-gate-count.json", "r") as f:
+with open("./gate-count-bench.json", "r") as f:
     rawdata = json.load(f)
 assert rawdata is not None
 
@@ -97,74 +97,82 @@ class FullData:
         return self.data[k]
 
 plotdata = []
-plotdata_small = []
-plotdata_medium = []
-plotdata_large = []
+plotdata_routing = []
 pidx = 0
 for test in rawdata:
     pidx += 1
     data = FullData(test, rawdata[test], pidx)
-    plotdata.append(data)
-    if test.find('small') == 0:
-        plotdata_small.append(data)
-    elif test.find('medium') == 0:
-        plotdata_medium.append(data)
-    elif test.find('large') == 0:
-        plotdata_large.append(data)
+    if test.find('onlyCX') >= 0:
+        plotdata_routing.append(data)
     else:
-        log(f'> Test does not fit in any category: {test}')
+        plotdata.append(data)
 
 
 plotdata.sort()
 
-
 #### PLOTTING-CODE
-to_plot = plotdata
-log(">> Plotting [%d] test cases..."% (len(to_plot)))
+log(">> Plotting [%d] test cases..."% (len(plotdata)))
 
-xs = np.arange(len(to_plot))
-width = 0.2
 
-#### Optimization ratio
-fig, ax = plt.subplots(figsize=(15,10))
-for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qssa_full']):
-    ratio = lambda p: p.getKind(kind).time
-    # ratio = lambda p: math.log(p.getKind(kind).time * 1000)
-    # ratio = lambda p: p.getKind(kind).time / p.getKind(kind).tot
-    # ratio = lambda p:  p.getKind('default').tot/p.getKind(kind).time
-    #ratio = lambda p: p.getKind(kind).time / p.getKind('qiskit_lev3').time
-    ratio = lambda p: p.getKind('qiskit_lev3').time / p.getKind(kind).time
+fig, axs = plt.subplots(1, 2, figsize=(15,10), gridspec_kw={'width_ratios': [6,1], 'wspace': 0.20, 'left':0.10})
+for plot_idx in [0, 1]:
+    ax = axs[plot_idx]
+    if plot_idx == 0:
+        to_plot = plotdata[:133]
+    else:
+        to_plot = plotdata[133:]
 
+    lo, hi = 10**9, -1
     for p in to_plot:
-        if ratio(p)>1 and kind == 'qssa_full':
-            #log(p.test)
-            #log(json.dumps(rawdata[p.test], indent=2))
-            pass
-    col = None
-    label = None
-    if kind == 'qiskit_lev1':
-        col = light_green
-        label = 'qiskit -O1'
-    if kind == 'qiskit_lev2':
-        col = dark_green
-        label = 'qiskit -O2'
-    if kind == 'qiskit_lev3':
-        col = light_blue
-        label = 'qiskit -O3'
-    if kind == 'qssa_full':
-        col = dark_blue
-        label = 'qssa'
-    rects1 = ax.bar(xs + ((idx + 1) * 1 * width), [ratio(p) for p in to_plot], width, label=label, color=col)
+        lo = min(lo, p.getKind('default').tot)
+        hi = max(hi, p.getKind('default').tot)
+    log(f">> Plot {plot_idx}: range = ({lo}, {hi})")
+    xs = np.arange(len(to_plot))
+    width = 0.35
+    for idx, kind in enumerate(['qiskit_lev1', 'qssa_full']):
+        ratio = lambda p: p.getKind(kind).time
+        # ratio = lambda p: math.log(p.getKind(kind).time * 1000)
+        # ratio = lambda p: p.getKind(kind).time / p.getKind(kind).tot
+        # ratio = lambda p:  p.getKind('default').tot/p.getKind(kind).time
+        #ratio = lambda p: p.getKind(kind).time / p.getKind('qiskit_lev3').time
+        ratio = lambda p: p.getKind('qiskit_lev2').time / p.getKind(kind).time
 
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
+        for p in to_plot:
+            if ratio(p)>1 and kind == 'qssa_full':
+                #log(p.test)
+                #log(json.dumps(rawdata[p.test], indent=2))
+                pass
+        col = None
+        label = None
+        if kind == 'qiskit_lev1':
+            col = light_green
+            label = 'qiskit -O1'
+        if kind == 'qiskit_lev2':
+            col = dark_green
+            label = 'qiskit -O2'
+        if kind == 'qiskit_lev3':
+            col = light_blue
+            label = 'qiskit -O3'
+        if kind == 'qssa_full':
+            col = dark_blue
+            label = 'qssa'
+        rects1 = ax.bar(xs + ((idx + 1) * 1 * width), [ratio(p) for p in to_plot], width, label=label, color=col)
 
-ax.legend(ncol=100, frameon=False, loc='lower right', bbox_to_anchor=(0, 1, 1, 0), fontsize=LABEL_FONT_SIZE)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
 
-ax.set_xticks([])
-ax.tick_params(axis='y', labelsize=TICK_FONT_SIZE)
-ax.set_ylabel('speedup over qiskit -O3', rotation='horizontal', position = (1, 1.05),
-    horizontalalignment='left', verticalalignment='bottom', fontsize=LABEL_FONT_SIZE)
+    if plot_idx == 1: # only for right side
+        ax.legend(ncol=100, frameon=False, loc='lower right', bbox_to_anchor=(0, 1, 1, 0), fontsize=LABEL_FONT_SIZE)
+        ax.set_yticks([5,10,15,20])
+    else: # only for left side
+        ax.set_ylabel('speedup over qiskit -O2', rotation='horizontal', position = (1, 1.05),
+            horizontalalignment='left', verticalalignment='bottom', fontsize=LABEL_FONT_SIZE)
+        ax.set_yticks([1,2,3,4])
+
+    ax.set_xticks([])
+    ax.tick_params(axis='y', labelsize=TICK_FONT_SIZE)
+    ax.set_xlabel(['$\\leq$6000 gates', '>6000 gates'][plot_idx], fontsize=LABEL_FONT_SIZE)
+
 
 fig.set_size_inches(5,2)
 fig.tight_layout()

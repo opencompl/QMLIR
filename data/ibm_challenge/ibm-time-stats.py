@@ -41,7 +41,7 @@ lg2 = lambda n: math.log(n, 2)
 
 
 rawdata = None # raw data
-with open("./qasmbench-gate-count.json", "r") as f:
+with open("./gate-count-bench.json", "r") as f:
     rawdata = json.load(f)
 assert rawdata is not None
 
@@ -97,77 +97,42 @@ class FullData:
         return self.data[k]
 
 plotdata = []
-plotdata_small = []
-plotdata_medium = []
-plotdata_large = []
+plotdata_routing = []
 pidx = 0
 for test in rawdata:
     pidx += 1
     data = FullData(test, rawdata[test], pidx)
-    plotdata.append(data)
-    if test.find('small') == 0:
-        plotdata_small.append(data)
-    elif test.find('medium') == 0:
-        plotdata_medium.append(data)
-    elif test.find('large') == 0:
-        plotdata_large.append(data)
+    if test.find('onlyCX') >= 0:
+        plotdata_routing.append(data)
     else:
-        log(f'> Test does not fit in any category: {test}')
-
-
+        plotdata.append(data)
 plotdata.sort()
 
+### stats for paper
+log()
+lfilter = lambda f, xs: list(filter(f, xs))
+for plot_idx in [0, 1]:
+    log()
+    if plot_idx == 0:
+        to_plot = plotdata[:133]
+    else:
+        to_plot = plotdata[133:]
+    log("> Stats: " + ("small" if plot_idx == 0 else "large"))
+    for lev in [1,2]:
+        fracs = []
+        for p in to_plot:
+            qssa = p.getKind('qssa_full')
+            qis = p.getKind('qiskit_lev' + str(lev))
+            fracs.append(qis.time/qssa.time)
+        fracs.sort()
+        better = 100*len(lfilter(lambda x: x > 1, fracs)) / len(fracs)
+        twice = 100*len(lfilter(lambda x: x > 2, fracs)) / len(fracs)
+        thrice = 100*len(lfilter(lambda x: x > 3, fracs)) / len(fracs)
+        fourtimes = 100*len(lfilter(lambda x: x > 4, fracs)) / len(fracs)
+        fivetimes = 100*len(lfilter(lambda x: x > 5, fracs)) / len(fracs)
+        tentimes = 100*len(lfilter(lambda x: x > 10, fracs)) / len(fracs)
+        log(f'> level {lev}: faster - {better}; 2x - {twice}; 3x - {thrice}; 4x - {fourtimes}')
+        log(f'                                  5x - {fivetimes}; 10x - {tentimes};')
 
-#### PLOTTING-CODE
-to_plot = plotdata
-log(">> Plotting [%d] test cases..."% (len(to_plot)))
 
-xs = np.arange(len(to_plot))
-width = 0.2
-
-#### Optimization ratio
-fig, ax = plt.subplots(figsize=(15,10))
-for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qssa_full']):
-    ratio = lambda p: p.getKind(kind).time
-    # ratio = lambda p: math.log(p.getKind(kind).time * 1000)
-    # ratio = lambda p: p.getKind(kind).time / p.getKind(kind).tot
-    # ratio = lambda p:  p.getKind('default').tot/p.getKind(kind).time
-    #ratio = lambda p: p.getKind(kind).time / p.getKind('qiskit_lev3').time
-    ratio = lambda p: p.getKind('qiskit_lev3').time / p.getKind(kind).time
-
-    for p in to_plot:
-        if ratio(p)>1 and kind == 'qssa_full':
-            #log(p.test)
-            #log(json.dumps(rawdata[p.test], indent=2))
-            pass
-    col = None
-    label = None
-    if kind == 'qiskit_lev1':
-        col = light_green
-        label = 'qiskit -O1'
-    if kind == 'qiskit_lev2':
-        col = dark_green
-        label = 'qiskit -O2'
-    if kind == 'qiskit_lev3':
-        col = light_blue
-        label = 'qiskit -O3'
-    if kind == 'qssa_full':
-        col = dark_blue
-        label = 'qssa'
-    rects1 = ax.bar(xs + ((idx + 1) * 1 * width), [ratio(p) for p in to_plot], width, label=label, color=col)
-
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-
-ax.legend(ncol=100, frameon=False, loc='lower right', bbox_to_anchor=(0, 1, 1, 0), fontsize=LABEL_FONT_SIZE)
-
-ax.set_xticks([])
-ax.tick_params(axis='y', labelsize=TICK_FONT_SIZE)
-ax.set_ylabel('speedup over qiskit -O3', rotation='horizontal', position = (1, 1.05),
-    horizontalalignment='left', verticalalignment='bottom', fontsize=LABEL_FONT_SIZE)
-
-fig.set_size_inches(5,2)
-fig.tight_layout()
-filename = os.path.basename(__file__).replace(".py", ".pdf")
-fig.savefig(filename)
 
