@@ -111,11 +111,11 @@ to_plot = plotdata
 log(">> Plotting [%d] test cases..."% (len(to_plot)))
 
 xs = np.arange(len(to_plot))
-width = 0.3
+width = 0.2
 
 #### Optimization ratio
 fig, ax = plt.subplots(figsize=(15,10))
-for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qssa_full']):
+for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qiskit_lev3', 'qssa_full']):
     ratio = lambda p: 100*(1-p.getKind(kind).tot / p.getKind('default').tot)
     col = None
     label = None
@@ -123,8 +123,11 @@ for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qssa_full']):
         col = light_gray
         label = 'qiskit -O1'
     if kind == 'qiskit_lev2':
-        col = dark_red
+        col = dark_green
         label = 'qiskit -O2'
+    if kind == 'qiskit_lev3':
+        col = light_blue
+        label = 'qiskit -O3'
     if kind == 'qssa_full':
         col = dark_blue
         label = 'qssa'
@@ -148,33 +151,26 @@ fig.savefig(filename)
 ### Stats for the paper
 beat1, equal1, fail1 = [], [], []
 beat2, equal2, fail2 = [], [], []
-for p in to_plot:
-    qssa = p.getKind('qssa_full')
-    qis1 = p.getKind('qiskit_lev1')
-    qis2 = p.getKind('qiskit_lev2')
-    if qssa.tot < qis2.tot:
-        beat2.append(p.test)
-    if qssa.tot <= qis2.tot:
-        equal2.append(p.test)
-    else:
-        fail2.append(p.test)
-    if qssa.tot < qis1.tot:
-        beat1.append(p.test)
-    if qssa.tot <= qis1.tot:
-        equal1.append(p.test)
-    else:
-        fail1.append(p.test)
-print(f'> beat1 = {len(beat1)}, equal1 = {len(equal1)}')
-print(f'> beat2 = {len(beat2)}, equal2 = {len(equal2)}')
-print()
-print(f'> beat1: {beat1}')
-print()
-print(f'> equal1: {equal1}')
-print()
-print(f'> fail1: {fail1}')
-print()
-print(f'> beat2: {", ".join(beat2)}')
-print()
-print(f'> equal2: {equal2}')
-print()
-print(f'> fail2: {fail2}')
+for lev in [1,2,3]:
+    beat = []
+    equal = []
+    fail = []
+    for p in to_plot:
+        qssa = p.getKind('qssa_full')
+        qis = p.getKind('qiskit_lev' + str(lev))
+        if qssa.tot < qis.tot:
+            beat.append(p.test)
+        elif qssa.tot == qis.tot:
+            equal.append(p.test)
+        else:
+            fail.append(p.test)
+    print(f">>>>>>>>> LEVEL {lev} >>>>>>>>>>>>")
+    print(f'> beat = {len(beat)}, equal = {len(equal)+len(beat)}')
+    print()
+    print(f'> beat: {beat}')
+    print()
+    print(f'> equal: {equal}')
+    print()
+    print(f'> fail: {fail}')
+    print()
+    print("---------------------------------")
