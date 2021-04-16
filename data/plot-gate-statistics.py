@@ -9,6 +9,9 @@ import numpy as np
 import json
 import sys
 
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+
 def log(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
@@ -107,17 +110,21 @@ to_plot = plotdata_simple
 
 #### Optimization ratio per unit time
 fig, axs = plt.subplots(1, 2, figsize=(15,10))
-num_bins = 20
+num_bins = 30
 axs[0].hist([np.log2(d.getKind('default').tot) for d in to_plot], 
         num_bins, cumulative=True, color=light_blue)
 avg_gate_count_log = np.average([np.log10(d.getKind('default').tot) for d in to_plot])
 avg_gate_count = np.average([d.getKind('default').tot for d in to_plot])
+median_gate_count = np.median([d.getKind('default').tot for d in to_plot])
 print("average (log gate count): %f" % (avg_gate_count_log))
 print("average gate count: %f" % (avg_gate_count))
+print("median gate count: %f" % (median_gate_count))
 print("log(average gate count): %f" % (np.log10(avg_gate_count)))
 
 axs[0].spines['right'].set_visible(False)
 axs[0].spines['top'].set_visible(False)
+axs[0].locator_params(axis="x", nbins=5)
+axs[0].locator_params(axis="y", nbins=10)
 
 # ax.legend(ncol=100, frameon=False, loc='lower right', bbox_to_anchor=(0, 1, 1, 0))
 
@@ -133,10 +140,14 @@ axs[1].hist([np.log10(d.getKind('default').depth) for d in to_plot],
         num_bins, cumulative=True, color=light_blue)
 avg_gate_depth_log = np.average([np.log10(d.getKind('default').depth) for d in to_plot])
 avg_gate_depth = np.average([d.getKind('default').depth for d in to_plot])
+median_gate_depth = np.median([d.getKind('default').depth for d in to_plot])
 print("average (log gate depth): %f" % (avg_gate_depth_log))
 print("average gate depth: %f" % (avg_gate_depth))
+print("median gate depth: %f" % (median_gate_depth))
 print("log(average gate depth): %f" % (np.log10(avg_gate_depth)))
 
+axs[1].locator_params(axis="y", nbins=10)
+axs[1].locator_params(axis="x", nbins=6)
 axs[1].spines['right'].set_visible(False)
 axs[1].spines['top'].set_visible(False)
 
