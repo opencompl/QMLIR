@@ -1,0 +1,3462 @@
+{
+  "small_cat_state_n4": {
+    "default": {
+      "depth": 5,
+      "ops": {
+        "measure": 4,
+        "cx": 3,
+        "u2": 1
+      },
+      "time": 0.002140039054211229
+    },
+    "qiskit_lev1": {
+      "depth": 5,
+      "ops": {
+        "measure": 4,
+        "cx": 3,
+        "u2": 1
+      },
+      "time": 0.0023894880432635546
+    },
+    "qiskit_lev2": {
+      "depth": 5,
+      "ops": {
+        "measure": 4,
+        "cx": 3,
+        "u2": 1
+      },
+      "time": 0.01120812597218901
+    },
+    "qssa": {
+      "depth": 4,
+      "ops": {
+        "cx": 3,
+        "measure": 4,
+        "u": 1
+      },
+      "time": 0.172918222961016
+    },
+    "qssa_full": {
+      "depth": 4,
+      "ops": {
+        "cx": 3,
+        "measure": 4,
+        "u": 1
+      },
+      "time": 0.0148,
+      "passes": {
+        "Inliner": 0.0099,
+        "CSE": 0.0007,
+        "quantum-rewrites": 0.0037,
+        "quantum-analysis": 0.0005
+      }
+    }
+  },
+  "small_deutsch_n2": {
+    "default": {
+      "depth": 5,
+      "ops": {
+        "u2": 3,
+        "measure": 2,
+        "u3": 1,
+        "cx": 1
+      },
+      "time": 0.0024235689779743552
+    },
+    "qiskit_lev1": {
+      "depth": 4,
+      "ops": {
+        "u2": 3,
+        "measure": 2,
+        "cx": 1
+      },
+      "time": 0.0038036549813114107
+    },
+    "qiskit_lev2": {
+      "depth": 4,
+      "ops": {
+        "u2": 3,
+        "measure": 2,
+        "cx": 1
+      },
+      "time": 0.007976465043611825
+    },
+    "qssa": {
+      "depth": 3,
+      "ops": {
+        "cx": 1,
+        "measure": 2,
+        "u": 3
+      },
+      "time": 0.17660090402932838
+    },
+    "qssa_full": {
+      "depth": 3,
+      "ops": {
+        "cx": 1,
+        "measure": 2,
+        "u": 3
+      },
+      "time": 0.0161,
+      "passes": {
+        "Inliner": 0.0104,
+        "CSE": 0.0007,
+        "quantum-rewrites": 0.0043,
+        "quantum-analysis": 0.0007
+      }
+    }
+  },
+  "small_qrng_n4": {
+    "default": {
+      "depth": 2,
+      "ops": {
+        "u2": 4,
+        "measure": 4
+      },
+      "time": 0.0018700709915719926
+    },
+    "qiskit_lev1": {
+      "depth": 2,
+      "ops": {
+        "u2": 4,
+        "measure": 4
+      },
+      "time": 0.0023349240073002875
+    },
+    "qiskit_lev2": {
+      "depth": 2,
+      "ops": {
+        "u2": 4,
+        "measure": 4
+      },
+      "time": 0.0034042400075122714
+    },
+    "qssa": {
+      "depth": 1,
+      "ops": {
+        "measure": 4,
+        "u": 4
+      },
+      "time": 0.17512047698255628
+    },
+    "qssa_full": {
+      "depth": 1,
+      "ops": {
+        "measure": 4,
+        "u": 4
+      },
+      "time": 0.0123,
+      "passes": {
+        "Inliner": 0.0069,
+        "CSE": 0.0006,
+        "quantum-rewrites": 0.0042,
+        "quantum-analysis": 0.0006
+      }
+    }
+  },
+  "small_quantumwalks_n2": {
+    "default": {
+      "depth": 8,
+      "ops": {
+        "u3": 8,
+        "cx": 3,
+        "measure": 2
+      },
+      "time": 0.0020071169710718095
+    },
+    "qiskit_lev1": {
+      "depth": 8,
+      "ops": {
+        "u3": 7,
+        "cx": 3,
+        "measure": 2,
+        "u2": 1
+      },
+      "time": 0.0032783449860289693
+    },
+    "qiskit_lev2": {
+      "depth": 8,
+      "ops": {
+        "u3": 7,
+        "cx": 3,
+        "measure": 2,
+        "u2": 1
+      },
+      "time": 0.014543508004862815
+    },
+    "qssa": {
+      "depth": 7,
+      "ops": {
+        "cx": 3,
+        "measure": 2,
+        "u": 8
+      },
+      "time": 0.1765212609898299
+    },
+    "qssa_full": {
+      "depth": 7,
+      "ops": {
+        "cx": 3,
+        "measure": 2,
+        "u": 8
+      },
+      "time": 0.0167,
+      "passes": {
+        "Inliner": 0.0114,
+        "CSE": 0.0008,
+        "quantum-rewrites": 0.0039,
+        "quantum-analysis": 0.0006
+      }
+    }
+  },
+  "small_iswap_n2": {
+    "default": {
+      "depth": 8,
+      "ops": {
+        "u2": 4,
+        "u1": 2,
+        "cx": 2,
+        "measure": 2,
+        "u3": 1
+      },
+      "time": 0.0024805819848552346
+    },
+    "qiskit_lev1": {
+      "depth": 6,
+      "ops": {
+        "u2": 4,
+        "cx": 2,
+        "measure": 2,
+        "u1": 1
+      },
+      "time": 0.004418127005919814
+    },
+    "qiskit_lev2": {
+      "depth": 6,
+      "ops": {
+        "u2": 4,
+        "cx": 2,
+        "measure": 2,
+        "u1": 1
+      },
+      "time": 0.01329827302834019
+    },
+    "qssa": {
+      "depth": 5,
+      "ops": {
+        "cx": 2,
+        "measure": 2,
+        "u": 5
+      },
+      "time": 0.17688041896326467
+    },
+    "qssa_full": {
+      "depth": 5,
+      "ops": {
+        "cx": 2,
+        "measure": 2,
+        "u": 5
+      },
+      "time": 0.0189,
+      "passes": {
+        "Inliner": 0.0123,
+        "CSE": 0.0008,
+        "quantum-rewrites": 0.0051,
+        "quantum-analysis": 0.0007
+      }
+    }
+  },
+  "small_qft_n4": {
+    "default": {
+      "depth": 23,
+      "ops": {
+        "u1": 18,
+        "cx": 12,
+        "u2": 4,
+        "measure": 4,
+        "u3": 2,
+        "barrier": 1
+      },
+      "time": 0.011267859023064375
+    },
+    "qiskit_lev1": {
+      "depth": 23,
+      "ops": {
+        "u1": 18,
+        "cx": 12,
+        "u2": 4,
+        "measure": 4,
+        "u3": 2,
+        "barrier": 1
+      },
+      "time": 0.012021828966680914
+    },
+    "qiskit_lev2": {
+      "depth": 21,
+      "ops": {
+        "u1": 15,
+        "cx": 12,
+        "u2": 4,
+        "measure": 4,
+        "u3": 2,
+        "barrier": 1
+      },
+      "time": 0.04528231400763616
+    },
+    "qssa": {
+      "depth": 22,
+      "ops": {
+        "cx": 12,
+        "measure": 4,
+        "u": 24
+      },
+      "time": 0.18276170804165304
+    },
+    "qssa_full": {
+      "depth": 22,
+      "ops": {
+        "cx": 12,
+        "measure": 4,
+        "u": 24
+      },
+      "time": 0.0343,
+      "passes": {
+        "Inliner": 0.0225,
+        "CSE": 0.0016,
+        "quantum-rewrites": 0.0092,
+        "quantum-analysis": 0.001
+      }
+    }
+  },
+  "small_qec_sm_n5": {
+    "default": {
+      "depth": 10,
+      "ops": {
+        "measure": 5,
+        "u3": 4,
+        "cx": 4,
+        "barrier": 1
+      },
+      "time": 0.0027455950039438903
+    },
+    "qiskit_lev1": {
+      "depth": 10,
+      "ops": {
+        "measure": 5,
+        "u3": 4,
+        "cx": 4,
+        "barrier": 1
+      },
+      "time": 0.0039052569773048162
+    },
+    "qiskit_lev2": {
+      "depth": 10,
+      "ops": {
+        "measure": 5,
+        "u3": 4,
+        "cx": 4,
+        "barrier": 1
+      },
+      "time": 0.008659454993903637
+    },
+    "qssa": {
+      "depth": 6,
+      "ops": {
+        "cx": 4,
+        "measure": 5,
+        "u": 4
+      },
+      "time": 0.18664188601542264
+    },
+    "qssa_full": {
+      "depth": 6,
+      "ops": {
+        "cx": 4,
+        "measure": 5,
+        "u": 4
+      },
+      "time": 0.0312,
+      "passes": {
+        "Inliner": 0.0193,
+        "CSE": 0.0015,
+        "quantum-rewrites": 0.0092,
+        "quantum-analysis": 0.0012
+      }
+    }
+  },
+  "small_teleportation_n3": {
+    "default": {
+      "depth": 7,
+      "ops": {
+        "u2": 4,
+        "measure": 3,
+        "u1": 2,
+        "cx": 2
+      },
+      "time": 0.002876530052162707
+    },
+    "qiskit_lev1": {
+      "depth": 5,
+      "ops": {
+        "measure": 3,
+        "u2": 2,
+        "cx": 2,
+        "u3": 1
+      },
+      "time": 0.0036193159758113325
+    },
+    "qiskit_lev2": {
+      "depth": 5,
+      "ops": {
+        "measure": 3,
+        "u2": 2,
+        "cx": 2,
+        "u3": 1
+      },
+      "time": 0.011816617974545807
+    },
+    "qssa": {
+      "depth": 4,
+      "ops": {
+        "cx": 2,
+        "measure": 3,
+        "u": 3
+      },
+      "time": 0.1740911040105857
+    },
+    "qssa_full": {
+      "depth": 4,
+      "ops": {
+        "cx": 2,
+        "measure": 3,
+        "u": 3
+      },
+      "time": 0.0189,
+      "passes": {
+        "Inliner": 0.0123,
+        "CSE": 0.0008,
+        "quantum-rewrites": 0.005,
+        "quantum-analysis": 0.0008
+      }
+    }
+  },
+  "small_inverseqft_n4": {
+    "default": {
+      "depth": 12,
+      "ops": {
+        "u2": 8,
+        "u1": 6,
+        "measure": 4,
+        "barrier": 1
+      },
+      "time": 0.0028028980013914406
+    },
+    "qiskit_lev1": {
+      "depth": 12,
+      "ops": {
+        "u2": 8,
+        "u1": 6,
+        "measure": 4,
+        "barrier": 1
+      },
+      "time": 0.0032184600131586194
+    },
+    "qiskit_lev2": {
+      "depth": 12,
+      "ops": {
+        "u2": 8,
+        "u1": 6,
+        "measure": 4,
+        "barrier": 1
+      },
+      "time": 0.004970017005689442
+    },
+    "qssa": {
+      "depth": 2,
+      "ops": {
+        "measure": 4,
+        "u": 14
+      },
+      "time": 0.1954014240182005
+    },
+    "qssa_full": {
+      "depth": 2,
+      "ops": {
+        "measure": 4,
+        "u": 14
+      },
+      "time": 0.0376,
+      "passes": {
+        "Inliner": 0.0217,
+        "CSE": 0.0022,
+        "quantum-rewrites": 0.0122,
+        "quantum-analysis": 0.0015
+      }
+    }
+  },
+  "small_lpn_n5": {
+    "default": {
+      "depth": 5,
+      "ops": {
+        "u2": 9,
+        "measure": 5,
+        "cx": 2
+      },
+      "time": 0.00233003799803555
+    },
+    "qiskit_lev1": {
+      "depth": 5,
+      "ops": {
+        "u2": 5,
+        "measure": 5,
+        "cx": 2
+      },
+      "time": 0.00312433997169137
+    },
+    "qiskit_lev2": {
+      "depth": 5,
+      "ops": {
+        "u2": 5,
+        "measure": 5,
+        "cx": 2
+      },
+      "time": 0.00978843995835632
+    },
+    "qssa": {
+      "depth": 4,
+      "ops": {
+        "cx": 2,
+        "measure": 5,
+        "u": 5
+      },
+      "time": 0.17738709202967584
+    },
+    "qssa_full": {
+      "depth": 4,
+      "ops": {
+        "cx": 2,
+        "measure": 5,
+        "u": 5
+      },
+      "time": 0.0176,
+      "passes": {
+        "Inliner": 0.0114,
+        "CSE": 0.0007,
+        "quantum-rewrites": 0.0049,
+        "quantum-analysis": 0.0006
+      }
+    }
+  },
+  "small_fredkin_n3": {
+    "default": {
+      "depth": 12,
+      "ops": {
+        "cx": 8,
+        "u1": 7,
+        "measure": 3,
+        "u3": 2,
+        "u2": 2
+      },
+      "time": 0.003239493991713971
+    },
+    "qiskit_lev1": {
+      "depth": 12,
+      "ops": {
+        "cx": 8,
+        "u1": 6,
+        "measure": 3,
+        "u3": 2,
+        "u2": 2
+      },
+      "time": 0.00498342199716717
+    },
+    "qiskit_lev2": {
+      "depth": 12,
+      "ops": {
+        "cx": 8,
+        "u1": 6,
+        "measure": 3,
+        "u3": 2,
+        "u2": 2
+      },
+      "time": 0.022188592003658414
+    },
+    "qssa": {
+      "depth": 11,
+      "ops": {
+        "cx": 8,
+        "measure": 3,
+        "u": 10
+      },
+      "time": 0.17664322297787294
+    },
+    "qssa_full": {
+      "depth": 11,
+      "ops": {
+        "cx": 8,
+        "measure": 3,
+        "u": 10
+      },
+      "time": 0.0245,
+      "passes": {
+        "Inliner": 0.0153,
+        "CSE": 0.0011,
+        "quantum-rewrites": 0.0073,
+        "quantum-analysis": 0.0008
+      }
+    }
+  },
+  "small_toffoli_n3": {
+    "default": {
+      "depth": 13,
+      "ops": {
+        "u1": 8,
+        "cx": 6,
+        "measure": 3,
+        "u3": 2,
+        "u2": 2
+      },
+      "time": 0.004057224025018513
+    },
+    "qiskit_lev1": {
+      "depth": 13,
+      "ops": {
+        "u1": 7,
+        "cx": 6,
+        "measure": 3,
+        "u3": 2,
+        "u2": 2
+      },
+      "time": 0.005606014048680663
+    },
+    "qiskit_lev2": {
+      "depth": 13,
+      "ops": {
+        "u1": 7,
+        "cx": 6,
+        "measure": 3,
+        "u3": 2,
+        "u2": 2
+      },
+      "time": 0.020325252960901707
+    },
+    "qssa": {
+      "depth": 11,
+      "ops": {
+        "cx": 6,
+        "measure": 3,
+        "u": 9
+      },
+      "time": 0.1761501079890877
+    },
+    "qssa_full": {
+      "depth": 11,
+      "ops": {
+        "cx": 6,
+        "measure": 3,
+        "u": 9
+      },
+      "time": 0.0265,
+      "passes": {
+        "Inliner": 0.0158,
+        "CSE": 0.0011,
+        "quantum-rewrites": 0.0088,
+        "quantum-analysis": 0.0008
+      }
+    }
+  },
+  "small_shor_n5": {
+    "default": {
+      "depth": 56,
+      "ops": {
+        "cx": 30,
+        "u1": 25,
+        "u2": 12,
+        "measure": 3,
+        "reset": 2,
+        "u3": 1
+      },
+      "time": 0.008932741999160498
+    },
+    "qiskit_lev1": {
+      "depth": 54,
+      "ops": {
+        "cx": 30,
+        "u1": 22,
+        "u2": 10,
+        "measure": 3,
+        "reset": 2,
+        "u3": 1
+      },
+      "time": 0.0143989059724845
+    },
+    "qiskit_lev2": {
+      "depth": 52,
+      "ops": {
+        "cx": 28,
+        "u1": 20,
+        "u2": 10,
+        "measure": 3,
+        "reset": 2,
+        "u3": 1
+      },
+      "time": 0.058483348053414375
+    },
+    "qssa": {
+      "depth": 47,
+      "ops": {
+        "cx": 30,
+        "measure": 3,
+        "u": 33
+      },
+      "time": 0.21289633499691263
+    },
+    "qssa_full": {
+      "depth": 47,
+      "ops": {
+        "cx": 30,
+        "measure": 3,
+        "u": 33
+      },
+      "time": 0.0695,
+      "passes": {
+        "Inliner": 0.0387,
+        "CSE": 0.0032,
+        "quantum-rewrites": 0.0254,
+        "quantum-analysis": 0.0022
+      }
+    }
+  },
+  "small_adder_n4": {
+    "default": {
+      "depth": 12,
+      "ops": {
+        "cx": 10,
+        "u1": 9,
+        "measure": 4,
+        "u3": 2,
+        "u2": 2
+      },
+      "time": 0.004048403003253043
+    },
+    "qiskit_lev1": {
+      "depth": 12,
+      "ops": {
+        "cx": 10,
+        "u1": 7,
+        "measure": 4,
+        "u3": 2,
+        "u2": 2
+      },
+      "time": 0.00549615197815001
+    },
+    "qiskit_lev2": {
+      "depth": 12,
+      "ops": {
+        "cx": 10,
+        "u1": 7,
+        "measure": 4,
+        "u3": 2,
+        "u2": 2
+      },
+      "time": 0.025429690023884177
+    },
+    "qssa": {
+      "depth": 11,
+      "ops": {
+        "cx": 10,
+        "measure": 4,
+        "u": 11
+      },
+      "time": 0.1836093229940161
+    },
+    "qssa_full": {
+      "depth": 11,
+      "ops": {
+        "cx": 10,
+        "measure": 4,
+        "u": 11
+      },
+      "time": 0.0288,
+      "passes": {
+        "Inliner": 0.0169,
+        "CSE": 0.0014,
+        "quantum-rewrites": 0.0097,
+        "quantum-analysis": 0.0008
+      }
+    }
+  },
+  "small_grover_n2": {
+    "default": {
+      "depth": 12,
+      "ops": {
+        "u2": 10,
+        "u3": 4,
+        "cx": 2,
+        "measure": 2
+      },
+      "time": 0.0030202249763533473
+    },
+    "qiskit_lev1": {
+      "depth": 6,
+      "ops": {
+        "u2": 4,
+        "cx": 2,
+        "measure": 2,
+        "u1": 1
+      },
+      "time": 0.0050167900044471025
+    },
+    "qiskit_lev2": {
+      "depth": 6,
+      "ops": {
+        "u2": 4,
+        "cx": 2,
+        "measure": 2,
+        "u1": 1
+      },
+      "time": 0.016072891012299806
+    },
+    "qssa": {
+      "depth": 5,
+      "ops": {
+        "cx": 2,
+        "measure": 2,
+        "u": 5
+      },
+      "time": 0.17873214499559253
+    },
+    "qssa_full": {
+      "depth": 5,
+      "ops": {
+        "cx": 2,
+        "measure": 2,
+        "u": 5
+      },
+      "time": 0.0196,
+      "passes": {
+        "Inliner": 0.0124,
+        "CSE": 0.0008,
+        "quantum-rewrites": 0.0058,
+        "quantum-analysis": 0.0006
+      }
+    }
+  },
+  "small_wstate_n3": {
+    "default": {
+      "depth": 23,
+      "ops": {
+        "u1": 12,
+        "cx": 9,
+        "u2": 5,
+        "u3": 4,
+        "measure": 3
+      },
+      "time": 0.009033531998284161
+    },
+    "qiskit_lev1": {
+      "depth": 18,
+      "ops": {
+        "cx": 9,
+        "u1": 7,
+        "u2": 5,
+        "u3": 3,
+        "measure": 3
+      },
+      "time": 0.013053614005912095
+    },
+    "qiskit_lev2": {
+      "depth": 18,
+      "ops": {
+        "cx": 9,
+        "u1": 6,
+        "u2": 5,
+        "u3": 3,
+        "measure": 3
+      },
+      "time": 0.042167244013398886
+    },
+    "qssa": {
+      "depth": 17,
+      "ops": {
+        "cx": 9,
+        "measure": 3,
+        "u": 15
+      },
+      "time": 0.1799356190022081
+    },
+    "qssa_full": {
+      "depth": 17,
+      "ops": {
+        "cx": 9,
+        "measure": 3,
+        "u": 15
+      },
+      "time": 0.0344,
+      "passes": {
+        "Inliner": 0.0224,
+        "CSE": 0.0013,
+        "quantum-rewrites": 0.0097,
+        "quantum-analysis": 0.001
+      }
+    }
+  },
+  "small_linearsolver_n3": {
+    "default": {
+      "depth": 12,
+      "ops": {
+        "u2": 12,
+        "cx": 4,
+        "u3": 3,
+        "measure": 3
+      },
+      "time": 0.0030733090243302286
+    },
+    "qiskit_lev1": {
+      "depth": 10,
+      "ops": {
+        "u2": 5,
+        "cx": 4,
+        "measure": 3,
+        "u3": 2
+      },
+      "time": 0.005828516965266317
+    },
+    "qiskit_lev2": {
+      "depth": 10,
+      "ops": {
+        "u2": 5,
+        "cx": 4,
+        "measure": 3,
+        "u3": 2
+      },
+      "time": 0.0186117299599573
+    },
+    "qssa": {
+      "depth": 9,
+      "ops": {
+        "cx": 4,
+        "measure": 3,
+        "u": 7
+      },
+      "time": 0.18709707498783246
+    },
+    "qssa_full": {
+      "depth": 9,
+      "ops": {
+        "cx": 4,
+        "measure": 3,
+        "u": 7
+      },
+      "time": 0.0219,
+      "passes": {
+        "Inliner": 0.014,
+        "CSE": 0.0009,
+        "quantum-rewrites": 0.0063,
+        "quantum-analysis": 0.0007
+      }
+    }
+  },
+  "small_qaoa_n3": {
+    "default": {
+      "depth": 12,
+      "ops": {
+        "cx": 6,
+        "u2": 3,
+        "u1": 3,
+        "u3": 3,
+        "measure": 3
+      },
+      "time": 0.008143523999024183
+    },
+    "qiskit_lev1": {
+      "depth": 11,
+      "ops": {
+        "cx": 6,
+        "u2": 3,
+        "u3": 3,
+        "measure": 3,
+        "u1": 2
+      },
+      "time": 0.008054912963416427
+    },
+    "qiskit_lev2": {
+      "depth": 11,
+      "ops": {
+        "cx": 6,
+        "u2": 3,
+        "u3": 3,
+        "measure": 3,
+        "u1": 2
+      },
+      "time": 0.026504288020078093
+    },
+    "qssa": {
+      "depth": 10,
+      "ops": {
+        "cx": 6,
+        "measure": 3,
+        "u": 8
+      },
+      "time": 0.18629965098807588
+    },
+    "qssa_full": {
+      "depth": 10,
+      "ops": {
+        "cx": 6,
+        "measure": 3,
+        "u": 8
+      },
+      "time": 0.0251,
+      "passes": {
+        "Inliner": 0.0146,
+        "CSE": 0.0012,
+        "quantum-rewrites": 0.0084,
+        "quantum-analysis": 0.0009
+      }
+    }
+  },
+  "medium_multiply_n13": {
+    "default": {
+      "depth": 43,
+      "ops": {
+        "u1": 42,
+        "cx": 40,
+        "u2": 12,
+        "u3": 4,
+        "measure": 4,
+        "barrier": 3
+      },
+      "time": 0.007901959994342178
+    },
+    "qiskit_lev1": {
+      "depth": 43,
+      "ops": {
+        "cx": 40,
+        "u1": 36,
+        "u2": 12,
+        "u3": 4,
+        "measure": 4,
+        "barrier": 3
+      },
+      "time": 0.013431084051262587
+    },
+    "qiskit_lev2": {
+      "depth": 43,
+      "ops": {
+        "cx": 40,
+        "u1": 33,
+        "u2": 12,
+        "u3": 4,
+        "measure": 4,
+        "barrier": 3
+      },
+      "time": 0.05679519899422303
+    },
+    "qssa": {
+      "depth": 37,
+      "ops": {
+        "cx": 38,
+        "measure": 4,
+        "u": 49
+      },
+      "time": 0.20333989697974175
+    },
+    "qssa_full": {
+      "depth": 37,
+      "ops": {
+        "cx": 38,
+        "measure": 4,
+        "u": 49
+      },
+      "time": 0.062,
+      "passes": {
+        "Inliner": 0.034,
+        "CSE": 0.0027,
+        "quantum-rewrites": 0.0237,
+        "quantum-analysis": 0.0016
+      }
+    }
+  },
+  "small_hs4_n4": {
+    "default": {
+      "depth": 10,
+      "ops": {
+        "u2": 20,
+        "u3": 4,
+        "cx": 4,
+        "measure": 4
+      },
+      "time": 0.004036944999825209
+    },
+    "qiskit_lev1": {
+      "depth": 6,
+      "ops": {
+        "u2": 8,
+        "cx": 4,
+        "measure": 4
+      },
+      "time": 0.00695502501912415
+    },
+    "qiskit_lev2": {
+      "depth": 6,
+      "ops": {
+        "u2": 8,
+        "cx": 4,
+        "measure": 4
+      },
+      "time": 0.02036738599417731
+    },
+    "qssa": {
+      "depth": 5,
+      "ops": {
+        "cx": 4,
+        "measure": 4,
+        "u": 8
+      },
+      "time": 0.16789911303203553
+    },
+    "qssa_full": {
+      "depth": 5,
+      "ops": {
+        "cx": 4,
+        "measure": 4,
+        "u": 8
+      },
+      "time": 0.0225,
+      "passes": {
+        "Inliner": 0.0139,
+        "CSE": 0.0009,
+        "quantum-rewrites": 0.007,
+        "quantum-analysis": 0.0007
+      }
+    }
+  },
+  "medium_adder_n10": {
+    "default": {
+      "depth": 100,
+      "ops": {
+        "cx": 65,
+        "u1": 56,
+        "u2": 16,
+        "u3": 5,
+        "measure": 5
+      },
+      "time": 0.014772492984775454
+    },
+    "qiskit_lev1": {
+      "depth": 96,
+      "ops": {
+        "cx": 65,
+        "u1": 48,
+        "u2": 16,
+        "u3": 5,
+        "measure": 5
+      },
+      "time": 0.025189050007611513
+    },
+    "qiskit_lev2": {
+      "depth": 96,
+      "ops": {
+        "cx": 65,
+        "u1": 44,
+        "u2": 16,
+        "u3": 5,
+        "measure": 5
+      },
+      "time": 0.1192679499508813
+    },
+    "qssa": {
+      "depth": 95,
+      "ops": {
+        "cx": 65,
+        "measure": 5,
+        "u": 69
+      },
+      "time": 0.20432112901471555
+    },
+    "qssa_full": {
+      "depth": 95,
+      "ops": {
+        "cx": 65,
+        "measure": 5,
+        "u": 69
+      },
+      "time": 0.0695,
+      "passes": {
+        "Inliner": 0.0318,
+        "CSE": 0.0037,
+        "quantum-rewrites": 0.0317,
+        "quantum-analysis": 0.0023
+      }
+    }
+  },
+  "medium_simon_n6": {
+    "default": {
+      "depth": 28,
+      "ops": {
+        "cx": 14,
+        "u1": 14,
+        "u2": 10,
+        "u3": 6,
+        "measure": 6,
+        "barrier": 2
+      },
+      "time": 0.00713369797449559
+    },
+    "qiskit_lev1": {
+      "depth": 28,
+      "ops": {
+        "cx": 14,
+        "u1": 13,
+        "u2": 8,
+        "measure": 6,
+        "u3": 5,
+        "barrier": 2
+      },
+      "time": 0.010567098972387612
+    },
+    "qiskit_lev2": {
+      "depth": 28,
+      "ops": {
+        "cx": 14,
+        "u1": 13,
+        "u2": 8,
+        "measure": 6,
+        "u3": 5,
+        "barrier": 2
+      },
+      "time": 0.03667449200293049
+    },
+    "qssa": {
+      "depth": 27,
+      "ops": {
+        "cx": 14,
+        "measure": 6,
+        "u": 26
+      },
+      "time": 0.1862281109788455
+    },
+    "qssa_full": {
+      "depth": 27,
+      "ops": {
+        "cx": 14,
+        "measure": 6,
+        "u": 26
+      },
+      "time": 0.0426,
+      "passes": {
+        "Inliner": 0.0244,
+        "CSE": 0.0017,
+        "quantum-rewrites": 0.0153,
+        "quantum-analysis": 0.0012
+      }
+    }
+  },
+  "small_qec_en_n5": {
+    "default": {
+      "depth": 18,
+      "ops": {
+        "u2": 14,
+        "cx": 10,
+        "measure": 5,
+        "u1": 1
+      },
+      "time": 0.003250531037338078
+    },
+    "qiskit_lev1": {
+      "depth": 15,
+      "ops": {
+        "u2": 12,
+        "cx": 10,
+        "measure": 5
+      },
+      "time": 0.006073024997022003
+    },
+    "qiskit_lev2": {
+      "depth": 15,
+      "ops": {
+        "u2": 12,
+        "cx": 10,
+        "measure": 5
+      },
+      "time": 0.024817086989060044
+    },
+    "qssa": {
+      "depth": 14,
+      "ops": {
+        "cx": 10,
+        "measure": 5,
+        "u": 12
+      },
+      "time": 0.1745670719537884
+    },
+    "qssa_full": {
+      "depth": 14,
+      "ops": {
+        "cx": 10,
+        "measure": 5,
+        "u": 12
+      },
+      "time": 0.0262,
+      "passes": {
+        "Inliner": 0.0162,
+        "CSE": 0.0011,
+        "quantum-rewrites": 0.008,
+        "quantum-analysis": 0.0009
+      }
+    }
+  },
+  "large_swap_test_n25": {
+    "default": {
+      "depth": 103,
+      "ops": {
+        "cx": 96,
+        "u1": 84,
+        "u2": 26,
+        "u3": 24,
+        "measure": 1
+      },
+      "time": 0.020842520985752344
+    },
+    "qiskit_lev1": {
+      "depth": 103,
+      "ops": {
+        "cx": 96,
+        "u1": 72,
+        "u2": 26,
+        "u3": 24,
+        "measure": 1
+      },
+      "time": 0.03226187499240041
+    },
+    "qiskit_lev2": {
+      "depth": 103,
+      "ops": {
+        "cx": 96,
+        "u1": 61,
+        "u2": 26,
+        "u3": 24,
+        "measure": 1
+      },
+      "time": 0.16327440197346732
+    },
+    "qssa": {
+      "depth": 102,
+      "ops": {
+        "cx": 84,
+        "measure": 1,
+        "u": 110
+      },
+      "time": 0.21660129801603034
+    },
+    "qssa_full": {
+      "depth": 102,
+      "ops": {
+        "cx": 84,
+        "measure": 1,
+        "u": 110
+      },
+      "time": 0.0945,
+      "passes": {
+        "Inliner": 0.0467,
+        "CSE": 0.0048,
+        "quantum-rewrites": 0.0403,
+        "quantum-analysis": 0.0027
+      }
+    }
+  },
+  "small_basis_change_n3": {
+    "default": {
+      "depth": 38,
+      "ops": {
+        "u3": 23,
+        "u2": 20,
+        "cx": 10,
+        "measure": 3
+      },
+      "time": 0.004445310041774064
+    },
+    "qiskit_lev1": {
+      "depth": 22,
+      "ops": {
+        "u3": 13,
+        "cx": 10,
+        "u2": 8,
+        "measure": 3,
+        "u1": 2
+      },
+      "time": 0.014278017042670399
+    },
+    "qiskit_lev2": {
+      "depth": 22,
+      "ops": {
+        "u3": 13,
+        "cx": 10,
+        "u2": 8,
+        "measure": 3,
+        "u1": 2
+      },
+      "time": 0.051245951966848224
+    },
+    "qssa": {
+      "depth": 21,
+      "ops": {
+        "cx": 10,
+        "measure": 3,
+        "u": 23
+      },
+      "time": 0.1753082960494794
+    },
+    "qssa_full": {
+      "depth": 21,
+      "ops": {
+        "cx": 10,
+        "measure": 3,
+        "u": 23
+      },
+      "time": 0.0367,
+      "passes": {
+        "Inliner": 0.0221,
+        "CSE": 0.0019,
+        "quantum-rewrites": 0.0118,
+        "quantum-analysis": 0.0009
+      }
+    }
+  },
+  "large_cat_state_n22": {
+    "default": {
+      "depth": 23,
+      "ops": {
+        "measure": 22,
+        "cx": 21,
+        "u2": 1,
+        "barrier": 1
+      },
+      "time": 0.004299612948670983
+    },
+    "qiskit_lev1": {
+      "depth": 23,
+      "ops": {
+        "measure": 22,
+        "cx": 21,
+        "u2": 1,
+        "barrier": 1
+      },
+      "time": 0.005273229966405779
+    },
+    "qiskit_lev2": {
+      "depth": 23,
+      "ops": {
+        "measure": 22,
+        "cx": 21,
+        "u2": 1,
+        "barrier": 1
+      },
+      "time": 0.018290125008206815
+    },
+    "qssa": {
+      "depth": 22,
+      "ops": {
+        "cx": 21,
+        "measure": 22,
+        "u": 1
+      },
+      "time": 0.19110916304634884
+    },
+    "qssa_full": {
+      "depth": 22,
+      "ops": {
+        "cx": 21,
+        "measure": 22,
+        "u": 1
+      },
+      "time": 0.0367,
+      "passes": {
+        "Inliner": 0.0219,
+        "CSE": 0.002,
+        "quantum-rewrites": 0.0114,
+        "quantum-analysis": 0.0014
+      }
+    }
+  },
+  "large_ghz_state_n23": {
+    "default": {
+      "depth": 24,
+      "ops": {
+        "measure": 23,
+        "cx": 22,
+        "u2": 1,
+        "barrier": 1
+      },
+      "time": 0.0042420169920660555
+    },
+    "qiskit_lev1": {
+      "depth": 24,
+      "ops": {
+        "measure": 23,
+        "cx": 22,
+        "u2": 1,
+        "barrier": 1
+      },
+      "time": 0.005069727951195091
+    },
+    "qiskit_lev2": {
+      "depth": 24,
+      "ops": {
+        "measure": 23,
+        "cx": 22,
+        "u2": 1,
+        "barrier": 1
+      },
+      "time": 0.01862802798859775
+    },
+    "qssa": {
+      "depth": 23,
+      "ops": {
+        "cx": 22,
+        "measure": 23,
+        "u": 1
+      },
+      "time": 0.18050096899969503
+    },
+    "qssa_full": {
+      "depth": 23,
+      "ops": {
+        "cx": 22,
+        "measure": 23,
+        "u": 1
+      },
+      "time": 0.0374,
+      "passes": {
+        "Inliner": 0.0221,
+        "CSE": 0.0022,
+        "quantum-rewrites": 0.0119,
+        "quantum-analysis": 0.0012
+      }
+    }
+  },
+  "small_pea_n5": {
+    "default": {
+      "depth": 84,
+      "ops": {
+        "u1": 48,
+        "cx": 42,
+        "u2": 8,
+        "measure": 4
+      },
+      "time": 0.026291624002624303
+    },
+    "qiskit_lev1": {
+      "depth": 82,
+      "ops": {
+        "u1": 42,
+        "cx": 42,
+        "u2": 8,
+        "measure": 4
+      },
+      "time": 0.03429872600827366
+    },
+    "qiskit_lev2": {
+      "depth": 82,
+      "ops": {
+        "cx": 42,
+        "u1": 41,
+        "u2": 8,
+        "measure": 4
+      },
+      "time": 0.10024558199802414
+    },
+    "qssa": {
+      "depth": 81,
+      "ops": {
+        "cx": 42,
+        "measure": 4,
+        "u": 50
+      },
+      "time": 0.1944082520203665
+    },
+    "qssa_full": {
+      "depth": 81,
+      "ops": {
+        "cx": 42,
+        "measure": 4,
+        "u": 50
+      },
+      "time": 0.0547,
+      "passes": {
+        "Inliner": 0.0348,
+        "CSE": 0.0027,
+        "quantum-rewrites": 0.0157,
+        "quantum-analysis": 0.0015
+      }
+    }
+  },
+  "medium_qpe_n9": {
+    "default": {
+      "depth": 90,
+      "ops": {
+        "u1": 59,
+        "cx": 43,
+        "u2": 18,
+        "measure": 6,
+        "u3": 3,
+        "barrier": 3
+      },
+      "time": 0.02195594203658402
+    },
+    "qiskit_lev1": {
+      "depth": 85,
+      "ops": {
+        "u1": 53,
+        "cx": 43,
+        "u2": 18,
+        "measure": 6,
+        "u3": 3,
+        "barrier": 3
+      },
+      "time": 0.034983044024556875
+    },
+    "qiskit_lev2": {
+      "depth": 75,
+      "ops": {
+        "cx": 43,
+        "u1": 42,
+        "u2": 18,
+        "measure": 6,
+        "u3": 3,
+        "barrier": 3
+      },
+      "time": 0.1364194360212423
+    },
+    "qssa": {
+      "depth": 84,
+      "ops": {
+        "cx": 43,
+        "measure": 6,
+        "u": 72
+      },
+      "time": 0.202849330031313
+    },
+    "qssa_full": {
+      "depth": 84,
+      "ops": {
+        "cx": 43,
+        "measure": 6,
+        "u": 72
+      },
+      "time": 0.0817,
+      "passes": {
+        "Inliner": 0.05,
+        "CSE": 0.0036,
+        "quantum-rewrites": 0.0261,
+        "quantum-analysis": 0.002
+      }
+    }
+  },
+  "small_bell_n4": {
+    "default": {
+      "depth": 14,
+      "ops": {
+        "u3": 21,
+        "cx": 7,
+        "measure": 4,
+        "u2": 3,
+        "u1": 2
+      },
+      "time": 0.010225583973806351
+    },
+    "qiskit_lev1": {
+      "depth": 10,
+      "ops": {
+        "u2": 7,
+        "cx": 7,
+        "u3": 5,
+        "measure": 4
+      },
+      "time": 0.015453586005605757
+    },
+    "qiskit_lev2": {
+      "depth": 10,
+      "ops": {
+        "u2": 7,
+        "cx": 7,
+        "u3": 5,
+        "measure": 4
+      },
+      "time": 0.03693561302497983
+    },
+    "qssa": {
+      "depth": 9,
+      "ops": {
+        "cx": 7,
+        "measure": 4,
+        "u": 15
+      },
+      "time": 0.17633700201986358
+    },
+    "qssa_full": {
+      "depth": 9,
+      "ops": {
+        "cx": 7,
+        "measure": 4,
+        "u": 15
+      },
+      "time": 0.0313,
+      "passes": {
+        "Inliner": 0.019,
+        "CSE": 0.0015,
+        "quantum-rewrites": 0.0097,
+        "quantum-analysis": 0.0011
+      }
+    }
+  },
+  "large_bigadder_n18": {
+    "default": {
+      "depth": 153,
+      "ops": {
+        "cx": 130,
+        "u1": 112,
+        "u2": 32,
+        "u3": 10,
+        "measure": 9
+      },
+      "time": 0.024982497037854046
+    },
+    "qiskit_lev1": {
+      "depth": 149,
+      "ops": {
+        "cx": 130,
+        "u1": 96,
+        "u2": 32,
+        "measure": 9,
+        "u3": 8
+      },
+      "time": 0.04851269704522565
+    },
+    "qiskit_lev2": {
+      "depth": 149,
+      "ops": {
+        "cx": 130,
+        "u1": 88,
+        "u2": 32,
+        "measure": 9,
+        "u3": 8
+      },
+      "time": 0.20449155202368274
+    },
+    "qssa": {
+      "depth": 148,
+      "ops": {
+        "cx": 130,
+        "measure": 9,
+        "u": 136
+      },
+      "time": 0.24552958901040256
+    },
+    "qssa_full": {
+      "depth": 148,
+      "ops": {
+        "cx": 130,
+        "measure": 9,
+        "u": 136
+      },
+      "time": 0.1176,
+      "passes": {
+        "Inliner": 0.0523,
+        "CSE": 0.0063,
+        "quantum-rewrites": 0.0554,
+        "quantum-analysis": 0.0036
+      }
+    }
+  },
+  "small_ipea_n2": {
+    "default": {
+      "depth": 82,
+      "ops": {
+        "u1": 41,
+        "cx": 30,
+        "u2": 8,
+        "measure": 4,
+        "reset": 3
+      },
+      "time": 0.023411188973113894
+    },
+    "qiskit_lev1": {
+      "depth": 82,
+      "ops": {
+        "u1": 41,
+        "cx": 30,
+        "u2": 8,
+        "measure": 4,
+        "reset": 3
+      },
+      "time": 0.03370583598734811
+    },
+    "qiskit_lev2": {
+      "depth": 82,
+      "ops": {
+        "u1": 41,
+        "cx": 30,
+        "u2": 8,
+        "measure": 4,
+        "reset": 3
+      },
+      "time": 0.06057052098913118
+    },
+    "qssa": {
+      "depth": 61,
+      "ops": {
+        "cx": 30,
+        "measure": 4,
+        "u": 49
+      },
+      "time": 0.21719080698676407
+    },
+    "qssa_full": {
+      "depth": 61,
+      "ops": {
+        "cx": 30,
+        "measure": 4,
+        "u": 49
+      },
+      "time": 0.0961,
+      "passes": {
+        "Inliner": 0.055,
+        "CSE": 0.0056,
+        "quantum-rewrites": 0.032,
+        "quantum-analysis": 0.0035
+      }
+    }
+  },
+  "medium_bb84_n8": {
+    "default": {
+      "depth": 7,
+      "ops": {
+        "u2": 18,
+        "measure": 16,
+        "u3": 9
+      },
+      "time": 0.003172055003233254
+    },
+    "qiskit_lev1": {
+      "depth": 4,
+      "ops": {
+        "measure": 16,
+        "u2": 6,
+        "u3": 5
+      },
+      "time": 0.007324550999328494
+    },
+    "qiskit_lev2": {
+      "depth": 4,
+      "ops": {
+        "measure": 16,
+        "u2": 6,
+        "u3": 5
+      },
+      "time": 0.012370190001092851
+    },
+    "qssa": {
+      "depth": 2,
+      "ops": {
+        "measure": 16,
+        "u": 11
+      },
+      "time": 0.17869567801244557
+    },
+    "qssa_full": {
+      "depth": 2,
+      "ops": {
+        "measure": 16,
+        "u": 11
+      },
+      "time": 0.029,
+      "passes": {
+        "Inliner": 0.0149,
+        "CSE": 0.0015,
+        "quantum-rewrites": 0.0116,
+        "quantum-analysis": 0.001
+      }
+    }
+  },
+  "medium_bv_n14": {
+    "default": {
+      "depth": 17,
+      "ops": {
+        "u2": 27,
+        "cx": 13,
+        "measure": 13,
+        "barrier": 2,
+        "u3": 1
+      },
+      "time": 0.004574210965074599
+    },
+    "qiskit_lev1": {
+      "depth": 16,
+      "ops": {
+        "u2": 27,
+        "cx": 13,
+        "measure": 13,
+        "barrier": 2
+      },
+      "time": 0.00987122202059254
+    },
+    "qiskit_lev2": {
+      "depth": 16,
+      "ops": {
+        "u2": 27,
+        "cx": 13,
+        "measure": 13,
+        "barrier": 2
+      },
+      "time": 0.02239275601459667
+    },
+    "qssa": {
+      "depth": 15,
+      "ops": {
+        "cx": 13,
+        "measure": 13,
+        "u": 27
+      },
+      "time": 0.2024003749829717
+    },
+    "qssa_full": {
+      "depth": 15,
+      "ops": {
+        "cx": 13,
+        "measure": 13,
+        "u": 27
+      },
+      "time": 0.0453,
+      "passes": {
+        "Inliner": 0.0255,
+        "CSE": 0.0023,
+        "quantum-rewrites": 0.0162,
+        "quantum-analysis": 0.0013
+      }
+    }
+  },
+  "small_variational_n4": {
+    "default": {
+      "depth": 34,
+      "ops": {
+        "u1": 28,
+        "cx": 16,
+        "u2": 8,
+        "measure": 4,
+        "u3": 2
+      },
+      "time": 0.01651097397552803
+    },
+    "qiskit_lev1": {
+      "depth": 26,
+      "ops": {
+        "cx": 16,
+        "u1": 14,
+        "u2": 8,
+        "measure": 4,
+        "u3": 2
+      },
+      "time": 0.019424238009378314
+    },
+    "qiskit_lev2": {
+      "depth": 26,
+      "ops": {
+        "cx": 16,
+        "u1": 14,
+        "u2": 8,
+        "measure": 4,
+        "u3": 2
+      },
+      "time": 0.05979823600500822
+    },
+    "qssa": {
+      "depth": 24,
+      "ops": {
+        "cx": 16,
+        "measure": 4,
+        "u": 20
+      },
+      "time": 0.1822698679752648
+    },
+    "qssa_full": {
+      "depth": 24,
+      "ops": {
+        "cx": 16,
+        "measure": 4,
+        "u": 20
+      },
+      "time": 0.0386,
+      "passes": {
+        "Inliner": 0.02,
+        "CSE": 0.0019,
+        "quantum-rewrites": 0.0157,
+        "quantum-analysis": 0.001
+      }
+    }
+  },
+  "large_bv_n19": {
+    "default": {
+      "depth": 22,
+      "ops": {
+        "u2": 37,
+        "cx": 18,
+        "measure": 18,
+        "barrier": 2,
+        "u3": 1
+      },
+      "time": 0.0056116359774023294
+    },
+    "qiskit_lev1": {
+      "depth": 21,
+      "ops": {
+        "u2": 37,
+        "cx": 18,
+        "measure": 18,
+        "barrier": 2
+      },
+      "time": 0.012069886026438326
+    },
+    "qiskit_lev2": {
+      "depth": 21,
+      "ops": {
+        "u2": 37,
+        "cx": 18,
+        "measure": 18,
+        "barrier": 2
+      },
+      "time": 0.027130116999614984
+    },
+    "qssa": {
+      "depth": 20,
+      "ops": {
+        "cx": 18,
+        "measure": 18,
+        "u": 37
+      },
+      "time": 0.19844101800117642
+    },
+    "qssa_full": {
+      "depth": 20,
+      "ops": {
+        "cx": 18,
+        "measure": 18,
+        "u": 37
+      },
+      "time": 0.0584,
+      "passes": {
+        "Inliner": 0.0321,
+        "CSE": 0.0028,
+        "quantum-rewrites": 0.0219,
+        "quantum-analysis": 0.0016
+      }
+    }
+  },
+  "medium_multiplier_n15": {
+    "default": {
+      "depth": 256,
+      "ops": {
+        "u1": 252,
+        "cx": 246,
+        "u2": 72,
+        "u3": 4,
+        "measure": 3
+      },
+      "time": 0.019867922004777938
+    },
+    "qiskit_lev1": {
+      "depth": 229,
+      "ops": {
+        "u1": 232,
+        "cx": 222,
+        "u2": 34,
+        "u3": 4,
+        "measure": 3
+      },
+      "time": 0.08100971998646855
+    },
+    "qiskit_lev2": {
+      "depth": 226,
+      "ops": {
+        "cx": 222,
+        "u1": 199,
+        "u2": 34,
+        "u3": 4,
+        "measure": 3
+      },
+      "time": 0.4042038589832373
+    },
+    "qssa": {
+      "depth": 228,
+      "ops": {
+        "cx": 210,
+        "measure": 3,
+        "u": 249
+      },
+      "time": 0.29613983299350366
+    },
+    "qssa_full": {
+      "depth": 228,
+      "ops": {
+        "cx": 210,
+        "measure": 3,
+        "u": 249
+      },
+      "time": 0.1822,
+      "passes": {
+        "Inliner": 0.0752,
+        "CSE": 0.0096,
+        "quantum-rewrites": 0.0924,
+        "quantum-analysis": 0.005
+      }
+    }
+  },
+  "large_cc_n18": {
+    "default": {
+      "depth": 57,
+      "ops": {
+        "u2": 52,
+        "cx": 18,
+        "measure": 18,
+        "barrier": 2,
+        "u3": 1
+      },
+      "time": 0.008336319995578378
+    },
+    "qiskit_lev1": {
+      "depth": 57,
+      "ops": {
+        "u2": 52,
+        "cx": 18,
+        "measure": 18,
+        "barrier": 2,
+        "u3": 1
+      },
+      "time": 0.013683319964911789
+    },
+    "qiskit_lev2": {
+      "depth": 57,
+      "ops": {
+        "u2": 52,
+        "cx": 18,
+        "measure": 18,
+        "barrier": 2,
+        "u3": 1
+      },
+      "time": 0.04224358900683001
+    },
+    "qssa": {
+      "depth": 19,
+      "ops": {
+        "cx": 18,
+        "measure": 18,
+        "u": 53
+      },
+      "time": 0.5148858000175096
+    },
+    "qssa_full": {
+      "depth": 19,
+      "ops": {
+        "cx": 18,
+        "measure": 18,
+        "u": 53
+      },
+      "time": 0.5704,
+      "passes": {
+        "Inliner": 0.3311,
+        "CSE": 0.034,
+        "quantum-rewrites": 0.1857,
+        "quantum-analysis": 0.0196
+      }
+    }
+  },
+  "medium_seca_n11": {
+    "default": {
+      "depth": 80,
+      "ops": {
+        "cx": 84,
+        "u1": 64,
+        "u2": 50,
+        "u3": 18,
+        "barrier": 7,
+        "measure": 3
+      },
+      "time": 0.015239567030221224
+    },
+    "qiskit_lev1": {
+      "depth": 72,
+      "ops": {
+        "cx": 84,
+        "u1": 54,
+        "u2": 48,
+        "barrier": 7,
+        "measure": 3
+      },
+      "time": 0.03401416901033372
+    },
+    "qiskit_lev2": {
+      "depth": 72,
+      "ops": {
+        "cx": 84,
+        "u1": 53,
+        "u2": 48,
+        "barrier": 7,
+        "measure": 3
+      },
+      "time": 0.13991789700230584
+    },
+    "qssa": {
+      "depth": 63,
+      "ops": {
+        "cx": 76,
+        "measure": 3,
+        "u": 90
+      },
+      "time": 0.22023270901991054
+    },
+    "qssa_full": {
+      "depth": 63,
+      "ops": {
+        "cx": 76,
+        "measure": 3,
+        "u": 90
+      },
+      "time": 0.1071,
+      "passes": {
+        "Inliner": 0.0573,
+        "CSE": 0.0049,
+        "quantum-rewrites": 0.0423,
+        "quantum-analysis": 0.0026
+      }
+    }
+  },
+  "medium_qf21_n15": {
+    "default": {
+      "depth": 234,
+      "ops": {
+        "u1": 163,
+        "cx": 115,
+        "u2": 30,
+        "u3": 3,
+        "barrier": 3,
+        "measure": 3
+      },
+      "time": 0.0490578570170328
+    },
+    "qiskit_lev1": {
+      "depth": 224,
+      "ops": {
+        "u1": 151,
+        "cx": 115,
+        "u2": 30,
+        "u3": 3,
+        "barrier": 3,
+        "measure": 3
+      },
+      "time": 0.08462090301327407
+    },
+    "qiskit_lev2": {
+      "depth": 188,
+      "ops": {
+        "cx": 115,
+        "u1": 113,
+        "u2": 30,
+        "u3": 3,
+        "barrier": 3,
+        "measure": 3
+      },
+      "time": 0.2900101469713263
+    },
+    "qssa": {
+      "depth": 138,
+      "ops": {
+        "cx": 73,
+        "measure": 3,
+        "u": 110
+      },
+      "time": 0.21652168704895303
+    },
+    "qssa_full": {
+      "depth": 138,
+      "ops": {
+        "cx": 73,
+        "measure": 3,
+        "u": 110
+      },
+      "time": 0.1235,
+      "passes": {
+        "Inliner": 0.0775,
+        "CSE": 0.0051,
+        "quantum-rewrites": 0.0382,
+        "quantum-analysis": 0.0027
+      }
+    }
+  },
+  "medium_sat_n11": {
+    "default": {
+      "depth": 410,
+      "ops": {
+        "u1": 294,
+        "cx": 252,
+        "u2": 99,
+        "u3": 34,
+        "measure": 4
+      },
+      "time": 0.023078008962329477
+    },
+    "qiskit_lev1": {
+      "depth": 388,
+      "ops": {
+        "u1": 266,
+        "cx": 252,
+        "u2": 67,
+        "u3": 12,
+        "measure": 4
+      },
+      "time": 0.08532005897723138
+    },
+    "qiskit_lev2": {
+      "depth": 388,
+      "ops": {
+        "cx": 252,
+        "u1": 240,
+        "u2": 67,
+        "u3": 12,
+        "measure": 4
+      },
+      "time": 0.3786599180311896
+    },
+    "qssa": {
+      "depth": 387,
+      "ops": {
+        "cx": 252,
+        "measure": 4,
+        "u": 338
+      },
+      "time": 0.3385519119910896
+    },
+    "qssa_full": {
+      "depth": 387,
+      "ops": {
+        "cx": 252,
+        "measure": 4,
+        "u": 338
+      },
+      "time": 0.2282,
+      "passes": {
+        "Inliner": 0.0887,
+        "CSE": 0.012,
+        "quantum-rewrites": 0.1202,
+        "quantum-analysis": 0.0073
+      }
+    }
+  },
+  "small_error_correctiond3_n5": {
+    "default": {
+      "depth": 78,
+      "ops": {
+        "u2": 62,
+        "cx": 49,
+        "measure": 5,
+        "u1": 2,
+        "id": 1
+      },
+      "time": 0.005986576958093792
+    },
+    "qiskit_lev1": {
+      "depth": 78,
+      "ops": {
+        "u2": 62,
+        "cx": 49,
+        "measure": 5,
+        "u1": 2,
+        "id": 1
+      },
+      "time": 0.012202073005028069
+    },
+    "qiskit_lev2": {
+      "depth": 66,
+      "ops": {
+        "u2": 50,
+        "cx": 37,
+        "measure": 5,
+        "u1": 2,
+        "id": 1
+      },
+      "time": 0.0710420300019905
+    },
+    "qssa": {
+      "depth": 77,
+      "ops": {
+        "cx": 49,
+        "measure": 5,
+        "u": 64
+      },
+      "time": 0.20218766399193555
+    },
+    "qssa_full": {
+      "depth": 77,
+      "ops": {
+        "cx": 49,
+        "measure": 5,
+        "u": 64
+      },
+      "time": 0.0579,
+      "passes": {
+        "Inliner": 0.028,
+        "CSE": 0.0029,
+        "quantum-rewrites": 0.0251,
+        "quantum-analysis": 0.0019
+      }
+    }
+  },
+  "small_basis_test_n4": {
+    "default": {
+      "depth": 65,
+      "ops": {
+        "u1": 50,
+        "cx": 46,
+        "u2": 14,
+        "measure": 4
+      },
+      "time": 0.0257297579664737
+    },
+    "qiskit_lev1": {
+      "depth": 54,
+      "ops": {
+        "cx": 46,
+        "u1": 25,
+        "u2": 14,
+        "measure": 4
+      },
+      "time": 0.032344668987207115
+    },
+    "qiskit_lev2": {
+      "depth": 54,
+      "ops": {
+        "cx": 46,
+        "u1": 25,
+        "u2": 14,
+        "measure": 4
+      },
+      "time": 0.11016306304372847
+    },
+    "qssa": {
+      "depth": 53,
+      "ops": {
+        "cx": 46,
+        "measure": 4,
+        "u": 39
+      },
+      "time": 0.19515642698388547
+    },
+    "qssa_full": {
+      "depth": 53,
+      "ops": {
+        "cx": 46,
+        "measure": 4,
+        "u": 39
+      },
+      "time": 0.0555,
+      "passes": {
+        "Inliner": 0.0285,
+        "CSE": 0.0029,
+        "quantum-rewrites": 0.0227,
+        "quantum-analysis": 0.0014
+      }
+    }
+  },
+  "large_wstate_n27": {
+    "default": {
+      "depth": 82,
+      "ops": {
+        "u3": 53,
+        "u2": 52,
+        "cx": 52,
+        "measure": 27,
+        "barrier": 1
+      },
+      "time": 0.026449938013684005
+    },
+    "qiskit_lev1": {
+      "depth": 55,
+      "ops": {
+        "u3": 53,
+        "cx": 52,
+        "measure": 27,
+        "barrier": 1
+      },
+      "time": 0.05214157799491659
+    },
+    "qiskit_lev2": {
+      "depth": 55,
+      "ops": {
+        "u3": 53,
+        "cx": 52,
+        "measure": 27,
+        "barrier": 1
+      },
+      "time": 0.1743501519667916
+    },
+    "qssa": {
+      "depth": 54,
+      "ops": {
+        "cx": 52,
+        "measure": 27,
+        "u": 53
+      },
+      "time": 0.2308955899788998
+    },
+    "qssa_full": {
+      "depth": 54,
+      "ops": {
+        "cx": 52,
+        "measure": 27,
+        "u": 53
+      },
+      "time": 0.0971,
+      "passes": {
+        "Inliner": 0.0473,
+        "CSE": 0.0054,
+        "quantum-rewrites": 0.0418,
+        "quantum-analysis": 0.0026
+      }
+    }
+  },
+  "large_multiplier_n25": {
+    "default": {
+      "depth": 722,
+      "ops": {
+        "u1": 770,
+        "cx": 750,
+        "u2": 220,
+        "measure": 5,
+        "u3": 3
+      },
+      "time": 0.0548923879978247
+    },
+    "qiskit_lev1": {
+      "depth": 653,
+      "ops": {
+        "u1": 716,
+        "cx": 670,
+        "u2": 88,
+        "measure": 5,
+        "u3": 3
+      },
+      "time": 0.22918465797556564
+    },
+    "qiskit_lev2": {
+      "depth": 648,
+      "ops": {
+        "cx": 670,
+        "u1": 609,
+        "u2": 88,
+        "measure": 5,
+        "u3": 3
+      },
+      "time": 1.1437014429830015
+    },
+    "qssa": {
+      "depth": 652,
+      "ops": {
+        "cx": 654,
+        "measure": 5,
+        "u": 776
+      },
+      "time": 0.5569783730315976
+    },
+    "qssa_full": {
+      "depth": 652,
+      "ops": {
+        "cx": 654,
+        "measure": 5,
+        "u": 776
+      },
+      "time": 0.5144,
+      "passes": {
+        "Inliner": 0.1977,
+        "CSE": 0.0282,
+        "quantum-rewrites": 0.2741,
+        "quantum-analysis": 0.0144
+      }
+    }
+  },
+  "small_vqe_uccsd_n4": {
+    "default": {
+      "depth": 146,
+      "ops": {
+        "cx": 88,
+        "u2": 56,
+        "u3": 56,
+        "u1": 20,
+        "measure": 4
+      },
+      "time": 0.01986924500670284
+    },
+    "qiskit_lev1": {
+      "depth": 129,
+      "ops": {
+        "cx": 88,
+        "u2": 38,
+        "u1": 20,
+        "u3": 10,
+        "measure": 4
+      },
+      "time": 0.044393913995008916
+    },
+    "qiskit_lev2": {
+      "depth": 129,
+      "ops": {
+        "cx": 88,
+        "u2": 38,
+        "u1": 20,
+        "u3": 10,
+        "measure": 4
+      },
+      "time": 0.1438875460298732
+    },
+    "qssa": {
+      "depth": 128,
+      "ops": {
+        "cx": 88,
+        "measure": 4,
+        "u": 66
+      },
+      "time": 0.21678293903823942
+    },
+    "qssa_full": {
+      "depth": 128,
+      "ops": {
+        "cx": 88,
+        "measure": 4,
+        "u": 66
+      },
+      "time": 0.0908,
+      "passes": {
+        "Inliner": 0.0491,
+        "CSE": 0.0046,
+        "quantum-rewrites": 0.035,
+        "quantum-analysis": 0.0021
+      }
+    }
+  },
+  "small_dnn_n2": {
+    "default": {
+      "depth": 155,
+      "ops": {
+        "u3": 146,
+        "cx": 42,
+        "u1": 38,
+        "measure": 2
+      },
+      "time": 0.049053707043640316
+    },
+    "qiskit_lev1": {
+      "depth": 86,
+      "ops": {
+        "cx": 42,
+        "u2": 36,
+        "u3": 32,
+        "u1": 4,
+        "measure": 2
+      },
+      "time": 0.08924088801722974
+    },
+    "qiskit_lev2": {
+      "depth": 86,
+      "ops": {
+        "cx": 42,
+        "u2": 36,
+        "u3": 32,
+        "u1": 4,
+        "measure": 2
+      },
+      "time": 0.1751573050278239
+    },
+    "qssa": {
+      "depth": 85,
+      "ops": {
+        "cx": 42,
+        "measure": 2,
+        "u": 72
+      },
+      "time": 0.21414001798257232
+    },
+    "qssa_full": {
+      "depth": 85,
+      "ops": {
+        "cx": 42,
+        "measure": 2,
+        "u": 72
+      },
+      "time": 0.0923,
+      "passes": {
+        "Inliner": 0.0467,
+        "CSE": 0.0054,
+        "quantum-rewrites": 0.0385,
+        "quantum-analysis": 0.0017
+      }
+    }
+  },
+  "large_ising_n26": {
+    "default": {
+      "depth": 16,
+      "ops": {
+        "u1": 152,
+        "u2": 78,
+        "cx": 50,
+        "measure": 26,
+        "barrier": 1
+      },
+      "time": 0.08151472802273929
+    },
+    "qiskit_lev1": {
+      "depth": 9,
+      "ops": {
+        "cx": 50,
+        "u1": 49,
+        "u2": 26,
+        "measure": 26,
+        "barrier": 1
+      },
+      "time": 0.08867711399216205
+    },
+    "qiskit_lev2": {
+      "depth": 9,
+      "ops": {
+        "cx": 50,
+        "u1": 49,
+        "u2": 26,
+        "measure": 26,
+        "barrier": 1
+      },
+      "time": 0.23109154700068757
+    },
+    "qssa": {
+      "depth": 9,
+      "ops": {
+        "cx": 50,
+        "measure": 26,
+        "u": 101
+      },
+      "time": 0.255783321976196
+    },
+    "qssa_full": {
+      "depth": 9,
+      "ops": {
+        "cx": 50,
+        "measure": 26,
+        "u": 101
+      },
+      "time": 0.1339,
+      "passes": {
+        "Inliner": 0.0582,
+        "CSE": 0.0075,
+        "quantum-rewrites": 0.0654,
+        "quantum-analysis": 0.0028
+      }
+    }
+  },
+  "medium_qaoa_n6": {
+    "default": {
+      "depth": 110,
+      "ops": {
+        "u3": 156,
+        "u1": 54,
+        "cx": 54,
+        "u2": 6,
+        "measure": 6
+      },
+      "time": 0.05305629799840972
+    },
+    "qiskit_lev1": {
+      "depth": 66,
+      "ops": {
+        "cx": 54,
+        "u2": 52,
+        "u3": 40,
+        "measure": 6
+      },
+      "time": 0.09500957501586527
+    },
+    "qiskit_lev2": {
+      "depth": 66,
+      "ops": {
+        "cx": 54,
+        "u2": 52,
+        "u3": 40,
+        "measure": 6
+      },
+      "time": 0.2088109390460886
+    },
+    "qssa": {
+      "depth": 67,
+      "ops": {
+        "cx": 54,
+        "measure": 6,
+        "u": 96
+      },
+      "time": 0.223157947009895
+    },
+    "qssa_full": {
+      "depth": 67,
+      "ops": {
+        "cx": 54,
+        "measure": 6,
+        "u": 96
+      },
+      "time": 0.1105,
+      "passes": {
+        "Inliner": 0.0566,
+        "CSE": 0.0063,
+        "quantum-rewrites": 0.0454,
+        "quantum-analysis": 0.0022
+      }
+    }
+  },
+  "medium_ising_n10": {
+    "default": {
+      "depth": 71,
+      "ops": {
+        "u1": 280,
+        "u2": 110,
+        "cx": 90,
+        "measure": 10
+      },
+      "time": 0.1392006060341373
+    },
+    "qiskit_lev1": {
+      "depth": 42,
+      "ops": {
+        "u1": 95,
+        "cx": 90,
+        "u3": 40,
+        "u2": 10,
+        "measure": 10
+      },
+      "time": 0.151531714014709
+    },
+    "qiskit_lev2": {
+      "depth": 42,
+      "ops": {
+        "cx": 90,
+        "u1": 87,
+        "u3": 40,
+        "u2": 10,
+        "measure": 10
+      },
+      "time": 0.44902782002463937
+    },
+    "qssa": {
+      "depth": 41,
+      "ops": {
+        "cx": 90,
+        "measure": 10,
+        "u": 145
+      },
+      "time": 0.2957679749815725
+    },
+    "qssa_full": {
+      "depth": 41,
+      "ops": {
+        "cx": 90,
+        "measure": 10,
+        "u": 145
+      },
+      "time": 0.1918,
+      "passes": {
+        "Inliner": 0.0792,
+        "CSE": 0.0119,
+        "quantum-rewrites": 0.0975,
+        "quantum-analysis": 0.0032
+      }
+    }
+  },
+  "medium_qft_n15": {
+    "default": {
+      "depth": 110,
+      "ops": {
+        "u1": 315,
+        "cx": 210,
+        "u2": 15,
+        "measure": 15,
+        "barrier": 1
+      },
+      "time": 0.02299220795975998
+    },
+    "qiskit_lev1": {
+      "depth": 110,
+      "ops": {
+        "u1": 315,
+        "cx": 210,
+        "u2": 15,
+        "measure": 15,
+        "barrier": 1
+      },
+      "time": 0.06056262197671458
+    },
+    "qiskit_lev2": {
+      "depth": 97,
+      "ops": {
+        "u1": 224,
+        "cx": 210,
+        "u2": 15,
+        "measure": 15,
+        "barrier": 1
+      },
+      "time": 0.38361632399028167
+    },
+    "qssa": {
+      "depth": 109,
+      "ops": {
+        "cx": 210,
+        "measure": 15,
+        "u": 330
+      },
+      "time": 0.2778439289540984
+    },
+    "qssa_full": {
+      "depth": 109,
+      "ops": {
+        "cx": 210,
+        "measure": 15,
+        "u": 330
+      },
+      "time": 0.2294,
+      "passes": {
+        "Inliner": 0.144,
+        "CSE": 0.0135,
+        "quantum-rewrites": 0.0656,
+        "quantum-analysis": 0.0063
+      }
+    }
+  },
+  "large_square_root_n18": {
+    "default": {
+      "depth": 1269,
+      "ops": {
+        "u1": 922,
+        "cx": 898,
+        "u2": 338,
+        "u3": 142,
+        "reset": 65,
+        "measure": 13
+      },
+      "time": 0.07320778601570055
+    },
+    "qiskit_lev1": {
+      "depth": 1192,
+      "ops": {
+        "cx": 898,
+        "u1": 780,
+        "u2": 314,
+        "u3": 82,
+        "reset": 60,
+        "measure": 13
+      },
+      "time": 0.2764132720185444
+    },
+    "qiskit_lev2": {
+      "depth": 1192,
+      "ops": {
+        "cx": 898,
+        "u1": 715,
+        "u2": 314,
+        "u3": 82,
+        "reset": 60,
+        "measure": 13
+      },
+      "time": 1.2047577379853465
+    },
+    "qssa": {
+      "depth": 1191,
+      "ops": {
+        "cx": 898,
+        "measure": 13,
+        "u": 1111
+      },
+      "time": 0.80866124300519
+    },
+    "qssa_full": {
+      "depth": 1191,
+      "ops": {
+        "cx": 898,
+        "measure": 13,
+        "u": 1111
+      },
+      "time": 0.7954,
+      "passes": {
+        "Inliner": 0.3128,
+        "CSE": 0.0416,
+        "quantum-rewrites": 0.4205,
+        "quantum-analysis": 0.0205
+      }
+    }
+  },
+  "large_qft_n20": {
+    "default": {
+      "depth": 150,
+      "ops": {
+        "u1": 570,
+        "cx": 380,
+        "u2": 20,
+        "measure": 20,
+        "barrier": 1
+      },
+      "time": 0.0328571000136435
+    },
+    "qiskit_lev1": {
+      "depth": 150,
+      "ops": {
+        "u1": 570,
+        "cx": 380,
+        "u2": 20,
+        "measure": 20,
+        "barrier": 1
+      },
+      "time": 0.10768587398342788
+    },
+    "qiskit_lev2": {
+      "depth": 132,
+      "ops": {
+        "u1": 393,
+        "cx": 374,
+        "u2": 20,
+        "measure": 20,
+        "barrier": 1
+      },
+      "time": 0.6340113339829259
+    },
+    "qssa": {
+      "depth": 149,
+      "ops": {
+        "cx": 380,
+        "measure": 20,
+        "u": 590
+      },
+      "time": 0.38041465799324214
+    },
+    "qssa_full": {
+      "depth": 149,
+      "ops": {
+        "cx": 380,
+        "measure": 20,
+        "u": 590
+      },
+      "time": 0.4292,
+      "passes": {
+        "Inliner": 0.2723,
+        "CSE": 0.0262,
+        "quantum-rewrites": 0.1203,
+        "quantum-analysis": 0.0104
+      }
+    }
+  },
+  "medium_dnn_n8": {
+    "default": {
+      "depth": 173,
+      "ops": {
+        "u3": 656,
+        "cx": 192,
+        "u1": 160,
+        "measure": 8
+      },
+      "time": 0.18883832602296025
+    },
+    "qiskit_lev1": {
+      "depth": 98,
+      "ops": {
+        "cx": 192,
+        "u2": 160,
+        "u3": 152,
+        "u1": 16,
+        "measure": 8
+      },
+      "time": 0.3610786640201695
+    },
+    "qiskit_lev2": {
+      "depth": 98,
+      "ops": {
+        "cx": 192,
+        "u2": 160,
+        "u3": 152,
+        "u1": 16,
+        "measure": 8
+      },
+      "time": 0.6558445219998248
+    },
+    "qssa": {
+      "depth": 97,
+      "ops": {
+        "cx": 192,
+        "measure": 8,
+        "u": 328
+      },
+      "time": 0.3862419010256417
+    },
+    "qssa_full": {
+      "depth": 97,
+      "ops": {
+        "cx": 192,
+        "measure": 8,
+        "u": 328
+      },
+      "time": 0.3599,
+      "passes": {
+        "Inliner": 0.1813,
+        "CSE": 0.0211,
+        "quantum-rewrites": 0.1516,
+        "quantum-analysis": 0.0059
+      }
+    }
+  },
+  "small_basis_trotter_n4": {
+    "default": {
+      "depth": 895,
+      "ops": {
+        "cx": 582,
+        "u1": 492,
+        "u3": 432,
+        "u2": 120,
+        "measure": 4
+      },
+      "time": 0.2797016969998367
+    },
+    "qiskit_lev1": {
+      "depth": 734,
+      "ops": {
+        "cx": 582,
+        "u2": 444,
+        "u1": 184,
+        "u3": 54,
+        "measure": 4
+      },
+      "time": 0.5224060419714078
+    },
+    "qiskit_lev2": {
+      "depth": 734,
+      "ops": {
+        "cx": 582,
+        "u2": 444,
+        "u1": 184,
+        "u3": 54,
+        "measure": 4
+      },
+      "time": 1.4380310400156304
+    },
+    "qssa": {
+      "depth": 733,
+      "ops": {
+        "cx": 582,
+        "measure": 4,
+        "u": 682
+      },
+      "time": 0.616288655961398
+    },
+    "qssa_full": {
+      "depth": 733,
+      "ops": {
+        "cx": 582,
+        "measure": 4,
+        "u": 682
+      },
+      "time": 0.5947,
+      "passes": {
+        "Inliner": 0.2884,
+        "CSE": 0.0344,
+        "quantum-rewrites": 0.2592,
+        "quantum-analysis": 0.0127
+      }
+    }
+  },
+  "medium_vqe_uccsd_n6": {
+    "default": {
+      "depth": 1487,
+      "ops": {
+        "cx": 1052,
+        "u2": 540,
+        "u3": 540,
+        "u1": 150,
+        "measure": 6
+      },
+      "time": 0.14413098996737972
+    },
+    "qiskit_lev1": {
+      "depth": 1326,
+      "ops": {
+        "cx": 1034,
+        "u2": 298,
+        "u1": 150,
+        "u3": 53,
+        "measure": 6
+      },
+      "time": 0.37911515397718176
+    },
+    "qiskit_lev2": {
+      "depth": 1326,
+      "ops": {
+        "cx": 1034,
+        "u2": 298,
+        "u1": 150,
+        "u3": 53,
+        "measure": 6
+      },
+      "time": 1.488811087969225
+    },
+    "qssa": {
+      "depth": 1325,
+      "ops": {
+        "cx": 1034,
+        "measure": 6,
+        "u": 471
+      },
+      "time": 0.5958470120094717
+    },
+    "qssa_full": {
+      "depth": 1325,
+      "ops": {
+        "cx": 1034,
+        "measure": 6,
+        "u": 471
+      },
+      "time": 0.8557,
+      "passes": {
+        "Inliner": 0.526,
+        "CSE": 0.0374,
+        "quantum-rewrites": 0.2782,
+        "quantum-analysis": 0.0141
+      }
+    }
+  },
+  "large_dnn_n16": {
+    "default": {
+      "depth": 173,
+      "ops": {
+        "u3": 1312,
+        "cx": 384,
+        "u1": 320,
+        "measure": 16
+      },
+      "time": 0.36302403901936486
+    },
+    "qiskit_lev1": {
+      "depth": 98,
+      "ops": {
+        "cx": 384,
+        "u2": 320,
+        "u3": 304,
+        "u1": 32,
+        "measure": 16
+      },
+      "time": 0.7282494110404514
+    },
+    "qiskit_lev2": {
+      "depth": 98,
+      "ops": {
+        "cx": 384,
+        "u2": 320,
+        "u3": 304,
+        "u1": 32,
+        "measure": 16
+      },
+      "time": 1.2450547870248556
+    },
+    "qssa": {
+      "depth": 97,
+      "ops": {
+        "cx": 384,
+        "measure": 16,
+        "u": 656
+      },
+      "time": 0.5932837749714963
+    },
+    "qssa_full": {
+      "depth": 97,
+      "ops": {
+        "cx": 384,
+        "measure": 16,
+        "u": 656
+      },
+      "time": 0.7539,
+      "passes": {
+        "Inliner": 0.3914,
+        "CSE": 0.041,
+        "quantum-rewrites": 0.3105,
+        "quantum-analysis": 0.011
+      }
+    }
+  },
+  "large_ising_model_n500": {
+    "default": {
+      "depth": 16,
+      "ops": {
+        "u1": 2996,
+        "u2": 1500,
+        "cx": 998,
+        "measure": 500
+      },
+      "time": 1.5569654229911976
+    },
+    "qiskit_lev1": {
+      "depth": 9,
+      "ops": {
+        "cx": 998,
+        "u1": 997,
+        "u2": 500,
+        "measure": 500
+      },
+      "time": 1.8581918489653617
+    },
+    "qiskit_lev2": {
+      "depth": 9,
+      "ops": {
+        "cx": 998,
+        "u1": 997,
+        "u2": 500,
+        "measure": 500
+      },
+      "time": 4.452707984019071
+    },
+    "qssa": {
+      "depth": 9,
+      "ops": {
+        "cx": 998,
+        "measure": 500,
+        "u": 1997
+      },
+      "time": 1.858373905008193
+    },
+    "qssa_full": {
+      "depth": 9,
+      "ops": {
+        "cx": 998,
+        "measure": 500,
+        "u": 1997
+      },
+      "time": 0.6858,
+      "passes": {
+        "Inliner": 0.3079,
+        "CSE": 0.1373,
+        "quantum-rewrites": 0.1959,
+        "quantum-analysis": 0.0447
+      }
+    }
+  },
+  "medium_vqe_uccsd_n8": {
+    "default": {
+      "depth": 7253,
+      "ops": {
+        "cx": 5488,
+        "u2": 2352,
+        "u3": 2352,
+        "u1": 616,
+        "measure": 8
+      },
+      "time": 0.6409131830441765
+    },
+    "qiskit_lev1": {
+      "depth": 6452,
+      "ops": {
+        "cx": 5284,
+        "u2": 1226,
+        "u1": 616,
+        "u3": 189,
+        "measure": 8
+      },
+      "time": 1.9602812490193173
+    },
+    "qiskit_lev2": {
+      "depth": 6452,
+      "ops": {
+        "cx": 5284,
+        "u2": 1226,
+        "u1": 616,
+        "u3": 189,
+        "measure": 8
+      },
+      "time": 10.23876272898633
+    },
+    "qssa": {
+      "depth": 6451,
+      "ops": {
+        "cx": 5284,
+        "measure": 8,
+        "u": 1891
+      },
+      "time": 2.1016188510111533
+    },
+    "qssa_full": {
+      "depth": 6451,
+      "ops": {
+        "cx": 5284,
+        "measure": 8,
+        "u": 1891
+      },
+      "time": 0.6562,
+      "passes": {
+        "Inliner": 0.173,
+        "CSE": 0.17,
+        "quantum-rewrites": 0.2497,
+        "quantum-analysis": 0.0635
+      }
+    }
+  },
+  "large_ising_model_n1000": {
+    "default": {
+      "depth": 16,
+      "ops": {
+        "u1": 5996,
+        "u2": 3000,
+        "cx": 1998,
+        "measure": 500
+      },
+      "time": 2.874819052987732
+    },
+    "qiskit_lev1": {
+      "depth": 9,
+      "ops": {
+        "cx": 1998,
+        "u1": 1997,
+        "u2": 1000,
+        "measure": 500
+      },
+      "time": 3.5192367490381002
+    },
+    "qiskit_lev2": {
+      "depth": 9,
+      "ops": {
+        "cx": 1998,
+        "u1": 1997,
+        "u2": 1000,
+        "measure": 500
+      },
+      "time": 8.498438765993342
+    },
+    "qssa": {
+      "depth": 9,
+      "ops": {
+        "cx": 1002,
+        "measure": 500,
+        "u": 2003
+      },
+      "time": 1.8688597930013202
+    },
+    "qssa_full": {
+      "depth": 9,
+      "ops": {
+        "cx": 1002,
+        "measure": 500,
+        "u": 2003
+      },
+      "time": 0.6894,
+      "passes": {
+        "Inliner": 0.3087,
+        "CSE": 0.1378,
+        "quantum-rewrites": 0.1981,
+        "quantum-analysis": 0.0448
+      }
+    }
+  }
+}
