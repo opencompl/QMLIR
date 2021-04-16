@@ -846,8 +846,10 @@ class MLIRBlock(MLIRBase):
         if isinstance(op, Node.If):
             creg, val, childOp = op.children
             mem = self.valueMap.lookup(creg.name)
+            self.parseOperation(childOp)
+            qInst = self.body.pop() # extract last inst, place it inside if block
             self.buildOp(QASMIfOp, mem, IntAttr(val.value), self.valueMap)
-            self.body[-1].getIfBlock().parseOperation(childOp)
+            self.body[-1].getIfBlock().body.append(qInst)
             return
 
         showtree(op)
