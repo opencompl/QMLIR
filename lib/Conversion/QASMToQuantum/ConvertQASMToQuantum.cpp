@@ -15,14 +15,16 @@ using namespace mlir;
 namespace {
 
 /// Qubit Mapping: Stores the current qubit state in the circuit.
-/// Access using the Value of the converted allocated qubit by `qssa.allocate`
+/// Access using the Value of the converted allocated qubit by `qssa.alloc`
 class QubitMap {
   [[maybe_unused]] MLIRContext *ctx;
   llvm::StringMap<DenseMap<Value, Value>> mapping;
+  llvm::StringMap<DenseMap<Value, Value>> qasmMapping;
   llvm::StringMap<SmallVector<Value>> functionArguments;
 
 public:
-  QubitMap(MLIRContext *ctx) : ctx(ctx), mapping(), functionArguments() {}
+  QubitMap(MLIRContext *ctx)
+      : ctx(ctx), mapping(), qasmMapping(), functionArguments() {}
 
   /// add a new allocated qubit
   /// if it is a function argument, mark it, for flattening the return values
@@ -31,10 +33,27 @@ public:
     if (isFuncArgument)
       functionArguments[func.getName()].push_back(qubit);
   }
+  /// Set mapping from qasm.alloc to qssa.alloc qubit results
+  void setMapping(FuncOp func, Value qasmQubit, Value qssaQubit) {
+    qasmMapping[func.getName()][qasmQubit] = qssaQubit;
+  }
 
   /// get the current state of a qubit
   Value resolveQubit(FuncOp func, Value qubit) {
     return mapping[func.getName()][qubit];
+  }
+  /// get the qssa base qubit for the given qasm qubit
+  Value resolveQASMQubit(FuncOp func, Value qasmQubit) {
+    return qasmMapping[func.getName()][qasmQubit];
+  }
+
+  // Find the base qubit (alloc) given an intermediate SSA qubit
+  Value inverseLookup(FuncOp func, Value finalQubit) {
+    for (auto &elem : mapping[func.getName()]) {
+      if (elem.getSecond() == finalQubit)
+        return elem.getFirst();
+    }
+    assert(false && "invalid qubit inverse lookup");
   }
 
   /// update the state of a qubit, after applying an operation/function call
@@ -101,6 +120,8 @@ public:
         rewriter.getUnknownLoc(), qubitType, ValueRange{});
     rewriter.replaceOp(op, allocOp.getResult());
     qubitMap->allocateQubit(op->getParentOfType<FuncOp>(), allocOp.getResult());
+    qubitMap->setMapping(op->getParentOfType<FuncOp>(), op.qout(),
+                         allocOp.getResult());
     return success();
   }
 };
@@ -423,6 +444,76 @@ public:
   }
 };
 
+struct SCFIfConversion : QASMOpToQuantumConversionPattern<scf::IfOp> {
+  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
+  LogicalResult
+  matchAndRewrite(scf::IfOp ifOp, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const override {
+    auto parentFuncOp = ifOp->getParentOfType<FuncOp>();
+
+    llvm::SmallVector<Value> qasmQubits, qssaQubits;
+    llvm::SmallVector<Type> yieldTypes;
+    // ASSUMPTION: EXACTLY one quantum operation in the thenRegion;
+    // elseRegion is empty.
+    for (auto &inst : ifOp.thenRegion().getBlocks().begin()->getOperations()) {
+      if (inst.hasTrait<OpTrait::IsTerminator>())
+        break;
+      for (auto arg : inst.getOperands()) {
+        if (arg.getType().isa<QASM::QubitType>()) {
+          qasmQubits.push_back(arg);
+          auto baseQubit = qubitMap->resolveQASMQubit(parentFuncOp, arg);
+          qssaQubits.push_back(baseQubit);
+          yieldTypes.push_back(getTypeConverter()->convertType(arg.getType()));
+        }
+      }
+    }
+
+    auto newIfOp =
+        rewriter.create<scf::IfOp>(ifOp->getLoc(), yieldTypes, ifOp.condition(),
+                                   /*withElseRegion=*/true);
+    auto thenBuilder = newIfOp.getThenBodyBuilder();
+    auto pendingThenBuilder =
+        newIfOp.getThenBodyBuilder(rewriter.getListener());
+    auto elseBuilder = newIfOp.getElseBodyBuilder(); // do not listen/update
+    for (auto &inst : ifOp.thenRegion().getBlocks().begin()->getOperations()) {
+      if (inst.hasTrait<OpTrait::IsTerminator>()) {
+        pendingThenBuilder.create<scf::YieldOp>(inst.getLoc(), qssaQubits)
+            ->setAttr("qasm.if", rewriter.getUnitAttr());
+        SmallVector<Value> resolvedQubits(
+            llvm::map_range(qssaQubits, [&](Value v) {
+              return qubitMap->resolveQubit(parentFuncOp, v);
+            }));
+        elseBuilder.create<scf::YieldOp>(inst.getLoc(), resolvedQubits);
+      } else {
+        pendingThenBuilder.insert(inst.clone());
+      }
+    }
+
+    rewriter.eraseOp(ifOp);
+    return success();
+  }
+};
+
+struct SCFYieldConversion : QASMOpToQuantumConversionPattern<scf::YieldOp> {
+  using QASMOpToQuantumConversionPattern::QASMOpToQuantumConversionPattern;
+  LogicalResult
+  matchAndRewrite(scf::YieldOp yieldOp, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const final {
+    auto parentFuncOp = yieldOp->getParentOfType<FuncOp>();
+    auto ifOp = yieldOp->getParentOfType<scf::IfOp>();
+
+    SmallVector<Value> finalQubits;
+    for (auto argPair : llvm::zip(yieldOp.results(), ifOp.results())) {
+      Value baseQubit, resultQubit;
+      std::tie(baseQubit, resultQubit) = argPair;
+      finalQubits.push_back(qubitMap->resolveQubit(parentFuncOp, baseQubit));
+      qubitMap->updateQubit(parentFuncOp, baseQubit, resultQubit);
+    }
+    rewriter.create<scf::YieldOp>(yieldOp.getLoc(), finalQubits);
+    rewriter.eraseOp(yieldOp);
+    return success();
+  }
+};
 void populateQASMToQuantumConversionPatterns(
     QASMTypeConverter &typeConverter, QubitMap &qubitMap,
     OwningRewritePatternList &patterns) {
@@ -437,7 +528,9 @@ void populateQASMToQuantumConversionPatterns(
       ResetOpConversion,
       BarrierOpConversion,
       SingleQubitRotationOpConversion,
-      ControlledNotOpConversion
+      ControlledNotOpConversion,
+      SCFIfConversion,
+      SCFYieldConversion
   >(typeConverter, &qubitMap);
   // clang-format on
 }
@@ -447,6 +540,7 @@ struct QASMToQuantumTarget : public ConversionTarget {
     addLegalDialect<StandardOpsDialect>();
     addLegalDialect<quantum::QuantumDialect>();
     addLegalDialect<AffineDialect>();
+    addLegalDialect<scf::SCFDialect>();
 
     addIllegalDialect<QASM::QASMDialect>();
     addDynamicallyLegalOp<FuncOp>(
@@ -455,6 +549,10 @@ struct QASMToQuantumTarget : public ConversionTarget {
         [&](CallOp callOp) -> bool { return !callOp->hasAttr("qasm.gate"); });
     addDynamicallyLegalOp<ReturnOp>(
         [&](ReturnOp returnOp) { return !returnOp->hasAttr("qasm.gate_end"); });
+    addDynamicallyLegalOp<scf::IfOp>(
+        [&](scf::IfOp op) { return !op->hasAttr("qasm.if"); });
+    addDynamicallyLegalOp<scf::YieldOp>(
+        [&](scf::YieldOp op) { return !op->hasAttr("qasm.if"); });
   }
 };
 
