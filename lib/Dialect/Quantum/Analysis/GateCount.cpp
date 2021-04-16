@@ -85,7 +85,7 @@ public:
     }
   }
   json getStats() const {
-    json stats;
+    json stats = json::object();
     for (auto &func : gateCounts) {
       json funcStat;
       for (auto &gate : func.getValue()) {
