@@ -19,7 +19,7 @@ def log(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 rawdata = None # raw data
-with open("gate-count-bench.json", "r") as f:
+with open("./qasmbench-gate-count.json", "r") as f:
     rawdata = json.load(f)
 
 assert rawdata is not None
@@ -89,27 +89,15 @@ class FullData:
         return self.data[k]
 
 plotdata = []
-plotdataOnlyCX = []
 pidx = 0
 for test in rawdata:
     pidx += 1
     data = FullData(test, rawdata[test], pidx)
-    if test.find('onlyCX') >= 0:
-        plotdataOnlyCX.append(data)
-    else:
-        plotdata.append(data)
+    plotdata.append(data)
 
 plotdata.sort()
-plotdataOnlyCX.sort()
 
-plotdata_simple = []
-for d in plotdata:
-    if d.getKind('qiskit').tot / d.getKind('default').tot < .8:
-        print('> anamoly: ' + d.test)
-    else:
-        plotdata_simple.append(d)
-
-to_plot = plotdata_simple
+to_plot = plotdata
 
 #### Optimization ratio per unit time
 fig, axs = plt.subplots(1, 2, figsize=(15,10))
