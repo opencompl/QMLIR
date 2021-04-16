@@ -146,19 +146,35 @@ filename = os.path.basename(__file__).replace(".py", ".pdf")
 fig.savefig(filename)
 
 ### Stats for the paper
-beat1, equal1 = 0,0
-beat2, equal2 = 0,0
+beat1, equal1, fail1 = [], [], []
+beat2, equal2, fail2 = [], [], []
 for p in to_plot:
     qssa = p.getKind('qssa_full')
     qis1 = p.getKind('qiskit_lev1')
     qis2 = p.getKind('qiskit_lev2')
     if qssa.tot < qis2.tot:
-        beat2 += 1
+        beat2.append(p.test)
     if qssa.tot <= qis2.tot:
-        equal2 += 1
+        equal2.append(p.test)
+    else:
+        fail2.append(p.test)
     if qssa.tot < qis1.tot:
-        beat1 += 1
+        beat1.append(p.test)
     if qssa.tot <= qis1.tot:
-        equal1 += 1
-print(f'> beat1 = {beat1}, equal1 = {equal1}')
-print(f'> beat2 = {beat2}, equal2 = {equal2}')
+        equal1.append(p.test)
+    else:
+        fail1.append(p.test)
+print(f'> beat1 = {len(beat1)}, equal1 = {len(equal1)}')
+print(f'> beat2 = {len(beat2)}, equal2 = {len(equal2)}')
+print()
+print(f'> beat1: {beat1}')
+print()
+print(f'> equal1: {equal1}')
+print()
+print(f'> fail1: {fail1}')
+print()
+print(f'> beat2: {", ".join(beat2)}')
+print()
+print(f'> equal2: {equal2}')
+print()
+print(f'> fail2: {fail2}')
