@@ -97,6 +97,11 @@ for test in rawdata:
     pidx += 1
     data = FullData(test, rawdata[test], pidx)
     plotdata.append(data)
+    if data.getKind('qssa_full').tot < data.getKind('qiskit_lev2').tot:
+        to_show = {'name': test, 'qssa': rawdata[test]['qssa_full'], 'qiskit':rawdata[test]['qiskit_lev2']}
+        print(json.dumps(to_show, indent=2))
+
+
 
 plotdata.sort()
 
