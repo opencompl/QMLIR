@@ -12,6 +12,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 
+LABEL_FONT_SIZE = 7
+TICK_FONT_SIZE = 6
+
 # Use TrueType fonts instead of Type 3 fonts
 # Type 3 fonts embed bitmaps and are not allowed in camera-ready submissions
 # for many conferences. TrueType fonts look better and are accepted.
@@ -68,6 +71,8 @@ class PlotDatum:
             self.depth = stats['depth']
             self.tot = sum([gates[g] for g in gates])
             self.time = stats['time']
+            if kind == 'qssa_full':
+                self.time -= stats['passes']['Inliner']
 
     def __lt__(self, other):
         return self.tot < other.tot
@@ -123,22 +128,29 @@ width = 0.2
 #### Optimization ratio
 fig, ax = plt.subplots(figsize=(15,10))
 for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qssa_full']):
-    # ratio = lambda p: p.getKind(kind).time
+    ratio = lambda p: p.getKind(kind).time
     # ratio = lambda p: math.log(p.getKind(kind).time * 1000)
     # ratio = lambda p: p.getKind(kind).time / p.getKind(kind).tot
     # ratio = lambda p:  p.getKind('default').tot/p.getKind(kind).time
-    ratio = lambda p: p.getKind(kind).time / p.getKind('qiskit_lev2').time
+    #ratio = lambda p: p.getKind(kind).time / p.getKind('qiskit_lev3').time
+    ratio = lambda p: p.getKind('qiskit_lev3').time / p.getKind(kind).time
+
     for p in to_plot:
-        if ratio(p)>10:
-            print(json.dumps(rawdata[p.test], indent=2))
+        if ratio(p)>1 and kind == 'qssa_full':
+            #log(p.test)
+            #log(json.dumps(rawdata[p.test], indent=2))
+            pass
     col = None
     label = None
     if kind == 'qiskit_lev1':
-        col = light_gray
+        col = light_green
         label = 'qiskit -O1'
     if kind == 'qiskit_lev2':
-        col = light_red
+        col = dark_green
         label = 'qiskit -O2'
+    if kind == 'qiskit_lev3':
+        col = light_blue
+        label = 'qiskit -O3'
     if kind == 'qssa_full':
         col = dark_blue
         label = 'qssa'
@@ -147,11 +159,12 @@ for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qssa_full']):
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 
-ax.legend(ncol=100, frameon=False, loc='lower right', bbox_to_anchor=(0, 1, 1, 0))
+ax.legend(ncol=100, frameon=False, loc='lower right', bbox_to_anchor=(0, 1, 1, 0), fontsize=LABEL_FONT_SIZE)
 
 ax.set_xticks([])
-ax.set_ylabel('compile time (s)', rotation='horizontal', position = (1, 1.05),
-    horizontalalignment='left', verticalalignment='bottom')
+ax.tick_params(axis='y', labelsize=TICK_FONT_SIZE)
+ax.set_ylabel('speedup w.r.t qiskit -O3', rotation='horizontal', position = (1, 1.05),
+    horizontalalignment='left', verticalalignment='bottom', fontsize=LABEL_FONT_SIZE)
 
 fig.set_size_inches(5,2)
 fig.tight_layout()

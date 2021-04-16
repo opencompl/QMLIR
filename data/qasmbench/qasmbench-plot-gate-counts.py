@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 
-LABEL_FONT_SIZE = 8
+LABEL_FONT_SIZE = 7
 TICK_FONT_SIZE = 6
 
 # Use TrueType fonts instead of Type 3 fonts
@@ -120,7 +120,7 @@ for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qiskit_lev3', 'qssa_f
     col = None
     label = None
     if kind == 'qiskit_lev1':
-        col = light_gray
+        col = light_green
         label = 'qiskit -O1'
     if kind == 'qiskit_lev2':
         col = dark_green
