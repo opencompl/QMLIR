@@ -128,18 +128,13 @@ width = 0.2
 #### Optimization ratio
 fig, ax = plt.subplots(figsize=(15,10))
 for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qssa_full']):
-    ratio = lambda p: p.getKind(kind).time
+    #ratio = lambda p: p.getKind(kind).time
     # ratio = lambda p: math.log(p.getKind(kind).time * 1000)
     # ratio = lambda p: p.getKind(kind).time / p.getKind(kind).tot
     # ratio = lambda p:  p.getKind('default').tot/p.getKind(kind).time
     #ratio = lambda p: p.getKind(kind).time / p.getKind('qiskit_lev3').time
     ratio = lambda p: p.getKind('qiskit_lev3').time / p.getKind(kind).time
 
-    for p in to_plot:
-        if ratio(p)>1 and kind == 'qssa_full':
-            #log(p.test)
-            #log(json.dumps(rawdata[p.test], indent=2))
-            pass
     col = None
     label = None
     if kind == 'qiskit_lev1':
@@ -171,3 +166,13 @@ fig.tight_layout()
 filename = os.path.basename(__file__).replace(".py", ".pdf")
 fig.savefig(filename)
 
+# stats
+for p in to_plot:
+    ratio = lambda kind: p.getKind(kind).time / p.getKind('qssa_full').time
+    if ratio('qiskit_lev3')>40:
+        log(p.test)
+        log(f'  lev3: {ratio("qiskit_lev3")}')
+        log(f'  lev2: {ratio("qiskit_lev2")}')
+        log(f'  lev1: {ratio("qiskit_lev1")}')
+        #log(json.dumps(rawdata[p.test], indent=2))
+        pass

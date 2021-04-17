@@ -116,10 +116,18 @@ log(">> Plotting [%d] test cases..."% (len(to_plot)))
 xs = np.arange(len(to_plot))
 width = 0.2
 
+anamolies = []
+for p in plotdata:
+    rat = 100*(1-p.getKind('qiskit_lev3').tot / p.getKind('default').tot)
+    if rat >= 35.0:
+        anamolies.append((p.test, rat))
+log(f">> {len(anamolies)} anamolies")
+log(f">>> {anamolies}")
 #### Optimization ratio
 fig, ax = plt.subplots(figsize=(15,10))
 for idx, kind in enumerate(['qiskit_lev1', 'qiskit_lev2', 'qiskit_lev3', 'qssa_full']):
-    ratio = lambda p: 100*(1-p.getKind(kind).tot / p.getKind('default').tot)
+    ratio_nocap = lambda p: 100*(1-p.getKind(kind).tot / p.getKind('default').tot)
+    ratio = lambda p: min(35.0, ratio_nocap(p))
     col = None
     label = None
     if kind == 'qiskit_lev1':
@@ -146,6 +154,8 @@ ax.set_xticks([])
 ax.tick_params(axis='y', labelsize=TICK_FONT_SIZE)
 ax.set_ylabel('%optimization', rotation='horizontal', position = (1, 1.05),
     horizontalalignment='left', verticalalignment='bottom', fontsize=LABEL_FONT_SIZE)
+#ax.margins(x=0)
+ax.margins(0.015, tight=True)
 
 fig.set_size_inches(5,2)
 fig.tight_layout()
