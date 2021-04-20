@@ -1,6 +1,6 @@
 add_mlir_dialect(ZXOps zx)
-add_mlir_doc(ZXDialect -gen-dialect-doc ZXDialect ZX/)
-add_mlir_doc(ZXTypes -gen-op-doc ZXTypes ZX/)
-add_mlir_doc(ZXOps -gen-op-doc ZXOps ZX/)
+add_mlir_doc(ZXDialect ZXDialect ZX/ -gen-dialect-doc)
+add_mlir_doc(ZXTypes ZXTypes ZX/ -gen-op-doc)
+add_mlir_doc(ZXOps ZXOps ZX/ -gen-op-doc)
 
 add_subdirectory(Transforms)
