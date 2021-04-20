@@ -519,7 +519,7 @@ void QuantumToStandardPass::runOnOperation() {
     }
     return true;
   });
-  target.addLegalOp<ModuleOp, ModuleTerminatorOp>();
+  target.addLegalOp<ModuleOp>();
 
   target.addIllegalDialect<QuantumDialect>();
 

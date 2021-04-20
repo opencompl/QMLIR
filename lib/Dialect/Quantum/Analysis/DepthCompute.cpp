@@ -139,7 +139,8 @@ class DepthClearPass : public QuantumDepthClearPassBase<DepthClearPass> {
 };
 
 struct ClearDepthPattern : public RewritePattern {
-  ClearDepthPattern() : RewritePattern(1, Pattern::MatchAnyOpTypeTag()) {}
+  ClearDepthPattern(MLIRContext *ctx)
+      : RewritePattern(Pattern::MatchAnyOpTypeTag(), 1, ctx) {}
   LogicalResult match(Operation *op) const final {
     return success(op->hasAttr("qdepth"));
   }
@@ -150,7 +151,7 @@ struct ClearDepthPattern : public RewritePattern {
 
 void DepthClearPass::runOnFunction() {
   OwningRewritePatternList patterns(&getContext());
-  patterns.insert<ClearDepthPattern>();
+  patterns.insert<ClearDepthPattern>(&getContext());
   if (failed(
           applyPatternsAndFoldGreedily(getFunction(), std::move(patterns), false))) {
     signalPassFailure();
