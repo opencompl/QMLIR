@@ -2,9 +2,9 @@
 #include "Dialect/QASM/Analysis/Passes.h"
 #include "Dialect/QASM/QASMOps.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
-#include <nlohmann/json.hpp>
 #include <fstream>
 #include <iostream>
+#include <nlohmann/json.hpp>
 
 #include "PassDetail.h"
 

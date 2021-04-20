@@ -1,5 +1,5 @@
-#include "mlir/Dialect/StandardOps/IR/Ops.h"
 #include "mlir/Dialect/SCF/SCF.h"
+#include "mlir/Dialect/StandardOps/IR/Ops.h"
 #include "mlir/IR/Builders.h"
 #include "mlir/IR/BuiltinTypes.h"
 #include "mlir/IR/MLIRContext.h"
@@ -8,8 +8,8 @@
 #include "mlir/Transforms/GreedyPatternRewriteDriver.h"
 
 #include "../PassDetail.h"
-#include "Dialect/Quantum/QuantumOps.h"
 #include "Dialect/Quantum/QuantumDialect.h"
+#include "Dialect/Quantum/QuantumOps.h"
 
 using namespace mlir;
 using namespace mlir::quantum;
@@ -17,7 +17,7 @@ using namespace mlir::quantum;
 class DepthComputePass : public QuantumDepthComputePassBase<DepthComputePass> {
   void runOnFunction() override;
 };
-template<class Op>
+template <class Op>
 int64_t getMaxDepthOfArguments(Op op) {
   int64_t depth = 0;
   for (auto operand : op->getOperands()) {
@@ -38,7 +38,8 @@ struct DepthComputePattern : public OpRewritePattern<Op> {
   using OpRewritePattern<Op>::OpRewritePattern;
 
   LogicalResult matchAndRewrite(Op op, PatternRewriter &rewriter) const final {
-    if (op->hasAttr("qdepth")) return failure();
+    if (op->hasAttr("qdepth"))
+      return failure();
     auto depthAttrType = IntegerType::get(rewriter.getContext(), 64);
     int64_t depth = getMaxDepthOfArguments(op) + Contrib;
     auto depthAttr = IntegerAttr::get(depthAttrType, depth);
@@ -67,13 +68,14 @@ struct SCFIfDepthComputePattern : public OpRewritePattern<scf::IfOp> {
       if (ty.isa<quantum::QubitType>())
         hasQubits = true;
     }
-    if (!hasQubits) return failure();
+    if (!hasQubits)
+      return failure();
     return success(!op->hasAttr("qdepth"));
   }
   void rewrite(scf::IfOp op, PatternRewriter &rewriter) const final {
     int64_t depth = -1;
     bool foundOp = false;
-    for (auto &inst: op.thenRegion().getBlocks().begin()->getOperations()) {
+    for (auto &inst : op.thenRegion().getBlocks().begin()->getOperations()) {
       if (isa<QuantumDialect>(inst.getDialect())) {
         // Found the operation, compute depth manually by taking
         // max_depth(operands) + 1
@@ -82,8 +84,9 @@ struct SCFIfDepthComputePattern : public OpRewritePattern<scf::IfOp> {
       }
     }
     assert(foundOp && "unable to find quantum op in scf.if");
-    for (auto inst: op.elseRegion().getBlocks().begin()->getOps<scf::YieldOp>()) {
-      depth  = std::max(depth, getMaxDepthOfArguments(inst)) ;
+    for (auto inst :
+         op.elseRegion().getBlocks().begin()->getOps<scf::YieldOp>()) {
+      depth = std::max(depth, getMaxDepthOfArguments(inst));
     }
 
     auto depthAttrType = IntegerType::get(rewriter.getContext(), 64);
@@ -152,8 +155,8 @@ struct ClearDepthPattern : public RewritePattern {
 void DepthClearPass::runOnFunction() {
   OwningRewritePatternList patterns(&getContext());
   patterns.insert<ClearDepthPattern>(&getContext());
-  if (failed(
-          applyPatternsAndFoldGreedily(getFunction(), std::move(patterns), false))) {
+  if (failed(applyPatternsAndFoldGreedily(getFunction(), std::move(patterns),
+                                          false))) {
     signalPassFailure();
   }
 }
