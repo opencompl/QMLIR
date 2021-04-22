@@ -15,6 +15,7 @@
 #include "Conversion/QASMToSCF/Passes.h"
 #include "Conversion/QuantumToLLVM/Passes.h"
 #include "Conversion/QuantumToQASM/Passes.h"
+#include "Conversion/QuantumToZX/Passes.h"
 #include "Dialect/QASM/Analysis/Passes.h"
 #include "Dialect/QASM/QASMDialect.h"
 #include "Dialect/QASM/Transforms/Passes.h"
@@ -45,6 +46,7 @@ void registerExtraPasses() {
 
   registerZXTransformsPasses();
   registerZXGraphTransformsPasses();
+  registerQuantumToZXConversionPasses();
 }
 
 int main(int argc, char **argv) {
