@@ -18,40 +18,25 @@
 namespace mlir {
 namespace quantum {
 
-/// Convert quantum types to standard types
+/// Convert quantum types to QIR/LLVM types
 struct QuantumTypeConverter : public TypeConverter {
   using TypeConverter::TypeConverter;
 
   /// Create a quantum type converter using the default conversions
   QuantumTypeConverter(MLIRContext *context);
 
-  /// Return the context
   MLIRContext *getContext() { return context; }
 
 private:
   MLIRContext *context;
 };
 
-/// Base class for the quantum to standard operation conversions
-class QuantumToLLVMPattern : public ConversionPattern {
-public:
-  QuantumToLLVMPattern(StringRef rootOpName,
-                       QuantumTypeConverter &typeConverter,
-                       PatternBenefit benefit = 1);
-
-protected:
-  /// Reference to the type converter
-  QuantumTypeConverter &typeConverter;
-};
-
-/// Helper class to implement patterns that match one source operation
 template <typename OpTy>
-class QuantumOpToLLVMPattern : public QuantumToLLVMPattern {
-public:
+struct QuantumOpToLLVMPattern : public OpConversionPattern<OpTy> {
   QuantumOpToLLVMPattern(QuantumTypeConverter &typeConverter,
                          PatternBenefit benefit = 1)
-      : QuantumToLLVMPattern(OpTy::getOperationName(), typeConverter, benefit) {
-  }
+      : OpConversionPattern<OpTy>(typeConverter, typeConverter.getContext(),
+                                  benefit) {}
 };
 
 /// Helper method to populate the conversion pattern list

@@ -8,7 +8,6 @@
 
 #include "mlir/Dialect/Affine/IR/AffineOps.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
-#include "mlir/Dialect/MemRef/IR/MemRef.h"
 #include "mlir/Dialect/SCF/SCF.h"
 #include "mlir/Dialect/StandardOps/IR/Ops.h"
 #include "mlir/IR/AffineMap.h"
@@ -99,10 +98,6 @@ void populateQuantumToLLVMConversionPatterns(
   // clang-format on
 }
 
-//===----------------------------------------------------------------------===//
-// Quantum Type Converter
-//===----------------------------------------------------------------------===//
-
 QuantumTypeConverter::QuantumTypeConverter(MLIRContext *context)
     : context(context) {
   // Add type conversions
@@ -112,16 +107,6 @@ QuantumTypeConverter::QuantumTypeConverter(MLIRContext *context)
   //   //                       qubitType.getMemRefType());
   // });
 }
-
-//===----------------------------------------------------------------------===//
-// Quantum Pattern Base Class
-//===----------------------------------------------------------------------===//
-
-QuantumToLLVMPattern::QuantumToLLVMPattern(StringRef rootOpName,
-                                           QuantumTypeConverter &typeConverter,
-                                           PatternBenefit benefit)
-    : ConversionPattern(rootOpName, benefit, typeConverter.getContext()),
-      typeConverter(typeConverter) {}
 
 } // namespace quantum
 } // namespace mlir
