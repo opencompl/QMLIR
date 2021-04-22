@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef CONVERSION_QUANTUMTOSTANDARD_PASSES_H
-#define CONVERSION_QUANTUMTOSTANDARD_PASSES_H
+#ifndef CONVERSION_QUANTUMTOLLVM_PASSES_H
+#define CONVERSION_QUANTUMTOLLVM_PASSES_H
 
 #include "mlir/Pass/Pass.h"
 
@@ -15,7 +15,7 @@ namespace mlir {
 
 class Pass;
 
-std::unique_ptr<Pass> createConvertQuantumToStandardPass();
+std::unique_ptr<Pass> createConvertQuantumToLLVMPass();
 
 //===----------------------------------------------------------------------===//
 // Registration
@@ -23,8 +23,8 @@ std::unique_ptr<Pass> createConvertQuantumToStandardPass();
 
 /// Generate the code for registering passes.
 #define GEN_PASS_REGISTRATION
-#include "Conversion/QuantumToStandard/Passes.h.inc"
+#include "Conversion/QuantumToLLVM/Passes.h.inc"
 
 } // namespace mlir
 
-#endif // CONVERSION_QUANTUMTOSTANDARD_PASSES_H
+#endif // CONVERSION_QUANTUMTOLLVM_PASSES_H

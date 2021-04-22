@@ -6,13 +6,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Conversion/QuantumToStandard/ConvertQuantumToStandard.h"
-#include "Conversion/QuantumToStandard/Passes.h"
-#include "Dialect/Quantum/QuantumDialect.h"
-#include "Dialect/Quantum/QuantumOps.h"
-#include "Dialect/Quantum/QuantumTypes.h"
-
-#include "PassDetail.h"
 #include "mlir/Dialect/Affine/IR/AffineOps.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/MemRef/IR/MemRef.h"
@@ -30,6 +23,13 @@
 #include "mlir/Support/LogicalResult.h"
 #include "mlir/Transforms/DialectConversion.h"
 
+#include "Conversion/QuantumToLLVM/ConvertQuantumToLLVM.h"
+#include "Conversion/QuantumToLLVM/Passes.h"
+#include "Dialect/Quantum/QuantumDialect.h"
+#include "Dialect/Quantum/QuantumOps.h"
+#include "Dialect/Quantum/QuantumTypes.h"
+#include "PassDetail.h"
+
 using namespace mlir;
 using namespace quantum;
 
@@ -43,9 +43,9 @@ namespace {
 // Func Op Lowering
 //===----------------------------------------------------------------------===//
 
-class FuncOpLowering : public QuantumOpToStdPattern<FuncOp> {
+class FuncOpLowering : public QuantumOpToLLVMPattern<FuncOp> {
 public:
-  using QuantumOpToStdPattern<FuncOp>::QuantumOpToStdPattern;
+  using QuantumOpToLLVMPattern<FuncOp>::QuantumOpToLLVMPattern;
 
   LogicalResult
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
@@ -82,9 +82,9 @@ public:
 // Allocate Op Lowering
 //===----------------------------------------------------------------------===//
 
-class AllocateOpLowering : public QuantumOpToStdPattern<AllocateOp> {
+class AllocateOpLowering : public QuantumOpToLLVMPattern<AllocateOp> {
 public:
-  using QuantumOpToStdPattern<AllocateOp>::QuantumOpToStdPattern;
+  using QuantumOpToLLVMPattern<AllocateOp>::QuantumOpToLLVMPattern;
 
   LogicalResult
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
@@ -137,9 +137,9 @@ public:
 // Dimension Op Lowering
 //===----------------------------------------------------------------------===//
 
-class DimensionOpLowering : public QuantumOpToStdPattern<DimensionOp> {
+class DimensionOpLowering : public QuantumOpToLLVMPattern<DimensionOp> {
 public:
-  using QuantumOpToStdPattern<DimensionOp>::QuantumOpToStdPattern;
+  using QuantumOpToLLVMPattern<DimensionOp>::QuantumOpToLLVMPattern;
 
   LogicalResult
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
@@ -161,9 +161,9 @@ public:
 // Cast Op Lowering
 //===----------------------------------------------------------------------===//
 
-class CastOpLowering : public QuantumOpToStdPattern<CastOp> {
+class CastOpLowering : public QuantumOpToLLVMPattern<CastOp> {
 public:
-  using QuantumOpToStdPattern<CastOp>::QuantumOpToStdPattern;
+  using QuantumOpToLLVMPattern<CastOp>::QuantumOpToLLVMPattern;
 
   LogicalResult
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
@@ -187,9 +187,9 @@ public:
 // Concat Op Lowering
 //===----------------------------------------------------------------------===//
 
-class ConcatOpLowering : public QuantumOpToStdPattern<ConcatOp> {
+class ConcatOpLowering : public QuantumOpToLLVMPattern<ConcatOp> {
 public:
-  using QuantumOpToStdPattern<ConcatOp>::QuantumOpToStdPattern;
+  using QuantumOpToLLVMPattern<ConcatOp>::QuantumOpToLLVMPattern;
 
   LogicalResult
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
@@ -251,9 +251,9 @@ public:
 // Split Op Lowering
 //===----------------------------------------------------------------------===//
 
-class SplitOpLowering : public QuantumOpToStdPattern<SplitOp> {
+class SplitOpLowering : public QuantumOpToLLVMPattern<SplitOp> {
 public:
-  using QuantumOpToStdPattern<SplitOp>::QuantumOpToStdPattern;
+  using QuantumOpToLLVMPattern<SplitOp>::QuantumOpToLLVMPattern;
 
   LogicalResult
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
@@ -342,9 +342,9 @@ public:
 // Measure Op Lowering
 //===----------------------------------------------------------------------===//
 
-class MeasureOpLowering : public QuantumOpToStdPattern<MeasureOp> {
+class MeasureOpLowering : public QuantumOpToLLVMPattern<MeasureOp> {
 public:
-  using QuantumOpToStdPattern<MeasureOp>::QuantumOpToStdPattern;
+  using QuantumOpToLLVMPattern<MeasureOp>::QuantumOpToLLVMPattern;
 
   LogicalResult
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
@@ -408,13 +408,13 @@ public:
 //===----------------------------------------------------------------------===//
 
 template <typename PrimitiveGateOp>
-class PrimitiveGateOpLowering : public QuantumOpToStdPattern<PrimitiveGateOp> {
+class PrimitiveGateOpLowering : public QuantumOpToLLVMPattern<PrimitiveGateOp> {
   static_assert(llvm::is_one_of<PrimitiveGateOp, PauliXGateOp, PauliYGateOp,
                                 PauliZGateOp, HadamardGateOp>::value,
                 "invalid gate OP");
 
 public:
-  using QuantumOpToStdPattern<PrimitiveGateOp>::QuantumOpToStdPattern;
+  using QuantumOpToLLVMPattern<PrimitiveGateOp>::QuantumOpToLLVMPattern;
 
   LogicalResult
   matchAndRewrite(Operation *operation, ArrayRef<Value> operands,
@@ -479,9 +479,9 @@ public:
 // Conversion Target
 //===----------------------------------------------------------------------===//
 
-class QuantumToStdTarget : public ConversionTarget {
+class QuantumToLLVMTarget : public ConversionTarget {
 public:
-  explicit QuantumToStdTarget(MLIRContext &context)
+  explicit QuantumToLLVMTarget(MLIRContext &context)
       : ConversionTarget(context) {}
 };
 
@@ -489,19 +489,18 @@ public:
 // Rewriting Pass
 //===----------------------------------------------------------------------===//
 
-struct QuantumToStandardPass
-    : public QuantumToStandardPassBase<QuantumToStandardPass> {
+struct QuantumToLLVMPass : public QuantumToLLVMPassBase<QuantumToLLVMPass> {
   void runOnOperation() override;
 };
 
-void QuantumToStandardPass::runOnOperation() {
+void QuantumToLLVMPass::runOnOperation() {
   OwningRewritePatternList patterns(&getContext());
   auto module = getOperation();
 
   QuantumTypeConverter typeConverter(module.getContext());
-  populateQuantumToStdConversionPatterns(typeConverter, patterns);
+  populateQuantumToLLVMConversionPatterns(typeConverter, patterns);
 
-  QuantumToStdTarget target(*(module.getContext()));
+  QuantumToLLVMTarget target(*(module.getContext()));
 
   target.addLegalDialect<AffineDialect>();
   target.addLegalDialect<StandardOpsDialect>();
@@ -534,7 +533,7 @@ namespace mlir {
 namespace quantum {
 
 // Populate the conversion pattern list
-void populateQuantumToStdConversionPatterns(
+void populateQuantumToLLVMConversionPatterns(
     QuantumTypeConverter &typeConverter,
     mlir::OwningRewritePatternList &patterns) {
   // clang-format off
@@ -577,15 +576,15 @@ QuantumTypeConverter::QuantumTypeConverter(MLIRContext *context)
 // Quantum Pattern Base Class
 //===----------------------------------------------------------------------===//
 
-QuantumToStdPattern::QuantumToStdPattern(StringRef rootOpName,
-                                         QuantumTypeConverter &typeConverter,
-                                         PatternBenefit benefit)
+QuantumToLLVMPattern::QuantumToLLVMPattern(StringRef rootOpName,
+                                           QuantumTypeConverter &typeConverter,
+                                           PatternBenefit benefit)
     : ConversionPattern(rootOpName, benefit, typeConverter.getContext()),
       typeConverter(typeConverter) {}
 
 } // namespace quantum
 } // namespace mlir
 
-std::unique_ptr<Pass> mlir::createConvertQuantumToStandardPass() {
-  return std::make_unique<QuantumToStandardPass>();
+std::unique_ptr<Pass> mlir::createConvertQuantumToLLVMPass() {
+  return std::make_unique<QuantumToLLVMPass>();
 }

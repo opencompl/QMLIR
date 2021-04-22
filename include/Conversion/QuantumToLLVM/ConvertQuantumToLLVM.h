@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef CONVERSION_QUANTUMTOSTANDARD_CONVERTQUANTUMTOSTANDARD_H
-#define CONVERSION_QUANTUMTOSTANDARD_CONVERTQUANTUMTOSTANDARD_H
+#ifndef CONVERSION_QUANTUMTOLLVM_CONVERTQUANTUMTOLLVM_H
+#define CONVERSION_QUANTUMTOLLVM_CONVERTQUANTUMTOLLVM_H
 
 #include "Dialect/Quantum/QuantumOps.h"
 #include "mlir/IR/BuiltinTypes.h"
@@ -33,10 +33,11 @@ private:
 };
 
 /// Base class for the quantum to standard operation conversions
-class QuantumToStdPattern : public ConversionPattern {
+class QuantumToLLVMPattern : public ConversionPattern {
 public:
-  QuantumToStdPattern(StringRef rootOpName, QuantumTypeConverter &typeConverter,
-                      PatternBenefit benefit = 1);
+  QuantumToLLVMPattern(StringRef rootOpName,
+                       QuantumTypeConverter &typeConverter,
+                       PatternBenefit benefit = 1);
 
 protected:
   /// Reference to the type converter
@@ -45,18 +46,19 @@ protected:
 
 /// Helper class to implement patterns that match one source operation
 template <typename OpTy>
-class QuantumOpToStdPattern : public QuantumToStdPattern {
+class QuantumOpToLLVMPattern : public QuantumToLLVMPattern {
 public:
-  QuantumOpToStdPattern(QuantumTypeConverter &typeConverter,
-                        PatternBenefit benefit = 1)
-      : QuantumToStdPattern(OpTy::getOperationName(), typeConverter, benefit) {}
+  QuantumOpToLLVMPattern(QuantumTypeConverter &typeConverter,
+                         PatternBenefit benefit = 1)
+      : QuantumToLLVMPattern(OpTy::getOperationName(), typeConverter, benefit) {
+  }
 };
 
 /// Helper method to populate the conversion pattern list
-void populateQuantumToStdConversionPatterns(QuantumTypeConverter &typeConveter,
-                                            OwningRewritePatternList &patterns);
+void populateQuantumToLLVMConversionPatterns(
+    QuantumTypeConverter &typeConveter, OwningRewritePatternList &patterns);
 
 } // namespace quantum
 } // namespace mlir
 
-#endif // CONVERSION_QUANTUMTOSTANDARD_CONVERTQUANTUMTOSTANDARD_H
+#endif // CONVERSION_QUANTUMTOLLVM_CONVERTQUANTUMTOLLVM_H

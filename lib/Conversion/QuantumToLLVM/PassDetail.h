@@ -6,16 +6,16 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef CONVERSION_QUANTUMTOSTANDARD_PASSDETAIL_H_
-#define CONVERSION_QUANTUMTOSTANDARD_PASSDETAIL_H_
+#ifndef CONVERSION_QUANTUMTOLLVM_PASSDETAIL_H_
+#define CONVERSION_QUANTUMTOLLVM_PASSDETAIL_H_
 
 #include "mlir/Pass/Pass.h"
 
 namespace mlir {
 
 #define GEN_PASS_CLASSES
-#include "Conversion/QuantumToStandard/Passes.h.inc"
+#include "Conversion/QuantumToLLVM/Passes.h.inc"
 
 } // end namespace mlir
 
-#endif // CONVERSION_QUANTUMTOSTANDARD_PASSDETAIL_H_
+#endif // CONVERSION_QUANTUMTOLLVM_PASSDETAIL_H_
