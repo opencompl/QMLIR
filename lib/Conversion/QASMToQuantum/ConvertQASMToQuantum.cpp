@@ -471,7 +471,6 @@ struct SCFIfConversion : QASMOpToQuantumConversionPattern<scf::IfOp> {
     auto newIfOp =
         rewriter.create<scf::IfOp>(ifOp->getLoc(), yieldTypes, ifOp.condition(),
                                    /*withElseRegion=*/true);
-    auto thenBuilder = newIfOp.getThenBodyBuilder();
     auto pendingThenBuilder =
         newIfOp.getThenBodyBuilder(rewriter.getListener());
     auto elseBuilder = newIfOp.getElseBodyBuilder(); // do not listen/update
