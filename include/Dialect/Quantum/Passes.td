@@ -14,7 +14,7 @@ def QuantumConvert1QToUPass : FunctionPass<"qssa-convert-1q-to-U"> {
   let constructor = "mlir::createQuantumConvert1QToUPass()";
 }
 
-def QuantumPrepareForZXPass : FunctionPass<"qssa-convert-1q-to-U"> {
+def QuantumPrepareForZXPass : FunctionPass<"qssa-prepare-for-zx"> {
   let summary = "Replace all gates with ZX compatible gates - Rx, Rz, CNOT";
   let constructor = "mlir::createQuantumPrepareForZXPass()";
 }
