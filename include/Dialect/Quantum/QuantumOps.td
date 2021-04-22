@@ -464,7 +464,7 @@ def CNOTGateOp : Quantum_Op<"CNOT", [NoSideEffect]> {
   let hasFolder = 1;
 }
 
-def UniversalRotationGateOp : Quantum_Op<"U", [NoSideEffect]> {
+def UniversalRotationGateOp : Quantum_Op<"U", [NoSideEffect, AllTypesMatch<["qinp", "qout"]>]> {
   let summary = "Quantum Universal Single Qubit Rotation Op";
   let description = [{
     Takes a single qubit and rotates it based on the parameters:
@@ -477,11 +477,11 @@ def UniversalRotationGateOp : Quantum_Op<"U", [NoSideEffect]> {
   let arguments = (ins AnyFloat:$theta,
                        AnyFloat:$phi,
                        AnyFloat:$lambda,
-                       Quantum_SingleQubitType:$qinp);
-  let results = (outs Quantum_SingleQubitType:$qout);
+                       Quantum_QubitType:$qinp);
+  let results = (outs Quantum_QubitType:$qout);
   let assemblyFormat = [{
     `(` $theta `:` type($theta) `,` $phi `:` type($phi) `,` $lambda `:` type($lambda) `)`
-    $qinp attr-dict
+    $qinp attr-dict `:` type($qinp)
   }];
   let verifier = [{ return success(); }];
 }

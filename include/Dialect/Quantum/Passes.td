@@ -14,6 +14,11 @@ def QuantumConvert1QToUPass : FunctionPass<"qssa-convert-1q-to-U"> {
   let constructor = "mlir::createQuantumConvert1QToUPass()";
 }
 
+def QuantumPrepareForZXPass : FunctionPass<"qssa-convert-1q-to-U"> {
+  let summary = "Replace all gates with ZX compatible gates - Rx, Rz, CNOT";
+  let constructor = "mlir::createQuantumPrepareForZXPass()";
+}
+
 // Dynamic Analysis (with updates)
 def QuantumDepthComputePass : FunctionPass<"qssa-compute-depths"> {
   let summary = "Compute circuit depth for all operations";

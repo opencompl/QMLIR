@@ -9,6 +9,7 @@ class Pass;
 
 std::unique_ptr<FunctionPass> createQuantumRewritePass();
 std::unique_ptr<FunctionPass> createQuantumConvert1QToUPass();
+std::unique_ptr<FunctionPass> createQuantumPrepareForZXPass();
 
 std::unique_ptr<FunctionPass> createQuantumDepthComputePass();
 std::unique_ptr<FunctionPass> createQuantumClearDepthPass();
