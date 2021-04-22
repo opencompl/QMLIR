@@ -13,8 +13,8 @@
 
 #include "Conversion/QASMToQuantum/Passes.h"
 #include "Conversion/QASMToSCF/Passes.h"
-#include "Conversion/QuantumToQASM/Passes.h"
 #include "Conversion/QuantumToLLVM/Passes.h"
+#include "Conversion/QuantumToQASM/Passes.h"
 #include "Dialect/QASM/Analysis/Passes.h"
 #include "Dialect/QASM/QASMDialect.h"
 #include "Dialect/QASM/Transforms/Passes.h"
