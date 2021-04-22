@@ -92,6 +92,7 @@ namespace quantum {
 void populateQuantumToLLVMConversionPatterns(
     QuantumTypeConverter &typeConverter,
     mlir::OwningRewritePatternList &patterns) {
+  // TODO: Add QIR Conversion Patterns
   // clang-format off
   // patterns.insert<
   // >(typeConverter);
@@ -102,6 +103,7 @@ QuantumTypeConverter::QuantumTypeConverter(MLIRContext *context)
     : context(context) {
   // Add type conversions
   addConversion([](Type type) { return type; });
+  // TODO: Add QIR Type conversions
 }
 
 } // namespace quantum
