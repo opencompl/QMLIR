@@ -92,32 +92,6 @@ OpFoldResult HadamardGateOp::fold(ArrayRef<Attribute> operands) {
   return nullptr;
 }
 
-// S, S-dagger, T, T-dagger
-OpFoldResult PhaseGateOp::fold(ArrayRef<Attribute> operands) {
-  if (auto parent = qinp().getDefiningOp<PhaseDaggerGateOp>()) {
-    return parent.qinp();
-  }
-  return nullptr;
-}
-OpFoldResult PhaseDaggerGateOp::fold(ArrayRef<Attribute> operands) {
-  if (auto parent = qinp().getDefiningOp<PhaseGateOp>()) {
-    return parent.qinp();
-  }
-  return nullptr;
-}
-OpFoldResult TGateOp::fold(ArrayRef<Attribute> operands) {
-  if (auto parent = qinp().getDefiningOp<TDaggerGateOp>()) {
-    return parent.qinp();
-  }
-  return nullptr;
-}
-OpFoldResult TDaggerGateOp::fold(ArrayRef<Attribute> operands) {
-  if (auto parent = qinp().getDefiningOp<TGateOp>()) {
-    return parent.qinp();
-  }
-  return nullptr;
-}
-
 LogicalResult
 quantum::CNOTGateOp::fold(ArrayRef<Attribute> operands,
                           SmallVectorImpl<OpFoldResult> &results) {

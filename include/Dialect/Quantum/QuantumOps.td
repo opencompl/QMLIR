@@ -421,19 +421,15 @@ def HadamardGateOp : SimplePrimitiveGateOp<"H"> {
 
 def PhaseGateOp : SimplePrimitiveGateOp<"S"> {
   let summary = "Phase (S) gate";
-  let hasFolder = 1;
 }
 def PhaseDaggerGateOp : SimplePrimitiveGateOp<"Sdg"> {
   let summary = "Phase inverse (S-dagger) gate";
-  let hasFolder = 1;
 }
 def TGateOp : SimplePrimitiveGateOp<"T"> {
   let summary = "T gate";
-  let hasFolder = 1;
 }
 def TDaggerGateOp : SimplePrimitiveGateOp<"Tdg"> {
   let summary = "T-dagger gate";
-  let hasFolder = 1;
 }
 
 def RotateXOp : PrimitiveSingleParamGateOp<"Rx"> {

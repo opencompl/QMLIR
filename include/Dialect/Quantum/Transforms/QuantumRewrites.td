@@ -3,6 +3,7 @@
 
 include "mlir/IR/OpBase.td"
 include "mlir/Pass/PassBase.td"
+include "mlir/Dialect/StandardOps/IR/Ops.td"
 include "Dialect/Quantum/QuantumOps.td"
 
 // def : Pat<(CNOTGateOp
@@ -18,6 +19,10 @@ def : Pat<(PhaseDaggerGateOp (PhaseDaggerGateOp $q)), (PauliZGateOp $q)>;
 def : Pat<(TGateOp (TGateOp $q)), (PhaseGateOp $q)>;
 // T^-1 . T^-1 = S^-1
 def : Pat<(TDaggerGateOp (TDaggerGateOp $q)), (PhaseDaggerGateOp $q)>;
+
+def : Pat<(RotateXOp $beta, (RotateXOp $alpha, $q)), (RotateXOp (AddFOp $alpha, $beta), $q)>;
+def : Pat<(RotateYOp $beta, (RotateYOp $alpha, $q)), (RotateYOp (AddFOp $alpha, $beta), $q)>;
+def : Pat<(RotateZOp $beta, (RotateZOp $alpha, $q)), (RotateZOp (AddFOp $alpha, $beta), $q)>;
 
 // Merge adjacent U ops, if all angles are constants
 // class mergeZYZ<component> : NativeCodeCall<"convertYZYtoZYZ($0, $1, $2)." # component # "()">;
