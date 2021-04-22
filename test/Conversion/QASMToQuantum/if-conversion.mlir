@@ -6,7 +6,7 @@ func @foo(%0 : !qasm.qubit) attributes {qasm.gate} {
   return {qasm.gate_end}
 }
 
-// CHECK: func @ifconv() {
+// CHECK: func @ifconv
 func @ifconv(%val : f64) -> i1 {
   // CHECK: %[[a:.*]] = qssa.alloc : !qssa.qubit<1>
   %0 = qasm.allocate
