@@ -52,10 +52,33 @@ public:
   }
 };
 
+// %b1, %a1 = CNOT %b0, %a0
+// %a2, %b2 = CNOT %a1, %b1
+// -----
+// %b2, %a2 = CNOT %a0, %b0
+struct AlternateCNOTPattern : public OpRewritePattern<CNOTGateOp> {
+  using OpRewritePattern::OpRewritePattern;
+  LogicalResult matchAndRewrite(CNOTGateOp op,
+                                PatternRewriter &rewriter) const final {
+    auto parentOp = op.qinp_cont().getDefiningOp<CNOTGateOp>();
+    if (!parentOp || parentOp != op.qinp_targ().getDefiningOp<CNOTGateOp>())
+      return failure();
+    if (op.qinp_cont() != parentOp.qout_targ())
+      return failure();
+    if (op.qinp_targ() != parentOp.qout_cont())
+      return failure();
+
+    auto results = rewriter.create<CNOTGateOp>(
+        op->getLoc(), parentOp.qinp_targ(), parentOp.qinp_cont());
+    rewriter.replaceOp(op, {results.qout_targ(), results.qout_cont()});
+    return success();
+  }
+};
+
 void QuantumRewritePass::runOnFunction() {
   OwningRewritePatternList patterns(&getContext());
   populateWithGenerated(patterns);
-  patterns.insert<UOpMergePattern>(&getContext());
+  patterns.insert<UOpMergePattern, AlternateCNOTPattern>(&getContext());
   if (failed(
           applyPatternsAndFoldGreedily(getFunction(), std::move(patterns)))) {
     signalPassFailure();
