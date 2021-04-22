@@ -314,6 +314,11 @@ class SimplePrimitiveGateOp<string mnemonic, list<OpTrait> traits = []>
       return -1;
     }
   }];
+  let builders = [
+    OpBuilder<(ins "Value":$qinp_), [{
+      return build($_builder, $_state, qinp_.getType(), qinp_);
+    }]>
+  ];
   let verifier = ?;
 }
 
@@ -334,6 +339,11 @@ class PrimitiveSingleParamGateOp<string mnemonic, list<OpTrait> traits = []>
       return -1;
     }
   }];
+  let builders = [
+    OpBuilder<(ins "Value":$param_, "Value":$qinp_), [{
+      return build($_builder, $_state, qinp_.getType(), param_, qinp_);
+    }]>
+  ];
   let verifier = ?;
 }
 

@@ -16,19 +16,24 @@ def NegQuarterPi : NativeCodeCall<"$_builder.getF64FloatAttr(-M_PI/4)">;
 
 def : Pat<(PauliXGateOp $q), (RotateXOp (ConstantOp (Pi)), $q)>;
 def : Pat<(PauliYGateOp $q), (RotateYOp (ConstantOp (HalfPi)), $q)>;
-// def : Pat<(RotateYOp $alpha, $q),
-//             (RotateXOp (ConstantOp (NegQuarterPi)),
-//               (RotateZOp $alpha,
-//                 (RotateXOp (ConstantOp (QuarterPi)), $q)))>;
+def : Pat<(RotateYOp $alpha, $q),
+            (RotateZOp (ConstantOp (HalfPi)),
+              (RotateXOp $alpha,
+                (RotateZOp (ConstantOp (NegHalfPi)), $q)))>;
 def : Pat<(PauliZGateOp $q), (RotateZOp (ConstantOp (Pi)), $q)>;
-// def : Pat<(UniversalRotationGateOp $theta, $phi, $lamb, $q),
-//           (RotateZOp $lamb,
-//             (RotateYOp $theta,
-//               (RotateZOp $phi, $q)))>;
+def : Pat<(UniversalRotationGateOp $theta, $phi, $lamb, $q),
+          (RotateZOp $lamb,
+            (RotateYOp $theta,
+              (RotateZOp $phi, $q)))>;
 
 def : Pat<(PhaseGateOp $q), (RotateZOp (ConstantOp (HalfPi)), $q)>;
 def : Pat<(PhaseDaggerGateOp $q), (RotateZOp (ConstantOp (NegHalfPi)), $q)>;
 def : Pat<(TGateOp $q), (RotateZOp (ConstantOp (QuarterPi)), $q)>;
 def : Pat<(TDaggerGateOp $q), (RotateZOp (ConstantOp (NegQuarterPi)), $q)>;
+
+def : Pat<(HadamardGateOp $q),
+          (RotateZOp (ConstantOp (HalfPi)),
+            (RotateXOp (ConstantOp (HalfPi)),
+              (RotateZOp (ConstantOp (HalfPi)), $q)))>;
 
 #endif // QUANTUM_TRANSFORMS_PREPAREFORZX_TD
