@@ -24,6 +24,7 @@ def Quantum_QubitType : Quantum_Type<"Qubit"> {
   let parser = [{ return ::parseQubit($_parser, $_ctxt); }];
   let extraClassDeclaration = [{
     bool hasStaticSize() const;
+    bool isSingleQubit() const;
   }];
 }
 

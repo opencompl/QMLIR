@@ -84,6 +84,10 @@ bool QubitType::hasStaticSize() const {
   return getSize() != ShapedType::kDynamicSize;
 }
 
+bool QubitType::isSingleQubit() const {
+  return hasStaticSize() && getSize() == 1;
+}
+
 #define GET_TYPEDEF_CLASSES
 #include "Dialect/Quantum/QuantumOpsTypes.cpp.inc"
 
