@@ -82,6 +82,12 @@ def ZX_SourceNodeOp : ZX_Op<"source", []> {
   let results = (outs ZX_WireType:$output);
   let assemblyFormat = [{ attr-dict }];
   let verifier = ?;
+  let builders = [
+    OpBuilder<(ins), [{
+      return build($_builder, $_state,
+                   ::mlir::ZX::WireType::get($_builder.getContext()));
+    }]>
+  ];
 }
 
 def ZX_SinkNodeOp : ZX_Op<"sink", []> {
