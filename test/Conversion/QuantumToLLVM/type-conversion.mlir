@@ -1,4 +1,4 @@
-// no-run: quantum-opt --convert-quantum-to-std %s | FileCheck %s
+// no-run: quantum-opt --convert-qssa-to-qir %s | FileCheck %s
 
 module {
   // CHECK: func @static_argument_conversion(memref<10xi64>)

@@ -1,4 +1,4 @@
-// RUN: quantum-opt --convert-quantum-to-std %s | FileCheck %s
+// RUN: quantum-opt --convert-qssa-to-qir %s | FileCheck %s
 
 module {
   // CHECK-LABEL: @allocate_static
