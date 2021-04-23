@@ -1,12 +1,11 @@
-#ifndef TRANSFORM_ZX_ZXREWRITES
-#define TRANSFORM_ZX_ZXREWRITES
-
-// mlir-tblgen --gen-rewriters -I {PATH_TO_LLVM}/mlir/include -I ${ROOT}/include ${ROOT}/include/Dialect/ZX/Transforms/ZXRewrites.td
+#ifndef ZX_TRANSFORM_ZXREWRITES
+#define ZX_TRANSFORM_ZXREWRITES
 
 include "mlir/IR/OpBase.td"
 include "Dialect/ZX/ZXOps.td"
+include "mlir/Dialect/StandardOps/IR/Ops.td"
 
-// def : Pat<(ZX_ZOp $angle, $input)__0, (ZX_ZOp $angle, $input)>;
+// def : Pat<(ZX_ZOp $beta, (ZX_ZOp $alpha, $inp)), (ZX_ZOp (AddFOp $alpha, $beta), $inp)>;
 
-#endif // TRANSFORM_ZX_ZXREWRITES
+#endif // ZX_TRANSFORM_ZXREWRITES
 

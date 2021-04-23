@@ -265,6 +265,10 @@ public:
   }
 };
 
+namespace {
+#include "Dialect/ZX/Transforms/ZXRewrites.h.inc"
+} // namespace
+
 /// Populate the pattern list.
 void collectZXRewritePatterns(OwningRewritePatternList &patterns,
                               MLIRContext *ctx) {
@@ -274,6 +278,8 @@ void collectZXRewritePatterns(OwningRewritePatternList &patterns,
   // patterns.insert<ZXHadamardColorChangePattern<XOp, ZOp>>(1, ctx);
   patterns.insert<ZXIdentityPattern<ZOp>>(1, ctx);
   patterns.insert<ZXIdentityPattern<XOp>>(1, ctx);
+
+  populateWithGenerated(patterns);
 }
 
 void ZXRewritePass::runOnFunction() {

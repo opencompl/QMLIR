@@ -11,6 +11,7 @@ add_mlir_dialect_library(QuantumTransforms
     MLIRQuantumTransformsRewritesPassIncGen
     MLIRQuantumConvert1QToUPassIncGen
     MLIRQuantumPrepareForZXPassIncGen
+    MLIRZXTransformsRewritesPassIncGen
     )
 
 target_link_libraries(QuantumTransforms PUBLIC MLIRIR)
