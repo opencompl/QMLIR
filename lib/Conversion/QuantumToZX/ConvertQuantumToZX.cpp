@@ -40,6 +40,7 @@ struct AllocOpConversion : public OpConversionPattern<quantum::AllocateOp> {
           "qssa to ZX conversion does not support multi-qubit arrays");
     }
     auto newOp = rewriter.create<ZX::SourceNodeOp>(op->getLoc());
+    newOp->setAttrs(op->getAttrDictionary());
     rewriter.replaceOp(op, newOp.getResult());
     return success();
   }
@@ -55,7 +56,9 @@ struct SinkOpConversion : public OpConversionPattern<quantum::SinkOp> {
           "qssa to ZX conversion does not support multi-qubit arrays");
     }
     quantum::SinkOpAdaptor converted(operands);
-    rewriter.create<ZX::SinkNodeOp>(op->getLoc(), converted.qinp());
+    auto newOp =
+        rewriter.create<ZX::SinkNodeOp>(op->getLoc(), converted.qinp());
+    newOp->setAttrs(op->getAttrDictionary());
     rewriter.eraseOp(op);
     return success();
   }
@@ -74,6 +77,7 @@ struct MeasureQubitOpConversion
     auto newOp = rewriter.create<ZX::MeasureOp>(
         op->getLoc(), rewriter.getI1Type(), converted.qinp().getType(),
         converted.qinp());
+    newOp->setAttrs(op->getAttrDictionary());
     rewriter.replaceOp(op, newOp.getResults());
     return success();
   }
@@ -92,6 +96,7 @@ struct RotateXOpConversion : public OpConversionPattern<quantum::RotateXOp> {
     auto newOp = rewriter.create<ZX::XOp>(
         op->getLoc(), TypeRange{ZX::WireType::get(getContext())},
         converted.param(), ValueRange{converted.qinp()});
+    newOp->setAttrs(op->getAttrDictionary());
     rewriter.replaceOp(op, newOp.getResults());
     return success();
   }
@@ -109,8 +114,34 @@ struct RotateZOpConversion : public OpConversionPattern<quantum::RotateZOp> {
     auto newOp = rewriter.create<ZX::ZOp>(
         op->getLoc(), TypeRange{ZX::WireType::get(getContext())},
         converted.param(), ValueRange{converted.qinp()});
+    newOp->setAttrs(op->getAttrDictionary());
     rewriter.replaceOp(op, newOp.getResults());
     return success();
+  }
+};
+struct CNOTOpConversion : public OpConversionPattern<quantum::CNOTGateOp> {
+  using OpConversionPattern::OpConversionPattern;
+  LogicalResult
+  matchAndRewrite(quantum::CNOTGateOp op, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const final {
+    quantum::CNOTGateOpAdaptor converted(operands);
+    auto zero = getZero(rewriter);
+    auto wireType = ZX::WireType::get(getContext());
+    auto zOp =
+        rewriter.create<ZX::ZOp>(op->getLoc(), TypeRange{wireType, wireType},
+                                 zero, ValueRange{converted.qinp_cont()});
+    auto xOp = rewriter.create<ZX::XOp>(
+        op->getLoc(), TypeRange{wireType}, zero,
+        ValueRange{zOp.getResult(1), converted.qinp_targ()});
+    zOp->setAttrs(op->getAttrDictionary());
+    xOp->setAttrs(op->getAttrDictionary());
+    rewriter.replaceOp(op, {zOp.getResult(0), xOp.getResult(0)});
+    return success();
+  }
+
+  Value getZero(PatternRewriter &rewriter) const {
+    return rewriter.create<ConstantOp>(rewriter.getUnknownLoc(),
+                                       rewriter.getF64FloatAttr(0.0));
   }
 };
 
@@ -121,6 +152,7 @@ void populateQuantumToZXConversionPatterns(QuantumTypeConverter &typeConverter,
       AllocOpConversion,
       RotateXOpConversion,
       RotateZOpConversion,
+      CNOTOpConversion,
       SinkOpConversion,
       MeasureQubitOpConversion
   >(typeConverter, typeConverter.getContext());
