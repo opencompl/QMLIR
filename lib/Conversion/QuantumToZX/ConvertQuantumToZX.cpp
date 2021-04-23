@@ -79,11 +79,48 @@ struct MeasureQubitOpConversion
   }
 };
 
+struct RotateXOpConversion : public OpConversionPattern<quantum::RotateXOp> {
+  using OpConversionPattern::OpConversionPattern;
+  LogicalResult
+  matchAndRewrite(quantum::RotateXOp op, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const final {
+    if (!op.qinp().getType().cast<QubitType>().isSingleQubit()) {
+      return op.emitError(
+          "qssa to ZX conversion does not support multi-qubit arrays");
+    }
+    quantum::RotateXOpAdaptor converted(operands);
+    auto newOp = rewriter.create<ZX::XOp>(
+        op->getLoc(), TypeRange{ZX::WireType::get(getContext())},
+        converted.param(), ValueRange{converted.qinp()});
+    rewriter.replaceOp(op, newOp.getResults());
+    return success();
+  }
+};
+struct RotateZOpConversion : public OpConversionPattern<quantum::RotateZOp> {
+  using OpConversionPattern::OpConversionPattern;
+  LogicalResult
+  matchAndRewrite(quantum::RotateZOp op, ArrayRef<Value> operands,
+                  ConversionPatternRewriter &rewriter) const final {
+    if (!op.qinp().getType().cast<QubitType>().isSingleQubit()) {
+      return op.emitError(
+          "qssa to ZX conversion does not support multi-qubit arrays");
+    }
+    quantum::RotateZOpAdaptor converted(operands);
+    auto newOp = rewriter.create<ZX::ZOp>(
+        op->getLoc(), TypeRange{ZX::WireType::get(getContext())},
+        converted.param(), ValueRange{converted.qinp()});
+    rewriter.replaceOp(op, newOp.getResults());
+    return success();
+  }
+};
+
 void populateQuantumToZXConversionPatterns(QuantumTypeConverter &typeConverter,
                                            OwningRewritePatternList &patterns) {
   // clang-format off
   patterns.insert<
       AllocOpConversion,
+      RotateXOpConversion,
+      RotateZOpConversion,
       SinkOpConversion,
       MeasureQubitOpConversion
   >(typeConverter, typeConverter.getContext());
