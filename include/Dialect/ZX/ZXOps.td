@@ -96,5 +96,12 @@ def ZX_SinkNodeOp : ZX_Op<"sink", []> {
   let assemblyFormat = [{ $input attr-dict }];
   let verifier = ?;
 }
+def ZX_MeasureOp : ZX_Op<"measure", [NoSideEffect]> {
+  let summary = "ZX measure Op";
+  let arguments = (ins ZX_WireType:$input);
+  let results = (outs I1:$mres, ZX_WireType:$output);
+  let assemblyFormat = [{ $input attr-dict }];
+  let verifier = ?;
+}
 
 #endif // ZX_OPS
