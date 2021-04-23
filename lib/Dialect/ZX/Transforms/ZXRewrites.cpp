@@ -265,31 +265,6 @@ public:
   }
 };
 
-//====== Auxillary Rewrites ================================================//
-class RemFRewrite : public ZXRewritePattern<RemFOp> {
-public:
-  using ZXRewritePattern<RemFOp>::ZXRewritePattern;
-
-  LogicalResult matchAndRewrite(Operation *op,
-                                PatternRewriter &rewriter) const override {
-    RemFOp remFOp = cast<RemFOp>(op);
-    Value lhs = remFOp.lhs(), rhs = remFOp.rhs();
-    ConstantFloatOp lhsOp, rhsOp;
-    if (!(lhsOp = lhs.getDefiningOp<ConstantFloatOp>()))
-      return failure();
-    if (!(rhsOp = rhs.getDefiningOp<ConstantFloatOp>()))
-      return failure();
-
-    APFloat rem = lhsOp.getValue();
-    rem.mod(rhsOp.getValue());
-    auto computed =
-        insertConstantFloat(rewriter, rem, lhs.getType().cast<FloatType>());
-
-    rewriter.replaceOp(op, computed.getResult());
-    return success();
-  }
-};
-
 /// Populate the pattern list.
 void collectZXRewritePatterns(OwningRewritePatternList &patterns,
                               MLIRContext *ctx) {
@@ -299,7 +274,6 @@ void collectZXRewritePatterns(OwningRewritePatternList &patterns,
   // patterns.insert<ZXHadamardColorChangePattern<XOp, ZOp>>(1, ctx);
   patterns.insert<ZXIdentityPattern<ZOp>>(1, ctx);
   patterns.insert<ZXIdentityPattern<XOp>>(1, ctx);
-  patterns.insert<RemFRewrite>(1, ctx);
 }
 
 void ZXRewritePass::runOnFunction() {
