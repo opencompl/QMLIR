@@ -36,4 +36,6 @@ def : Pat<(HadamardGateOp $q),
             (RotateXOp (ConstantOp (HalfPi)),
               (RotateZOp (ConstantOp (HalfPi)), $q)))>;
 
+// Remove unsupported ops
+def : Pat<(Quantum_BarrierOp $q), (replaceWithValue $q)>;
 #endif // QUANTUM_TRANSFORMS_PREPAREFORZX_TD
