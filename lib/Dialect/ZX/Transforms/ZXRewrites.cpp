@@ -89,11 +89,11 @@ public:
     NodeOp childNodeOp;
 
     bool matched = false;
-    for (auto input : llvm::enumerate(rootNodeOp.getInputWires())) {
+    for (auto input : llvm::enumerate(rootNodeOp.inputWires())) {
       if ((childNodeOp = input.value().template getDefiningOp<NodeOp>())) {
         middleWire = input.value();
         matched = true;
-        if (childNodeOp.getParam().getType() != rootNodeOp.getParam().getType())
+        if (childNodeOp.param().getType() != rootNodeOp.param().getType())
           matched = false;
         break;
       }
@@ -103,14 +103,14 @@ public:
       return failure();
 
     Value combinedAngle = ZXRewritePattern<NodeOp>::addAngles(
-        rewriter, childNodeOp.getParam(), rootNodeOp.getParam());
+        rewriter, childNodeOp.param(), rootNodeOp.param());
 
     /// angle, childNodeInputs..., rootNodeInputs...
     SmallVector<Value, 5> combinedInputs;
     combinedInputs.push_back(combinedAngle);
-    combinedInputs.append(childNodeOp.getInputWires().begin(),
-                          childNodeOp.getInputWires().end());
-    for (auto input : rootNodeOp.getInputWires()) {
+    combinedInputs.append(childNodeOp.inputWires().begin(),
+                          childNodeOp.inputWires().end());
+    for (auto input : rootNodeOp.inputWires()) {
       if (input != middleWire) {
         combinedInputs.push_back(input);
       }
@@ -222,9 +222,9 @@ public:
 
   LogicalResult match(Operation *op) const override {
     NodeOp nodeOp = cast<NodeOp>(op);
-    Value param = nodeOp.getParam();
+    Value param = nodeOp.param();
     if (ConstantFloatOp paramOp = param.getDefiningOp<ConstantFloatOp>()) {
-      if (paramOp.getValue().isZero() && nodeOp.getInputWires().size() == 1 &&
+      if (paramOp.getValue().isZero() && nodeOp.inputWires().size() == 1 &&
           nodeOp.getResults().size() == 1)
         return success();
     }
@@ -233,7 +233,7 @@ public:
 
   void rewrite(Operation *op, PatternRewriter &rewriter) const override {
     NodeOp nodeOp = cast<NodeOp>(op);
-    Value input = *nodeOp.getInputWires().begin();
+    Value input = *nodeOp.inputWires().begin();
     Value output = *nodeOp.getResults().begin();
     output.replaceAllUsesWith(input);
     rewriter.eraseOp(nodeOp);

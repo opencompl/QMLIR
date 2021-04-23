@@ -36,31 +36,14 @@ class ZX_GenericNodeOp<string mnemonic, list<OpTrait> traits = [NoSideEffect]>
       - getResults() -> Values
   }];
 
-  let arguments = (ins Variadic<AnyType>:$input);
-  let results = (outs Variadic<ZX_WireType>:$output);
+  let arguments = (ins AnyFloat:$param, Variadic<ZX_WireType>:$inputWires);
+  let results = (outs Variadic<ZX_WireType>:$outputWires);
 
   let assemblyFormat = [{
-    `(` $input  `)` attr-dict `:` functional-type($input, results)
+    `(` $param `:` type($param) `)` $inputWires attr-dict
+     `:` functional-type($inputWires, $outputWires)
   }];
   let verifier = ?;
-
-  let extraClassDeclaration = [{
-    bool hasParam() {
-      auto operands = getODSOperands(0);
-      if (operands.empty()) return false;
-      auto param = *operands.begin();
-      return param.getType().isa<FloatType>();
-    }
-    ::mlir::Value getParam() {
-      assert(hasParam() && "No floating point parameter provided!");
-      return *getODSOperands(0).begin();
-    }
-    ::mlir::Operation::operand_range getInputWires() {
-      unsigned st = hasParam() ? 1 : 0;
-      return {std::next(getOperation()->operand_begin(), st),
-              getOperation()->operand_end()};
-    }
-  }];
 }
 
 // Specific node types
@@ -72,14 +55,14 @@ def ZX_XOp : ZX_GenericNodeOp<"X"> {
 }
 def ZX_HOp : ZX_Op<"H", [NoSideEffect]> {
   let summary = "ZX Hadamard node";
-  let arguments = (ins ZX_WireType:$input);
-  let results = (outs ZX_WireType:$output);
-  let assemblyFormat = [{ $input attr-dict }];
+  let arguments = (ins ZX_WireType:$inputWire);
+  let results = (outs ZX_WireType:$outputWire);
+  let assemblyFormat = [{ $inputWire attr-dict }];
   let verifier = ?;
 }
 def ZX_SourceNodeOp : ZX_Op<"source", []> {
   let summary = "ZX Input/Source wire Op";
-  let results = (outs ZX_WireType:$output);
+  let results = (outs ZX_WireType:$outputWire);
   let assemblyFormat = [{ attr-dict }];
   let verifier = ?;
   let builders = [
@@ -92,15 +75,15 @@ def ZX_SourceNodeOp : ZX_Op<"source", []> {
 
 def ZX_SinkNodeOp : ZX_Op<"sink", []> {
   let summary = "ZX Output/Sink wire Op";
-  let arguments = (ins ZX_WireType:$input);
-  let assemblyFormat = [{ $input attr-dict }];
+  let arguments = (ins ZX_WireType:$inputWire);
+  let assemblyFormat = [{ $inputWire attr-dict }];
   let verifier = ?;
 }
 def ZX_MeasureOp : ZX_Op<"measure", [NoSideEffect]> {
   let summary = "ZX measure Op";
-  let arguments = (ins ZX_WireType:$input);
-  let results = (outs I1:$mres, ZX_WireType:$output);
-  let assemblyFormat = [{ $input attr-dict }];
+  let arguments = (ins ZX_WireType:$inputWire);
+  let results = (outs I1:$mres, ZX_WireType:$outputWire);
+  let assemblyFormat = [{ $inputWire attr-dict }];
   let verifier = ?;
 }
 
