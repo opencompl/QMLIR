@@ -289,14 +289,6 @@ def Quantum_BarrierOp : Quantum_Op<"barrier", [NoSideEffect, AllTypesMatch<["qin
 // Primitive Gate Ops
 //===----------------------------------------------------------------------===//
 
-def IDGateOp : Quantum_Op<"id", [NoSideEffect, AllTypesMatch<["qinp", "qout"]>]> {
-  let arguments = (ins Quantum_QubitType:$qinp);
-  let results = (outs Quantum_QubitType:$qout);
-  let assemblyFormat = [{ $qinp attr-dict `:` type($qout) }];
-  let verifier = ?;
-  let hasFolder = 1;
-}
-
 // Base Class for parameterless gate ops
 //
 //   %1 = qssa.<gate> %0 : !qssa.qubit<?>

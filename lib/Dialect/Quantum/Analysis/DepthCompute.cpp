@@ -102,7 +102,6 @@ void DepthComputePass::runOnFunction() {
       // allocate
       DepthComputePattern<AllocateOp, 0>,
       // gate
-      DepthComputePattern<IDGateOp, 1>,
       DepthComputePattern<PauliXGateOp, 1>,
       DepthComputePattern<PauliYGateOp, 1>,
       DepthComputePattern<PauliZGateOp, 1>,
