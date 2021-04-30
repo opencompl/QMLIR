@@ -24,24 +24,17 @@ class ZX_GenericNodeOp<string mnemonic, list<OpTrait> traits = [NoSideEffect]>
   : ZX_Op<mnemonic, traits> {
   let description = [{
     Inputs:
-      - Optional floating parameter (angle, as a fraction of pi)
+      - floating parameter
       - Any number of wires
     Outputs:
       - Any number of wires
-
-    Getters:
-      - hasParam() -> bool
-      - getParam() -> Value
-      - getInputWires() -> Values
-      - getResults() -> Values
   }];
 
   let arguments = (ins AnyFloat:$param, Variadic<ZX_WireType>:$inputWires);
   let results = (outs Variadic<ZX_WireType>:$outputWires);
 
   let assemblyFormat = [{
-    `(` $param `:` type($param) `)` $inputWires attr-dict
-     `:` functional-type($inputWires, $outputWires)
+    `(` $param `:` type($param) `)` $inputWires attr-dict `:` type($outputWires)
   }];
   let verifier = ?;
 }

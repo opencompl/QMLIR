@@ -9,11 +9,9 @@ func @varfoo(%u : f32, %v : f32, %w: f32) {
   %d = zx.source
   %e = zx.source
 
-  %x, %y, %m1 = zx.Z(%u : f32) %a, %b
-                  : (!zx.wire, !zx.wire) -> (!zx.wire, !zx.wire, !zx.wire)
-  %z, %m2 = zx.Z(%v : f32) %m1, %c, %d
-                  : (!zx.wire, !zx.wire, !zx.wire) -> (!zx.wire, !zx.wire)
-  %p, %q = zx.Z(%w : f32) %m2, %e : (!zx.wire, !zx.wire) -> (!zx.wire, !zx.wire)
+  %x, %y, %m1 = zx.Z(%u : f32) %a, %b : !zx.wire, !zx.wire, !zx.wire
+  %z, %m2 = zx.Z(%v : f32) %m1, %c, %d : !zx.wire, !zx.wire
+  %p, %q = zx.Z(%w : f32) %m2, %e : !zx.wire, !zx.wire
 
   zx.sink %x
   zx.sink %y
