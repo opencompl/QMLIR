@@ -1,3 +1,5 @@
+// RUN: quantum-translate --mlir-to-openqasm %s
+
 module  {
   func @qasm_main() attributes {qasm.main} {
     %c0_i32 = constant 0 : i32
