@@ -1,6 +1,6 @@
 # Requirements:
-# 1. make sure `quantum_opt` is in PATH
-# 2. make sure `quantum_translate` is in PATH
+# 1. make sure `quantum-opt` is in PATH
+# 2. make sure `quantum-translate` is in PATH
 # 3. set variable `OPENQASM_TO_MLIR_PY` to /path/to/openqasm-to-mlir.py script
 # 4. All source programs are in ./circuit_qasm/
 # 5. mkdir circuit_mlir
@@ -31,7 +31,7 @@ circuit_mlir/%.qasm.opt.mlir: circuit_mlir/%.qasm.mlir
 	$(QUANTUM_OPT) $^ --canonicalize --cse --symbol-dce --qasm-make-gates-opaque=gates=s,sdg,t,tdg,h,x,y,z,rx,ry,rz >$@
 
 circuit_mlir/%.qssa.mlir: circuit_mlir/%.qasm.opt.mlir
-	$(QUANTUM_OPT) $^ --convert-qasm-to-qssa >$@
+	$(QUANTUM_OPT) $^ --convert-qasm-to-scf --convert-qasm-to-qssa >$@
 
 circuit_mlir/%.qssa.opt.mlir: circuit_mlir/%.qssa.mlir
 	$(QUANTUM_OPT) $^ --inline --cse --symbol-dce --qssa-apply-rewrites --canonicalize >$@
