@@ -93,7 +93,7 @@ def Quantum_CastOp : Quantum_Op<"cast", [NoSideEffect]> {
         Example:
 
         ```mlir
-        %0 = quantum.allocate() : !quantum.qubit<10>
+        %0 = quantum.alloc() : !quantum.qubit<10>
         %1 = quantum.cast %0 : !quantum.qubit<10> to !quantum.qubit<?>
         ```
     }];
@@ -135,8 +135,8 @@ def Quantum_ConcatOp : Quantum_Op<"concat", [NoSideEffect]> {
         Example:
 
         ```mlir
-        %q1 = quantum.allocate() : !quantum.qubit<4>
-        %q2 = quantum.allocate() : !quantum.qubit<5>
+        %q1 = quantum.alloc() : !quantum.qubit<4>
+        %q2 = quantum.alloc() : !quantum.qubit<5>
         %qall = quantum.concat %q1, %q2 : (!quantum.qubit<4>, !quantum.qubit<5>) -> !quantum.qubit<9>
         ```
     }];
@@ -195,7 +195,7 @@ def Quantum_MeasureQubitOp : Quantum_Op<"measure_one", [NoSideEffect]> {
         Example:
 
         ```mlir
-        %q = qssa.allocate() : !qssa.qubit<1>
+        %q = qssa.alloc() : !qssa.qubit<1>
         %mem = memref.alloc() : memref<10xi1>
         %res = qssa.measure_one %q
         ```
@@ -230,7 +230,7 @@ def Quantum_MeasureOp : Quantum_Op<"measure", [NoSideEffect, AllTypesMatch<["qin
         Example:
 
         ```mlir
-        %qs = qssa.allocate : !qssa.qubit<10>
+        %qs = qssa.alloc : !qssa.qubit<10>
         %res, %qs' = qssa.measure %qs : !qssa.qubit<10> -> tensor<10xi1>
         ```
     }];
@@ -252,7 +252,7 @@ def Quantum_SinkOp : Quantum_Op<"sink"> {
         Example:
 
         ```mlir
-        %qs = qssa.allocate : !qssa.qubit<10>
+        %qs = qssa.alloc : !qssa.qubit<10>
         qssa.sink %qs : !qssa.qubit<10>
         ```
     }];
@@ -271,7 +271,7 @@ def Quantum_BarrierOp : Quantum_Op<"barrier", [NoSideEffect, AllTypesMatch<["qin
 
       ```mlir
       // Does NOT fold the two Xs away
-      %0 = qssa.allocate : !qssa.qubit<10>
+      %0 = qssa.alloc : !qssa.qubit<10>
       %1 = qssa.X %0 : !qssa.qubit<10>
       %2 = qssa.barrier %1 : !qssa.qubit<10>
       %3 = qssa.X %2 : !qssa.qubit<10>
@@ -283,6 +283,31 @@ def Quantum_BarrierOp : Quantum_Op<"barrier", [NoSideEffect, AllTypesMatch<["qin
   let results = (outs Quantum_QubitType:$qout);
   let assemblyFormat = [{ $qinp attr-dict `:` type($qout) }];
   let verifier = ?;
+}
+
+def Quantum_IdOp : Quantum_Op<"id", [NoSideEffect, AllTypesMatch<["qinp", "qout"]>]> {
+  let summary = "Identity gate";
+  let description = [{
+    Identity gate, no effect on qubits.
+
+      Example:
+
+      ```mlir
+      %0 = qssa.alloc : !qssa.qubit<10>
+      %1 = qssa.id %0 : !qssa.qubit<10>
+      %2 = qssa.X %1 : !qssa.qubit<10>
+
+      // equivalent to
+      %0 = qssa.alloc : !qssa.qubit<10>
+      %2 = qssa.X %0 : !qssa.qubit<10>
+      ```
+  }];
+
+  let arguments = (ins Quantum_QubitType:$qinp);
+  let results = (outs Quantum_QubitType:$qout);
+  let assemblyFormat = [{ $qinp attr-dict `:` type($qout) }];
+  let verifier = ?;
+  let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
