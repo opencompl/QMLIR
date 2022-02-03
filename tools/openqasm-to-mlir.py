@@ -1,7 +1,6 @@
-# coding: utf-8
 # OpenQASM Lang Spec: https://arxiv.org/pdf/1707.03429v2.pdf
 
-#%%
+from __future__ import annotations
 import sys
 import logging
 import argparse
@@ -11,7 +10,6 @@ from typing import Union
 from qiskit.qasm import Qasm
 import qiskit.qasm.node as Node
 
-#%%
 def setupLogger(lev):
     logger = logging.getLogger('Notebook')
 
@@ -33,7 +31,6 @@ def setupLogger(lev):
 
 logger = setupLogger(logging.WARNING)
 
-#%%
 class ConversionError(Exception):
     pass
 
@@ -48,7 +45,6 @@ def showtree(node, indent=0):
     for child in node.children:
         showtree(child, indent + 1)
 
-#%%
 """ Base class for MLIR Objects """
 class MLIRBase:
     def __init__(self, *args, **kwargs):
@@ -64,7 +60,6 @@ class MLIRBase:
     def show(self) -> str:
         raise UnimplementedError("Abstract Method")
 
-#%%
 """ Base class for MLIR Types
 Form: [ `!` $dialect `.` ] $name
 """
@@ -121,10 +116,6 @@ class QubitType(MLIRType):
     name = 'qubit'
     dialect = 'qasm'
 
-
-# In[ ]:
-
-
 class MLIRAttribute(MLIRBase):
     """ Base class for Attributes
     """
@@ -154,9 +145,6 @@ class StringAttr(MLIRAttribute):
         self.value = val
     def show(self) -> str:
         return f'"{self.value}"'
-
-
-# In[ ]:
 
 
 """SSA Value
@@ -222,9 +210,6 @@ class SSAValueMap:
         if name in self.amap:
             return self.amap[name]
         raise ConversionError("Invalid SSA Value")
-
-
-# In[ ]:
 
 
 class MLIROperation(MLIRBase):
@@ -648,9 +633,6 @@ class LoadOp(MLIROperation):
         return f'{self.getMemref()}[{self.getIndex()}] : {self.getMemref().getType()}'
 
 
-# In[ ]:
-
-
 ExpressionType = Union[Node.Id, Node.BinaryOp, Node.Real, Node.Int, Node.Prefix]
 def isaExpression(obj) -> bool:
     if isinstance(obj, Node.Id): return True
@@ -719,7 +701,7 @@ class MLIRBlock(MLIRBase):
             return [(mem, node.index)]
         else:
             raise UnimplementedError()
-            
+
 
     def parseExpression(self, node: ExpressionType) -> SSAValue:
         logger.debug(f'>> EXPRESSION: {type(node)} {node.qasm()}')
@@ -935,9 +917,6 @@ class MLIRModule(MLIRBase):
             raise UnimplementedError("Version String")
 
 
-# In[ ]:
-
-
 def QASMToMLIR(code: str, strict=False) -> MLIRModule:
     try:
         src = Qasm(data=code).parse()
@@ -965,9 +944,6 @@ def QASMToMLIR(code: str, strict=False) -> MLIRModule:
     return module
 
 
-# In[ ]:
-
-
 def main():
     parser = argparse.ArgumentParser(description='QASM to MLIR translation tool')
     parser.add_argument('-i', metavar='input', dest='input', type=str,
@@ -979,7 +955,7 @@ def main():
     parser.add_argument('--config', metavar='config_file', dest='config', type=str,
             help='Configuration file to use (overrides other cmdline options). Each line in the config file should be of the form <input-file>,<output-file>', required=False)
     args = parser.parse_args()
-    
+
     if args.config is not None:
         # parse config file and use that instead
         # each line should be of the form:
