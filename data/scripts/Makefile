@@ -1,0 +1,46 @@
+# Requirements:
+# 1. make sure `quantum_opt` is in PATH
+# 2. make sure `quantum_translate` is in PATH
+# 3. set variable `OPENQASM_TO_MLIR_PY` to /path/to/openqasm-to-mlir.py script
+# 4. All source programs are in ./circuit_qasm/
+# 5. mkdir circuit_mlir
+# 6. [optional] to use `make convert_all`, ensure file `convert.txt` contains all programs in CSV format. check `openqasm-to-mlir.py -h` for more usage info.
+
+SRCS := $(wildcard circuit_qasm/*.qasm)
+MLIR_QASM_SRCS := $(patsubst circuit_qasm/%.qasm, circuit_mlir/%.qasm.mlir, $(SRCS))
+MLIR_QASM_OPT_SRCS := $(patsubst circuit_qasm/%.qasm, circuit_mlir/%.qasm.opt.mlir, $(SRCS))
+MLIR_QSSA_SRCS := $(patsubst circuit_qasm/%.qasm, circuit_mlir/%.qssa.mlir, $(SRCS))
+MLIR_QSSA_OPT_SRCS := $(patsubst circuit_qasm/%.qasm, circuit_mlir/%.qssa.opt.mlir, $(SRCS))
+QASM_FINAL := $(patsubst circuit_qasm/%.qasm, circuit_mlir/%.final.qasm, $(SRCS))
+
+QUANTUM_OPT:=quantum-opt
+QUANTUM_TRANSLATE:=quantum-translate
+
+all: $(MLIR_QASM_SRCS) $(MLIR_QASM_OPT_SRCS) $(MLIR_QSSA_SRCS) $(MLIR_QSSA_OPT_SRCS) $(QASM_FINAL)
+
+# Pipeline:
+# %.qasm -> %.qasm.mlir -> %.qasm.opt.mlir -> %.qssa.mlir > %.qssa.opt.mlir
+#                                  |
+#                                  v
+#                              %.final.qasm
+
+circuit_mlir/%.qasm.mlir: circuit_qasm/%.qasm
+	python $(OPENQASM_TO_MLIR_PY) -i $< -o $@
+
+circuit_mlir/%.qasm.opt.mlir: circuit_mlir/%.qasm.mlir
+	$(QUANTUM_OPT) $^ --canonicalize --cse --symbol-dce --qasm-make-gates-opaque=gates=s,sdg,t,tdg,h,x,y,z,rx,ry,rz >$@
+
+circuit_mlir/%.qssa.mlir: circuit_mlir/%.qasm.opt.mlir
+	$(QUANTUM_OPT) $^ --convert-qasm-to-qssa >$@
+
+circuit_mlir/%.qssa.opt.mlir: circuit_mlir/%.qssa.mlir
+	$(QUANTUM_OPT) $^ --inline --cse --symbol-dce --qssa-apply-rewrites --canonicalize >$@
+
+circuit_mlir/%.final.qasm: circuit_mlir/%.qasm.opt.mlir
+	$(QUANTUM_TRANSLATE) --mlir-to-openqasm $^ >$@
+
+convert_all:
+	python $(OPENQASM_TO_MLIR_PY) --config convert.txt
+
+.PHONY: convert_all
+
