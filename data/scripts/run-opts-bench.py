@@ -64,6 +64,7 @@ class QSSAOpt(Opt):
         """
 
         self.filename = filename.replace('circuit_qasm', 'circuit_mlir').replace('.qasm', '.qssa.mlir')
+        self.outfile = filename.replace('circuit_qasm', 'circuit_mlir').replace('.qasm', '.qssa.opt.mlir')
         self.taskname = filename.replace('circuit_qasm/', '').replace('.qasm', '')
         self.quantum_opt = sh.Command("quantum-opt")
 
@@ -75,10 +76,10 @@ class QSSAOpt(Opt):
                     '--qssa-apply-rewrites',
                     '--qssa-convert-1q-to-U',
                     '--qssa-apply-rewrites',
-                    _out=self.filename.replace('.qssa', '.qssaopt'))
+                    _out=self.outfile)
 
     def getStats(self):
-        self.quantum_opt(self.filename,
+        self.quantum_opt(self.outfile,
                     '--qssa-compute-depths',
                     '--qssa-gate-count',
                     _out="/dev/null",
