@@ -52,14 +52,16 @@ jobs:
       - name: Sanitizer build
         run: |
           export PATH=$PATH:$GITHUB_WORKSPACE/llvm-project/prefix/bin
-          mkdir $GITHUB_WORKSPACE/mlir-standalone/sanitizer-build
-          cd $GITHUB_WORKSPACE/mlir-standalone/sanitizer-build
+          cd $GITHUB_WORKSPACE/mlir-standalone/
+          git submodule init && git submodule update
+          mkdir sanitizer-build && cd sanitizer-build
           cmake $GITHUB_WORKSPACE/mlir-standalone -DCMAKE_BUILD_TYPE=Debug -DUSE_SANITIZER='Address;Undefined' ${{ env.CMAKE_FLAGS }}
           cmake --build . --target check-quantum-opt -- -j$(nproc)
       - name: Release build
         run: |
           export PATH=$PATH:$GITHUB_WORKSPACE/llvm-project/prefix/bin
-          mkdir $GITHUB_WORKSPACE/mlir-standalone/build
-          cd $GITHUB_WORKSPACE/mlir-standalone/build
+          cd $GITHUB_WORKSPACE/mlir-standalone/
+          git submodule init && git submodule update
+          mkdir build && cd sanitizer-build
           cmake $GITHUB_WORKSPACE/mlir-standalone -DCMAKE_BUILD_TYPE=Release ${{ env.CMAKE_FLAGS }}
           cmake --build . --target check-quantum-opt -- -j$(nproc)
