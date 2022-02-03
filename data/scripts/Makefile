@@ -25,7 +25,7 @@ all: $(MLIR_QASM_SRCS) $(MLIR_QASM_OPT_SRCS) $(MLIR_QSSA_SRCS) $(MLIR_QSSA_OPT_S
 #                              %.final.qasm
 
 circuit_mlir/%.qasm.mlir: circuit_qasm/%.qasm
-	python $(OPENQASM_TO_MLIR_PY) -i $< -o $@
+	python3 $(OPENQASM_TO_MLIR_PY) -i $< -o $@
 
 circuit_mlir/%.qasm.opt.mlir: circuit_mlir/%.qasm.mlir
 	$(QUANTUM_OPT) $^ --canonicalize --cse --symbol-dce --qasm-make-gates-opaque=gates=s,sdg,t,tdg,h,x,y,z,rx,ry,rz >$@
@@ -40,7 +40,7 @@ circuit_mlir/%.final.qasm: circuit_mlir/%.qasm.opt.mlir
 	$(QUANTUM_TRANSLATE) --mlir-to-openqasm $^ >$@
 
 convert_all:
-	python $(OPENQASM_TO_MLIR_PY) --config convert.txt
+	python3 $(OPENQASM_TO_MLIR_PY) --config convert.txt
 
 .PHONY: convert_all
 
