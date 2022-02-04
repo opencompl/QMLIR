@@ -56,17 +56,16 @@ class QSSAOpt(Opt):
     def load(self, filename):
         """
         loads circuit_mlir/<file>.qssa.mlir
-
-        prerequisites: Use make to do the following first.
-        1. generate .qasm.mlir using openqasm-to-mlir.py
-        2. generate .qssa.mlir by running quantum-opt --convert-qasm-to-qssa
+        runs make to build the file if not present
         """
 
         self.filename = filename.replace('circuit_qasm', 'circuit_mlir').replace('.qasm', '.qssa.mlir')
-        self.outfile = filename.replace('circuit_qasm', 'circuit_mlir').replace('.qasm', '.qssa.opt.mlir')
-        self.taskname = filename.replace('circuit_qasm/', '').replace('.qasm', '')
-        self.quantum_opt = sh.Command("quantum-opt")
+        sh.make(self.filename)
 
+        self.outfile = filename.replace('circuit_qasm', 'circuit_mlir').replace('.qasm', '.qssa.opt.mlir')
+        self.taskname = os.path.basename(filename).replace('.qasm', '')
+
+        self.quantum_opt = sh.Command("quantum-opt")
         self.data = None
 
     def opt(self):
@@ -85,6 +84,8 @@ class QSSAOpt(Opt):
                     _err=f".{self.taskname}.tmp.json")
         with open(f".{self.taskname}.tmp.json") as f:
             self.data = json.load(f)
+        if "qasm_main" not in self.data:
+            return {'depth': 0, 'ops': {}}
         return self.data["qasm_main"]
 
 """ Benchmark one program """
