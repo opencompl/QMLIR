@@ -6,7 +6,7 @@ Created for the submission at "ACM SIGPLAN 2022 International Conference on Comp
 DOI: TBA
 
 Tools
-======
+------
 
 1. QSSA optimizer: `/artifact/QMLIR/build/bin/quantum-opt`
 2. QSSA translate tool: `/artifact/QMLIR/build/bin/quantum-translate`
@@ -19,3 +19,16 @@ Tools
     - `plot-bench-gate-stats.py`: Comparative plot of gate counts of optimized programs.
     - `plot-bench-runtimes.py`: Comparative plot of runtimes of optimized programs.
 
+
+Usage
+-----
+
+Executing and generating plots. `cd` into the dataset folder and run:
+```
+mkdir circuit_mlir
+make all
+python3 run-opts-bench.py -o results.json
+python3 plot-dataset-gate-stats.py -i results.json
+python3 plot-bench-gate-stats.py -i results.json
+python3 plot-bench-runtimes.py -i results.json
+```
