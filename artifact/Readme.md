@@ -15,7 +15,7 @@ Tools
     - `Makefile`: given source files in `./circuit_qasm/`, generates all MLIR files.
     - `run-opts-bench.py`: runs the benchmark on all files in `./circuit_qasm/`.
 5. Plotting tools (in `/artifact/QMLIR/data/scripts/`):
-    - `plot-gate-stats.py`
-    - `plot-gate-counts.py`
-    - `plot-times.py`
+    - `plot-dataset-gate-stats.py`: Gate statistics of the quantum (qasm) program dataset.
+    - `plot-bench-gate-stats.py`: Comparative plot of gate counts of optimized programs.
+    - `plot-bench-runtimes.py`: Comparative plot of runtimes of optimized programs.
 
