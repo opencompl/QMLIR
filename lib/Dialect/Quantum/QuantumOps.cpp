@@ -63,7 +63,7 @@ LogicalResult DimensionOp::fold(ArrayRef<Attribute> operands,
   return failure();
 }
 
-OpFoldResult IdOp::fold(ArrayRef<Attribute> operands) { return operands[0]; }
+OpFoldResult IdOp::fold(ArrayRef<Attribute> operands) { return qinp(); }
 
 OpFoldResult PauliXGateOp::fold(ArrayRef<Attribute> operands) {
   if (auto parent = qinp().getDefiningOp<PauliXGateOp>()) {

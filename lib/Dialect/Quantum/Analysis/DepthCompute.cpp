@@ -38,16 +38,10 @@ struct DepthComputePattern : public OpRewritePattern<Op> {
   using OpRewritePattern<Op>::OpRewritePattern;
 
   LogicalResult matchAndRewrite(Op op, PatternRewriter &rewriter) const final {
-    int64_t depth = getMaxDepthOfArguments(op) + Contrib;
     if (op->hasAttr("qdepth")) {
-      int64_t prevDepth =
-          op->template getAttrOfType<IntegerAttr>("qdepth").getInt();
-      if (prevDepth == depth) {
-        // nothing to rewrite
-        return failure();
-      }
-      assert(prevDepth < depth); // depth cannot reduce!
+      return failure();
     }
+    int64_t depth = getMaxDepthOfArguments(op) + Contrib;
     auto depthAttrType = IntegerType::get(rewriter.getContext(), 64);
     auto depthAttr = IntegerAttr::get(depthAttrType, depth);
     rewriter.updateRootInPlace(op, [&]() { op->setAttr("qdepth", depthAttr); });
@@ -63,10 +57,6 @@ struct FunctionDepthComputePattern : public OpRewritePattern<ReturnOp> {
   void rewrite(ReturnOp op, PatternRewriter &rewriter) const final {}
 };
 
-/// HACKED together for deadline!
-/// TODO: Implement proper compute pass, using a post-order walk.
-/// Currently applyPatternsAndFoldGreedily does not support post-order
-/// making it impossible to compute this correctly.
 struct SCFIfDepthComputePattern : public OpRewritePattern<scf::IfOp> {
   using OpRewritePattern::OpRewritePattern;
   LogicalResult match(scf::IfOp op) const final {
@@ -80,20 +70,12 @@ struct SCFIfDepthComputePattern : public OpRewritePattern<scf::IfOp> {
     return success(!op->hasAttr("qdepth"));
   }
   void rewrite(scf::IfOp op, PatternRewriter &rewriter) const final {
-    int64_t depth = -1;
-    bool foundOp = false;
-    for (auto &inst : op.thenRegion().getBlocks().begin()->getOperations()) {
-      if (isa<QuantumDialect>(inst.getDialect())) {
-        // Found the operation, compute depth manually by taking
-        // max_depth(operands) + 1
-        depth = std::max(depth, 1 + getMaxDepthOfArguments(&inst));
-        foundOp = true;
-      }
+    int64_t depth = 0;
+    for (auto yield : op.thenRegion().getOps<scf::YieldOp>()) {
+      depth = std::max(depth, getMaxDepthOfArguments(&yield));
     }
-    assert(foundOp && "unable to find quantum op in scf.if");
-    for (auto inst :
-         op.elseRegion().getBlocks().begin()->getOps<scf::YieldOp>()) {
-      depth = std::max(depth, getMaxDepthOfArguments(inst));
+    for (auto yield : op.elseRegion().getOps<scf::YieldOp>()) {
+      depth = std::max(depth, getMaxDepthOfArguments(&yield));
     }
 
     auto depthAttrType = IntegerType::get(rewriter.getContext(), 64);
@@ -137,10 +119,12 @@ void DepthComputePass::runOnFunction() {
       SCFIfDepthComputePattern
       // clang-format on
       >(&getContext());
-  if (failed(
-          applyPatternsAndFoldGreedily(getFunction(), std::move(patterns)))) {
-    signalPassFailure();
-  }
+  const FrozenRewritePatternSet frozenPatterns = std::move(patterns);
+  getFunction().walk([&](Operation *op) {
+    if (isa<FuncOp>(op))
+      return;
+    applyOpPatternsAndFold(op, frozenPatterns);
+  });
 }
 
 class DepthClearPass : public QuantumDepthClearPassBase<DepthClearPass> {
