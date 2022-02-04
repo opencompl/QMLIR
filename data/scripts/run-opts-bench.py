@@ -165,7 +165,7 @@ def main():
     parser = argparse.ArgumentParser(description='QSSA Project Benchmark tool', epilog=info)
     parser.add_argument('-o', metavar='output', dest='output', type=str,
             help='Output JSON file (uses `gate-count-bench.json` if not specified)', required=False)
-    parser.add_argument('-p', metavar='program', dest='output', type=str,
+    parser.add_argument('-p', metavar='program', dest='program', type=str,
             help='.qasm program to run. (if not specified, all files ./circuit_qasm/*.qasm are run)', required=False)
     args = parser.parse_args()
     if args.output is None: args.output = 'gate-count-bench.json'
