@@ -52,6 +52,7 @@ class QiskitOpt(Opt):
         qopt = self.circuit_opt.decompose()
         return {'depth': qopt.depth(), 'ops': qopt.count_ops()}
 
+quantum_opt = sh.Command("quantum-opt")
 class QSSAOpt(Opt):
     def load(self, filename):
         """
@@ -65,19 +66,21 @@ class QSSAOpt(Opt):
         self.outfile = filename.replace('circuit_qasm', 'circuit_mlir').replace('.qasm', '.qssa.opt.mlir')
         self.taskname = os.path.basename(filename).replace('.qasm', '')
 
-        self.quantum_opt = sh.Command("quantum-opt")
         self.data = None
 
     def opt(self):
-        self.quantum_opt(self.filename,
+        quantum_opt(self.filename,
                     '--inline',
+                    '--cse',
+                    '--symbol-dce',
                     '--qssa-apply-rewrites',
                     '--qssa-convert-1q-to-U',
                     '--qssa-apply-rewrites',
                     _out=self.outfile)
 
     def getStats(self):
-        self.quantum_opt(self.outfile,
+        quantum_opt(self.outfile,
+                    '--canonicalize',
                     '--qssa-compute-depths',
                     '--qssa-gate-count',
                     _out="/dev/null",
@@ -152,21 +155,33 @@ def runBench():
         all_stats[testName] = bb.stats()
     return all_stats
 
-info="""Runs the benchmark all .qasm files in `./circuit_qasm/`.
-Place all your qasm programs in folder `./circuit_qasm/`, and invoke this script.
-For each file, it runs qiskit -O1, -O2, -O3; and qssa's opt tool `quantum_opt`.
-- To change list of opts run, check class `BenchmarkOne`
-- To add more opt tools, inherit from class `Opt`, and override the neccessary functions.
+info="""Runs the benchmark all .qasm files in `./circuit_qasm/`.\n
+Place all your qasm programs in folder `./circuit_qasm/` and invoke this script.\n
+For each file, it runs qiskit -O1, -O2, -O3; and qssa's opt tool `quantum_opt`.\n
+- To change list of opts run, check class `BenchmarkOne`\n
+- To add more opt tools, inherit from class `Opt`, and override the neccessary functions.\n
 """
 def main():
     parser = argparse.ArgumentParser(description='QSSA Project Benchmark tool', epilog=info)
     parser.add_argument('-o', metavar='output', dest='output', type=str,
             help='Output JSON file (uses `gate-count-bench.json` if not specified)', required=False)
+    parser.add_argument('-p', metavar='program', dest='output', type=str,
+            help='.qasm program to run. (if not specified, all files ./circuit_qasm/*.qasm are run)', required=False)
     args = parser.parse_args()
     if args.output is None: args.output = 'gate-count-bench.json'
 
-    all_stats = runBench()
-    with open(args.output, 'w+') as f:
-        json.dump(all_stats, f, indent=2)
+    if args.program is not None:
+        # run one program
+        bb = BenchmarkOne(args.program)
+        bb.run()
+        results = bb.stats()
+        print(json.dumps(results, indent=2))
+        with open(args.output, 'w+') as f:
+            json.dump(results, f, indent=2)
+    else:
+        # run all programs
+        all_stats = runBench()
+        with open(args.output, 'w+') as f:
+            json.dump(all_stats, f, indent=2)
 
 if __name__ == "__main__": main()

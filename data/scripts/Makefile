@@ -34,7 +34,7 @@ circuit_mlir/%.qssa.mlir: circuit_mlir/%.qasm.opt.mlir
 	$(QUANTUM_OPT) $^ --convert-qasm-to-scf --convert-qasm-to-qssa >$@
 
 circuit_mlir/%.qssa.opt.mlir: circuit_mlir/%.qssa.mlir
-	$(QUANTUM_OPT) $^ --inline --cse --symbol-dce --qssa-apply-rewrites --canonicalize >$@
+	$(QUANTUM_OPT) $^ --inline --cse --symbol-dce --qssa-apply-rewrites --qssa-convert-1q-to-U --qssa-apply-rewrites --canonicalize >$@
 
 circuit_mlir/%.final.qasm: circuit_mlir/%.qasm.opt.mlir
 	$(QUANTUM_TRANSLATE) --mlir-to-openqasm $^ >$@
