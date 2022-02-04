@@ -31,11 +31,7 @@ class Opt:
 
     def getStats(self):
         """ Return optimized circuit info """
-        qasm = self.qasm()
-        if qasm is None or qasm == '': return {}
-        qopt = qiskit.circuit.QuantumCircuit.from_qasm_str(qasm)
-        return {'depth': qopt.depth(),
-                'ops': qopt.count_ops()}
+        raise UnimplementedError()
 
 class QiskitOpt(Opt):
     def load(self, filename):
@@ -47,11 +43,14 @@ class QiskitOpt(Opt):
             self.opt_level = 3
         if self.no_opt:
             self.opt_level = 0
+
     def opt(self):
         backend = qiskit.test.mock.FakeQasmSimulator()
         self.circuit_opt = qiskit.transpile(self.circuit, backend, optimization_level=self.opt_level)
-    def qasm(self):
-        return self.circuit_opt.qasm()
+
+    def getStats(self):
+        qopt = self.circuit_opt
+        return {'depth': qopt.depth(), 'ops': qopt.count_ops()}
 
 class QSSAOpt(Opt):
     def load(self, filename):
