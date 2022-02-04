@@ -38,10 +38,17 @@ struct DepthComputePattern : public OpRewritePattern<Op> {
   using OpRewritePattern<Op>::OpRewritePattern;
 
   LogicalResult matchAndRewrite(Op op, PatternRewriter &rewriter) const final {
-    if (op->hasAttr("qdepth"))
-      return failure();
-    auto depthAttrType = IntegerType::get(rewriter.getContext(), 64);
     int64_t depth = getMaxDepthOfArguments(op) + Contrib;
+    if (op->hasAttr("qdepth")) {
+      int64_t prevDepth =
+          op->template getAttrOfType<IntegerAttr>("qdepth").getInt();
+      if (prevDepth == depth) {
+        // nothing to rewrite
+        return failure();
+      }
+      assert(prevDepth < depth); // depth cannot reduce!
+    }
+    auto depthAttrType = IntegerType::get(rewriter.getContext(), 64);
     auto depthAttr = IntegerAttr::get(depthAttrType, depth);
     rewriter.updateRootInPlace(op, [&]() { op->setAttr("qdepth", depthAttr); });
     return success();
