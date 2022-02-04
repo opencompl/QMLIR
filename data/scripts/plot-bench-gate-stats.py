@@ -156,3 +156,4 @@ ax.set_ylabel('%optimization', rotation='horizontal', position = (1, 1.05),
 fig.set_size_inches(5,2)
 fig.tight_layout()
 fig.savefig(args.outfile)
+log(f'output plot written to {args.outfile}')
