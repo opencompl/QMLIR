@@ -42,5 +42,9 @@ circuit_mlir/%.final.qasm: circuit_mlir/%.qasm.opt.mlir
 convert_all:
 	python3 $(OPENQASM_TO_MLIR_PY) --config convert.txt
 
-.PHONY: convert_all
+clean:
+	rm -rf circuit_mlir
+	mkdir circuit_mlir
+
+.PHONY: convert_all clean
 
