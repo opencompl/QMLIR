@@ -44,6 +44,7 @@ convert_all:
 
 clean:
 	rm -rf circuit_mlir
+	rm -f gate-count-bench.json
 	mkdir circuit_mlir
 
 .PHONY: convert_all clean
