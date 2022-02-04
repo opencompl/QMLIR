@@ -49,7 +49,7 @@ class QiskitOpt(Opt):
         self.circuit_opt = qiskit.transpile(self.circuit, backend, optimization_level=self.opt_level)
 
     def getStats(self):
-        qopt = self.circuit_opt
+        qopt = self.circuit_opt.decompose()
         return {'depth': qopt.depth(), 'ops': qopt.count_ops()}
 
 class QSSAOpt(Opt):
