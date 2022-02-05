@@ -55,7 +55,7 @@ $(RESULTS_JSON): run-opts-bench.py $(MLIR_QSSA_SRCS)
 	python3 run-opts-bench.py 
 
 %.pdf: %.py $(RESULTS_JSON)
-	python3 %.py -i $(RESULTS_JSON)
+	python3 $< -i $(RESULTS_JSON)
 
 plots: $(PLOT_PDFS)
 
