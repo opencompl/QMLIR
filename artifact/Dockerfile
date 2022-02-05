@@ -89,6 +89,7 @@ RUN cp /artifact/QMLIR/data/scripts/Makefile \
        /artifact/QMLIR/data/scripts/plot-dataset-gate-stats.py \
        /artifact/QMLIR/data/scripts/plot-bench-gate-stats.py \
        /artifact/QMLIR/data/scripts/plot-bench-runtimes.py \
+       /artifact/QMLIR/data/scripts/plot-bench-runtimes-ibmchallenge.py \
        /artifact/IBMChallenge/
 
 ### Execute and plot
