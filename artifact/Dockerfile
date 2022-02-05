@@ -92,13 +92,5 @@ RUN cp /artifact/QMLIR/data/scripts/Makefile \
        /artifact/IBMChallenge/
 
 ### Execute and plot
-# RUN cd /artifact/QASMBench && \
-#     make all && python3 run-opts-bench.py -o results.json && \
-#     python3 plot-dataset-gate-stats.py -i results.json && \
-#     python3 plot-bench-gate-stats.py -i results.json && \
-#     python3 plot-bench-runtimes.py -i results.json
-# RUN cd /artifact/IBMChallenge && \
-#     make all && python3 run-opts-bench.py -o results.json && \
-#     python3 plot-dataset-gate-stats.py -i results.json && \
-#     python3 plot-bench-gate-stats.py -i results.json && \
-#     python3 plot-bench-runtimes.py -i results.json
+RUN cd /artifact/QASMBench && make plots
+RUN cd /artifact/IBMChallenge && make plots
