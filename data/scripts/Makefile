@@ -13,10 +13,18 @@ MLIR_QSSA_SRCS := $(patsubst circuit_qasm/%.qasm, circuit_mlir/%.qssa.mlir, $(SR
 MLIR_QSSA_OPT_SRCS := $(patsubst circuit_qasm/%.qasm, circuit_mlir/%.qssa.opt.mlir, $(SRCS))
 QASM_FINAL := $(patsubst circuit_qasm/%.qasm, circuit_mlir/%.final.qasm, $(SRCS))
 
+PLOT_SRCS := $(wildcard plot-*.py)
+PLOT_PDFS := $(patsubst %.py, %.pdf, $(PLOT_SRCS))
+
 QUANTUM_OPT:=quantum-opt
 QUANTUM_TRANSLATE:=quantum-translate
+RESULTS_JSON:=gate-count-bench.json
 
 all: $(MLIR_QASM_SRCS) $(MLIR_QASM_OPT_SRCS) $(MLIR_QSSA_SRCS) $(MLIR_QSSA_OPT_SRCS) $(QASM_FINAL)
+
+qasm_mlir: $(MLIR_QASM_SRCS)
+qssa_mlir: $(MLIR_QSSA_SRCS)
+qssa_opt_mlir: $(MLIR_QSSA_OPT_SRCS)
 
 # Pipeline:
 # %.qasm -> %.qasm.mlir -> %.qasm.opt.mlir -> %.qssa.mlir > %.qssa.opt.mlir
@@ -42,10 +50,18 @@ circuit_mlir/%.final.qasm: circuit_mlir/%.qasm.opt.mlir
 convert_all:
 	python3 $(OPENQASM_TO_MLIR_PY) --config convert.txt
 
-clean:
-	rm -rf circuit_mlir
-	rm -f gate-count-bench.json
-	mkdir circuit_mlir
+# benchmarking & plotting
+$(RESULTS_JSON): run-opts-bench.py $(MLIR_QSSA_SRCS)
+	python3 run-opts-bench.py 
 
-.PHONY: convert_all clean
+%.pdf: %.py $(RESULTS_JSON)
+	python3 %.py -i $(RESULTS_JSON)
+
+plots: $(PLOT_PDFS)
+
+clean:
+	rm -f circuit_mlir/*.mlir circuit_mlir/*.qasm
+	rm -f $(RESULTS_JSON) $(PLOT_PDFS)
+
+.PHONY: convert_all clean plots
 
