@@ -3,8 +3,6 @@ QSSA Artifact
 
 Created for the submission at "ACM SIGPLAN 2022 International Conference on Compiler Construction (CC-2022)".
 
-DOI: TBA
-
 Tools
 ------
 
@@ -19,16 +17,24 @@ Tools
     - `plot-bench-gate-stats.py`: Comparative plot of gate counts of optimized programs.
     - `plot-bench-runtimes.py`: Comparative plot of runtimes of optimized programs.
 
-
 Usage
 -----
 
-Executing and generating plots. `cd` into the dataset folder and run:
-```
-mkdir circuit_mlir
-make all
-python3 run-opts-bench.py -o results.json
-python3 plot-dataset-gate-stats.py -i results.json
-python3 plot-bench-gate-stats.py -i results.json
-python3 plot-bench-runtimes.py -i results.json
-```
+Executing and generating plots.  
+
+Steps:
+1. `cd` into the dataset folder.
+2. Place all your `.qasm` programs in `./circuit_qasm/`.
+3. Copy all python scripts and the Makefile from `/artifact/QMLIR/data/scripts/`. (excluding `plot-bench-runtimes-ibmchallenge.py`, unless running on the IBM dataset).
+4. `mkdir circuit_mlir`
+5. [optional] `make clean`: removes generated output programs and benchmark data/plots, if any.
+6. `make plots`: run all the benchmarks and generate plots.
+
+The two datasets from the paper are present in `/artifact/QASMBench` and `/artifact/IBMChallenge`. The `.qasm` programs, plotting scripts and Makefile for these are already extracted and placed correctly.
+
+The plots are generated in the same folder as PDFs.
+
+Detailed Usage
+--------------
+
+See the `Makefile` for exact targets and workflow.
