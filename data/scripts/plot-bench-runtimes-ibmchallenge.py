@@ -13,7 +13,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 
-parser = argparse.ArgumentParser(description='[QSSA] Tool to plot comparative gate statistics of optimized programs.')
+parser = argparse.ArgumentParser(description="""[QSSA] Tool to plot comparative runtimes of optimizations for the IBM Challenge dataset.
+Splits the dataset into two parts, <= 6000 lines and > 6000 lines; and plots separately.
+Works only on the IBM set.
+""")
 parser.add_argument('-i', metavar='datafile', dest='datafile', type=str,
     help='generated JSON data file', required=True)
 outfile_default = os.path.basename(__file__).replace(".py", ".pdf")
