@@ -46,6 +46,7 @@ RUN pip3 install numpy
 RUN pip3 install sh
 
 ### Project
+RUN echo "bump-git-10"
 RUN git clone https://github.com/opencompl/QMLIR
 RUN cd /artifact/QMLIR && git checkout cc-artifact
 RUN cd /artifact/QMLIR && git submodule init && git submodule update
