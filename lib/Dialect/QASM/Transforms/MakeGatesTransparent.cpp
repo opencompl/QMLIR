@@ -36,7 +36,7 @@ public:
   }
 };
 
-class GatePass : public QASMMakeGatesOpaquePassBase<GatePass> {
+class GatePass : public QASMMakeGatesTransparentPassBase<GatePass> {
   void runOnFunction() override;
 };
 
